@@ -1,2 +1,3 @@
 python/out
 c++/out
+*.trace

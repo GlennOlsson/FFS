@@ -4,46 +4,25 @@
 #include <math.h>
 #include <fstream>
 #include <cassert>
+#include <cstdlib>
 
 using namespace Magick;
 using namespace std;
 
-/**
- * @brief Convert 0-255 values of rgba to Magick::Color
- * 
- * @param r red
- * @param g green
- * @param b blue
- * @param a alpha
- * @return the color 
- */
-Color rgba(int r, int g, int b, int a) {
-	auto conv = [](int i) {
-		double frac = (double) i / 255.0;
-		int val = round(frac * QuantumRange);
-		return val;
-	};
-
-	Quantum red = conv(r);
-	Quantum green = conv(g);
-	Quantum blue = conv(b);
-	Quantum alpha = conv(a);
-
-	return Color(red, green, blue, alpha);
+short random_short() {
+	return rand() % 65535;
 }
 
-Color rgb(int r, int g, int b) {
-	return rgba(r, g, b, 255);
+char random_char() {
+	return rand() % 255;
 }
 
-void set_pixel(int& pixel_index, char& component, Image& img, short& value) {
+void set_pixel(int& pixel_index, char& component, Image& img, short value) {
 	size_t height = img.rows();
 	size_t width = img.columns();
 
 	size_t x = pixel_index % width;
 	size_t y = floor(pixel_index / width); // How many times can width fit in index?
-
-	cout << "X: " << x << ", y: " << y << endl;
 
 	Color current_color = img.pixelColor(x, y);
 	switch (component) {
@@ -63,6 +42,7 @@ void set_pixel(int& pixel_index, char& component, Image& img, short& value) {
 		cerr << "COMPONENT TO HIGH: " << component << endl;
 		break;
 	}
+	// Update color with updated value
 	img.pixelColor(x, y, current_color);
 
 	component++;
@@ -105,8 +85,6 @@ void save_header(Image& img, int length) {
 }
 
 void encode(string path) {
-	cout << "read file " << path << endl;
-
 	ifstream file_stream(path, ifstream::binary);
 	if (!file_stream) {
 		cerr << "no file " << path << endl;
@@ -124,12 +102,9 @@ void encode(string path) {
 
 	// Find closest square that can fit the pixels
 	int dimension = ceil(sqrt(pixels_for_file));
-
-	cout << "dim: " << dimension << ", " << dimension << endl;
+	int total_pixels = dimension * dimension;
 
 	Image image(Geometry(dimension, dimension), Color("white"));
-
-	cout << "created img " << endl;
 
 	//Save header and length of file 
 	save_header(image, length);
@@ -151,19 +126,29 @@ void encode(string path) {
 
 		// If first byte in component, shift to left by one byte
 		if(byte_index % 2 == 0) {
-			current_value = b << 8;
+			current_value = (b << 8) & 0xFF00;
 		} else { // mod == 1
-			current_value |= b;
+			current_value |= (b & 0xFF);
 			set_pixel(current_pixel, current_component, image, current_value);
 		}
  
-		cout << "b for i=" << byte_index << " ; " << b << endl;
 		byte_index += 1;
+	}
+
+	//Need to update with one part of component as current_value, and other as random_short
+	if(byte_index % 2 != 0) {
+		char r = random_char();
+		current_value |= (r & 0xFF);
+		set_pixel(current_pixel, current_component, image, current_value);
+	}
+
+	while(current_pixel < total_pixels) {
+		set_pixel(current_pixel, current_component, image, random_short());
 	}
 	
 	image.magick("png");
 
-	image.write("file_name_explicit_extension.png");
+	image.write("out/file_name_explicit_extension.png");
 
 }
 
