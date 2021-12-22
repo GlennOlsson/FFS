@@ -80,6 +80,22 @@ void save_header(Image& img, int length) {
 	int index = 0;
 	char component = 0;
 
+	cout << "header ptrs: " << endl;
+
+	cout << &F << endl;
+	cout << &S << endl;
+
+	cout << &comp1 << endl;
+	cout << &comp2 << endl;
+	cout << &comp3 << endl;
+
+	cout << &index << endl;
+	cout << &component << endl;
+
+	cout << &L1 << endl;
+	cout << &L2 << endl;
+	cout << &L3 << endl;
+
 	set_pixel(index, component, img, comp1);
 	set_pixel(index, component, img, comp2);
 	set_pixel(index, component, img, comp3);
@@ -106,7 +122,9 @@ void encode(string path) {
 	int total_pixels = dimension * dimension;
 
 	Image image(Geometry(dimension, dimension), Color("white"));
-
+	
+	image.type(TrueColorType);
+	
 	//Save header and length of file 
 	save_header(image, length);
 
@@ -121,34 +139,55 @@ void encode(string path) {
 
 	unsigned short current_value;
 
-	char b;
-	while(current_pixel < total_pixels) {
-		if(byte_index < length) {
-			file_stream.get(b);
-			int v = 0xFF;
-			v &= b;
-			// cout << "byte " << byte_index << endl;
-			// cout << "0x" << std::hex << v << std::dec << endl;
-		}
-		else {
-			b = random_char();
-			// cout << "fejk char " << endl;
-		}
-		
-		// cout << "B: " << b << endl;
+	image.modifyImage();
+	// Quantum* p = image.getPixels(0, 0, 2, 2);
+	Pixels view(image);
 
-		// If first byte in component, shift to left by one byte
-		if(byte_index % 2 == 0) {
-			current_value = (b << 8) & 0xFF00;
-		} else { // mod == 1
-			current_value |= (b & 0xFF);
-			// cout << "pixel " << current_pixel << endl;
-			// cout << "0x" << std::hex << current_value << std::dec << endl;
-			set_pixel(current_pixel, current_component, image, current_value);
+	size_t rows = 2;
+	size_t cols = 2;
+
+	Quantum *pixels = view.get(1, 1, rows, cols);
+
+	Color green("green");
+	for(int i = 0; i < 2; i++) {
+		for(int j = 0; j < 2; j++) {
+			*pixels++ = 60000 * 0.1;
+			*pixels++ = 60000 * 0.4;
+			*pixels++ = 60000 * 0.9;
 		}
- 
-		byte_index += 1;
 	}
+
+	// char b;
+	// while(current_pixel < total_pixels) {
+	// 	if(byte_index < length) {
+	// 		file_stream.get(b);
+	// 	}
+	// 	else {
+	// 		b = random_char();
+	// 	}
+
+	// 	cout << "curr pixel " << current_pixel << endl;
+
+	// 	*(p + current_pixel) = 60000;//b;
+
+	// 	cout << "ptr = " << (p + current_pixel) << endl;
+	// 	current_pixel += 1;
+
+	// 	// If first byte in component, shift to left by one byte
+	// 	// if(byte_index % 2 == 0) {
+	// 	// 	current_value = (b << 8) & 0xFF00;
+	// 	// } else { // mod == 1
+	// 	// 	current_value |= (b & 0xFF);
+	// 	// 	set_pixel(current_pixel, current_component, image, current_value);
+	// 	// 	// *(green_buffer + current_pixel) = current_value;
+	// 	// }
+ 
+	// 	byte_index += 1;
+	// }
+
+	cout << "syncing" << endl;
+	view.sync();
+	cout << "synced" << endl;
 
 	// //Need to update with one part of component as current_value, and other as random_short
 	// if(byte_index % 2 == 1) {
@@ -161,16 +200,24 @@ void encode(string path) {
 	// 	set_pixel(current_pixel, current_component, image, random_short());
 	// }
 	
+
+	cout << "set png" << endl;
 	image.magick("png");
+
+	image.quality(100);
+
+	cout << "write" << endl;
 
 	image.write("out/img.png");
 
+	cout << "done " << endl;
 }
 
 void assert_correct_arch() {
 	assert(sizeof(char) == 1);
 	assert(sizeof(short) == 2);
 	assert(sizeof(int) == 4);
+	assert(sizeof(float) == 4);
 	assert(QuantumRange == 65535);
 }
 
