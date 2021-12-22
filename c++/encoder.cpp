@@ -17,12 +17,14 @@ char random_char() {
 	return rand() % 255;
 }
 
-void set_pixel(int& pixel_index, char& component, Image& img, short value) {
+void set_pixel(int& pixel_index, char& component, Image& img, unsigned short value) {
 	size_t height = img.rows();
 	size_t width = img.columns();
 
 	size_t x = pixel_index % width;
 	size_t y = floor(pixel_index / width); // How many times can width fit in index?
+
+	// cout << "set pxl, " << value << ", comp " << component << endl;
 
 	Color current_color = img.pixelColor(x, y);
 	switch (component) {
@@ -45,8 +47,7 @@ void set_pixel(int& pixel_index, char& component, Image& img, short value) {
 	// Update color with updated value
 	img.pixelColor(x, y, current_color);
 
-	component++;
-	component %= 3;
+	component = (component + 1) % 3;
 	if(component == 0)
 		pixel_index++;
 }
@@ -118,37 +119,51 @@ void encode(string path) {
 	// First pixel saves header
 	int current_pixel = 1;
 
-	short current_value;
+	unsigned short current_value;
 
 	char b;
-	while(byte_index < length) {
-		file_stream.get(b);
+	while(current_pixel < total_pixels) {
+		if(byte_index < length) {
+			file_stream.get(b);
+			int v = 0xFF;
+			v &= b;
+			// cout << "byte " << byte_index << endl;
+			// cout << "0x" << std::hex << v << std::dec << endl;
+		}
+		else {
+			b = random_char();
+			// cout << "fejk char " << endl;
+		}
+		
+		// cout << "B: " << b << endl;
 
 		// If first byte in component, shift to left by one byte
 		if(byte_index % 2 == 0) {
 			current_value = (b << 8) & 0xFF00;
 		} else { // mod == 1
 			current_value |= (b & 0xFF);
+			// cout << "pixel " << current_pixel << endl;
+			// cout << "0x" << std::hex << current_value << std::dec << endl;
 			set_pixel(current_pixel, current_component, image, current_value);
 		}
  
 		byte_index += 1;
 	}
 
-	//Need to update with one part of component as current_value, and other as random_short
-	if(byte_index % 2 != 0) {
-		char r = random_char();
-		current_value |= (r & 0xFF);
-		set_pixel(current_pixel, current_component, image, current_value);
-	}
+	// //Need to update with one part of component as current_value, and other as random_short
+	// if(byte_index % 2 == 1) {
+	// 	char r = random_char();
+	// 	current_value |= (r & 0xFF);
+	// 	set_pixel(current_pixel, current_component, image, current_value);
+	// }
 
-	while(current_pixel < total_pixels) {
-		set_pixel(current_pixel, current_component, image, random_short());
-	}
+	// while(current_pixel < total_pixels) {
+	// 	set_pixel(current_pixel, current_component, image, random_short());
+	// }
 	
 	image.magick("png");
 
-	image.write("out/file_name_explicit_extension.png");
+	image.write("out/img.png");
 
 }
 

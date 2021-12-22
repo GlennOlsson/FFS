@@ -4,11 +4,11 @@ out_file="out/output"
 img_file="out/img.png"
 
 encode () {
-	./out/encoder $in_file
+	./out/encoder $in_file > /dev/null
 }
 
 decode () {
-	./out/decoder $img_file
+	./out/decoder $img_file > /dev/null
 }
 
 compareSize () {
@@ -57,7 +57,7 @@ before
 #
 # echo "Running test 1"
 # Test bytes % 6 == 0
-echo "Hejsan" > $in_file
+echo "HejsanHejsanHejsanHejsanHejsanHejsan" > $in_file
 encode
 decode
 compareHash
@@ -72,7 +72,7 @@ compareHash
 
 before
 # Test bytes % 6 == 2
-echo "Hejsan på" > $in_file
+echo "Hejsan pa" > $in_file
 encode
 decode
 compareHash
@@ -80,7 +80,7 @@ compareHash
 
 before
 # Test bytes % 6 == 3
-echo "Hejsan påg" > $in_file
+echo "Hejsan pag" > $in_file
 encode
 decode
 compareHash
@@ -88,7 +88,7 @@ compareHash
 
 before
 # Test bytes % 6 == 4
-echo "Hejsans pås" > $in_file
+echo "Hejsans pas" > $in_file
 encode
 decode
 compareHash
@@ -96,7 +96,31 @@ compareHash
 
 before
 # Test bytes % 6 == 5
-echo "Hejsans påse" > $in_file
+echo "Hejsans pase" > $in_file
+encode
+decode
+compareHash
+
+
+before
+# Test non-ascii characters
+echo "Bhasdas äöå /()\"23423" > $in_file
+encode
+decode
+compareHash
+
+
+before
+# Test pdf file
+cat "/Users/glenn/Desktop/Wire transfer Chase.pdf" > $in_file
+encode
+decode
+compareHash
+
+
+before
+# Test png file
+cat "/Users/glenn/Desktop/dice-com.png" > $in_file
 encode
 decode
 compareHash

@@ -1,0 +1,23 @@
+{
+	"files.associations": {
+		"*.psql": "sql",
+		"*.pl": "prolog",
+		"__functional_base": "cpp",
+		"array": "cpp",
+		"istream": "cpp",
+		"locale": "cpp",
+		"memory": "cpp",
+		"tuple": "cpp",
+		"utility": "cpp",
+		"__config": "cpp",
+		"__locale": "cpp",
+		"__string": "cpp",
+		"iterator": "cpp",
+		"fstream": "cpp",
+		"ios": "cpp",
+		"ostream": "cpp",
+		"sstream": "cpp",
+		"streambuf": "cpp",
+		"string": "cpp"
+	}
+}

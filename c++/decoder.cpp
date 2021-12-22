@@ -124,7 +124,7 @@ int main(int argc, char const *argv[]){
 		filename = argv[1];
 		decode(filename);
 	} else {
-		decode("out/file_name_explicit_extension.png");
+		decode("out/img.png");
 	}
 
 	return 0;
