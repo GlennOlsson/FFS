@@ -1,7 +1,7 @@
 
 in_file="out/input"
 out_file="out/output"
-img_file="out/img.png"
+img_file="out/img0.png"
 
 encode () {
 	./out/encoder $in_file > /dev/null

@@ -12,6 +12,8 @@
 // Maximum possible possible number stored in 24 bits == header of output image
 #define MAX_FILE_SIZE 16777216
 
+#define FILE_TYPE "png"
+
 unsigned char random_char() {
 	return rand() % 255;
 }
@@ -50,22 +52,7 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 	*(component_pointer++) = component3;
 }
 
-void encode(std::string path) {
-	std::ifstream file_stream(path, std::ifstream::binary);
-	if (!file_stream) {
-		std::cerr << "no file " << path << std::endl;
-		return;
-	}
-
-	// length of file:
-	file_stream.seekg (0, file_stream.end);
-	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
-	file_stream.seekg (0, file_stream.beg);
-
-	if(length > MAX_FILE_SIZE) {
-		std::cerr << "File to big" << std::endl;
-		return;
-	}
+void create_image(std::string output_name, std::ifstream& file_stream, int length) {
 
 	// Bytes required for header and file
 	int min_bytes = length + HEADER_SIZE;
@@ -125,7 +112,29 @@ void encode(std::string path) {
 	}
 	pixel_view.sync();
 
-	image.write("out/img.png");
+	image.write(output_name + "." + FILE_TYPE);
+}
+
+void encode(std::string path) {
+	std::ifstream file_stream(path, std::ifstream::binary);
+	if (!file_stream) {
+		std::cerr << "no file " << path << std::endl;
+		return;
+	}
+
+	// length of file:
+	file_stream.seekg (0, file_stream.end);
+	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
+	file_stream.seekg (0, file_stream.beg);
+
+	int out_file_index = 0;
+	while(length > 0) {
+		int out_file_size = std::min(MAX_FILE_SIZE, length);
+		std::string out_file_name = "out/img" + std::to_string(out_file_index);
+		create_image(out_file_name, file_stream, out_file_size);
+		length -= out_file_size;
+		out_file_index++;
+	}
 }
 
 void assert_correct_arch() {

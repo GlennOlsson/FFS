@@ -84,7 +84,7 @@ int main(int argc, char const *argv[]){
 		filename = argv[1];
 		decode(filename);
 	} else {
-		decode("out/img.png");
+		decode("out/img0.png");
 	}
 
 	return 0;
