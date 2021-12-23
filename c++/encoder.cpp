@@ -6,9 +6,6 @@
 #include <cassert>
 #include <cstdlib>
 
-using namespace Magick;
-using namespace std;
-
 // Bytes required for header
 #define HEADER_SIZE 6
 
@@ -33,7 +30,7 @@ unsigned char random_char() {
 	Assumes that length is not greater than 2^24 (16 million)
 
 */
-void save_header(Quantum*& component_pointer, int length) {
+void save_header(Magick::Quantum*& component_pointer, int length) {
 	char F = 'F';
 	char S = 'S';
 
@@ -53,10 +50,10 @@ void save_header(Quantum*& component_pointer, int length) {
 	*(component_pointer++) = component3;
 }
 
-void encode(string path) {
-	ifstream file_stream(path, ifstream::binary);
+void encode(std::string path) {
+	std::ifstream file_stream(path, std::ifstream::binary);
 	if (!file_stream) {
-		cerr << "no file " << path << endl;
+		std::cerr << "no file " << path << std::endl;
 		return;
 	}
 
@@ -66,7 +63,7 @@ void encode(string path) {
 	file_stream.seekg (0, file_stream.beg);
 
 	if(length > MAX_FILE_SIZE) {
-		cerr << "File to big" << endl;
+		std::cerr << "File to big" << std::endl;
 		return;
 	}
 
@@ -86,17 +83,17 @@ void encode(string path) {
 	// file length + header size + filler pixels
 	int total_bytes = total_pixels * 6;
 
-	Image image(Geometry(width, height), Color("white"));
+	Magick::Image image(Magick::Geometry(width, height), Magick::Color("white"));
 
 	image.magick("png");
 	image.quality(100);
 	
-	image.type(TrueColorType);
+	image.type(Magick::TrueColorType);
 	image.modifyImage(); // Used to make sure there's only one reference to image pixels
 
-	Pixels pixel_view(image);
+	Magick::Pixels pixel_view(image);
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
-	Quantum *component_pointer = pixel_view.get(0, 0, width, height);
+	Magick::Quantum *component_pointer = pixel_view.get(0, 0, width, height);
 	
 	//Save header and length of file 
 	save_header(component_pointer, length);
@@ -141,9 +138,9 @@ void assert_correct_arch() {
 
 int main(int argc, char const *argv[]){
 	assert_correct_arch();
-	InitializeMagick(*argv);
+	Magick::InitializeMagick(*argv);
 
-	string filename;
+	std::string filename;
 	if(argc > 1) {
 		filename = argv[1];
 		encode(filename);

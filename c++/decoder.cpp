@@ -6,16 +6,13 @@
 #include <fstream>
 #include <cassert>
 
-using namespace Magick;
-using namespace std;
-
 /**
  * @brief Assert header is "FFS" followed by length, and return length
  * 
  * @param component_pointer the pointer to each component
  * @return the length of data 
  */
-int assert_header(Quantum*& component_pointer) {
+int assert_header(Magick::Quantum*& component_pointer) {
 	unsigned short red = *(component_pointer++);
 	unsigned short green = *(component_pointer++);
 	unsigned short blue = *(component_pointer++);
@@ -34,22 +31,22 @@ int assert_header(Quantum*& component_pointer) {
 	return length;
 }
 
-void decode(string filename){
+void decode(std::string filename){
 
-	Image image(filename);
+	Magick::Image image(filename);
 
-	Pixels pixel_view(image);
+	Magick::Pixels pixel_view(image);
 
-	Geometry image_size = image.size();
+	Magick::Geometry image_size = image.size();
 
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
-	Quantum *component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
+	Magick::Quantum *component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
 
 	int length = assert_header(component_pointer);
 
-	ofstream file_stream("out/output", ifstream::binary);
+	std::ofstream file_stream("out/output", std::ifstream::binary);
 	if (!file_stream) {
-		cerr << "Cannot output to file out/output" << endl;
+		std::cerr << "Cannot output to file out/output" << std::endl;
 		return;
 	}
 
@@ -80,9 +77,9 @@ void assert_correct_arch() {
 
 int main(int argc, char const *argv[]){
 	assert_correct_arch();
-	InitializeMagick(*argv);
+	Magick::InitializeMagick(*argv);
 
-	string filename;
+	std::string filename;
 	if(argc > 1) {
 		filename = argv[1];
 		decode(filename);
