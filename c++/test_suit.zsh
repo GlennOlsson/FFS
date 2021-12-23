@@ -112,15 +112,15 @@ compareHash
 
 before
 # Test pdf file
-cat "/Users/glenn/Desktop/Wire transfer Chase.pdf" > $in_file
+cat "/Users/glenn/Documents/KTH/CalPoly/Thesis/Magick++_tutorial.pdf" > $in_file
 encode
 decode
 compareHash
 
 
 before
-# Test png file
-cat "/Users/glenn/Desktop/dice-com.png" > $in_file
+# Test jpg file
+cat "/Users/glenn/Desktop/Zoom-backgrounds.nosync/20210622-224503-krigun.jpg" > $in_file
 encode
 decode
 compareHash
