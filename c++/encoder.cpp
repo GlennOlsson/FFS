@@ -9,50 +9,23 @@
 using namespace Magick;
 using namespace std;
 
+// Bytes required for header
+#define HEADER_SIZE 6
+
+// Maximum possible possible number stored in 24 bits == header of output image
+#define MAX_FILE_SIZE 16777216
+
 short random_short() {
 	return rand() % 65535;
 }
 
-char random_char() {
+unsigned char random_char() {
 	return rand() % 255;
 }
 
-void set_pixel(int& pixel_index, char& component, Image& img, unsigned short value) {
-	size_t height = img.rows();
-	size_t width = img.columns();
-
-	size_t x = pixel_index % width;
-	size_t y = floor(pixel_index / width); // How many times can width fit in index?
-
-	// cout << "set pxl, " << value << ", comp " << component << endl;
-
-	Color current_color = img.pixelColor(x, y);
-	switch (component) {
-	case 0:
-		current_color.quantumRed(value);
-		break;
-
-	case 1:
-		current_color.quantumGreen(value);
-		break;
-		
-	case 2:
-		current_color.quantumBlue(value);
-		break;
-	
-	default:
-		cerr << "COMPONENT TO HIGH: " << component << endl;
-		break;
-	}
-	// Update color with updated value
-	img.pixelColor(x, y, current_color);
-
-	component = (component + 1) % 3;
-	if(component == 0)
-		pixel_index++;
-}
-
 /*
+	Sets first pixel as header
+
 	Header consists of first pixel with 3 * 2 = 6 bytes, in order:
 	"F"	"F"
 	"S"	L1
@@ -64,41 +37,23 @@ void set_pixel(int& pixel_index, char& component, Image& img, unsigned short val
 	Assumes that length is not greater than 2^24 (16 million)
 
 */
-void save_header(Image& img, int length) {
+void save_header(Quantum*& pixels, int length) {
 	char F = 'F';
 	char S = 'S';
 
 	// Move bits to look at to far-rigth, and 0 all other digits
-	char L1 = (length >> 16) & 0xFF;
-	char L2 = (length >> 8) & 0xFF;
-	char L3 = length & 0xFF;
+	unsigned char L1 = (length >> 16) & 0xFF;
+	unsigned char L2 = (length >> 8) & 0xFF;
+	unsigned char L3 = length & 0xFF;
 
-	short comp1 = (F << 8) | F;
-	short comp2 = (S << 8) | L1;
-	short comp3 = (L2 << 8) | L3;
+	unsigned short component1 = (F << 8) | F;
+	unsigned short component2 = (S << 8) | L1;
+	unsigned short component3 = (L2 << 8) | L3;
 
-	int index = 0;
-	char component = 0;
-
-	cout << "header ptrs: " << endl;
-
-	cout << &F << endl;
-	cout << &S << endl;
-
-	cout << &comp1 << endl;
-	cout << &comp2 << endl;
-	cout << &comp3 << endl;
-
-	cout << &index << endl;
-	cout << &component << endl;
-
-	cout << &L1 << endl;
-	cout << &L2 << endl;
-	cout << &L3 << endl;
-
-	set_pixel(index, component, img, comp1);
-	set_pixel(index, component, img, comp2);
-	set_pixel(index, component, img, comp3);
+	// Increment pointer after assignment
+	*(pixels++) = component1;
+	*(pixels++) = component2;
+	*(pixels++) = component3;
 }
 
 void encode(string path) {
@@ -113,100 +68,90 @@ void encode(string path) {
 	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
 	file_stream.seekg (0, file_stream.beg);
 
-	// Assume 16bit depth for each pixel
-	// lenght is in bytes, can store 2 bytes per pixel
-	int pixels_for_file = ceil((double) length / 2.0);
+	if(length > MAX_FILE_SIZE) {
+		cerr << "File to big" << endl;
+		return;
+	}
+
+	// Bytes required for header and file
+	int min_bytes = length + HEADER_SIZE;
+
+	// Assume 16bit depth for each component
+	// 2 bytes per component, 3 components per pixel, 2*3
+	int required_pixels = ceil((double) min_bytes / 6.0);
+
+	// // length is in bytes, can store 2 bytes per component, 3 components per pixel
+	// int components_for_input_file = ceil((double) length / (2.0 * 3.0)) + HEADER_SIZE;
+	// int pixels_for_input_file = components_for_input_file * 6;
+
+	// DO BY HAND - CALC HOW WE CAN CALCULATE HOW MANY PIXELS WE NEED MAX
+	// NOW WAY TO MANY PIXELS
+	// CAN SEE BY SETTING RANDOM PIXELS TO STATIC VAL
 
 	// Find closest square that can fit the pixels
-	int dimension = ceil(sqrt(pixels_for_file));
-	int total_pixels = dimension * dimension;
+	int width = ceil(sqrt(required_pixels));
+	int height = ceil((double) required_pixels / (double) width);
+	int total_pixels = width * height;
 
-	Image image(Geometry(dimension, dimension), Color("white"));
+	// Bytes required to change in output image
+	// file length + header size + filler pixels
+	int total_bytes = total_pixels * 6;
+
+	cout << "total bytes " << total_bytes << endl;
+	cout << "w: " << width << ", h: " << height << endl;
+	// cout << "file pixels " << components_for_input_file << endl;
+
+	Image image(Geometry(width, height), Color("white"));
+
+	image.magick("png");
+	image.quality(100);
 	
 	image.type(TrueColorType);
+	image.modifyImage(); // Used to make sure there's only one reference to image pixels
+
+	Pixels pixel_view(image);
+	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
+	Quantum *component_pointer = pixel_view.get(0, 0, width, height);
 	
 	//Save header and length of file 
-	save_header(image, length);
-
-	// Stores 2 bytes of data per pixel in current_value
-	int byte_index = 0;
-
-	//Value 0-2, r, g or b
-	char current_component = 0;
+	save_header(component_pointer, length);
 
 	// First pixel saves header
-	int current_pixel = 1;
+	int byte_index = HEADER_SIZE;
 
 	unsigned short current_value;
 
-	image.modifyImage();
-	// Quantum* p = image.getPixels(0, 0, 2, 2);
-	Pixels view(image);
+	char b;
 
-	size_t rows = 2;
-	size_t cols = 2;
-
-	Quantum *pixels = view.get(1, 1, rows, cols);
-
-	Color green("green");
-	for(int i = 0; i < 2; i++) {
-		for(int j = 0; j < 2; j++) {
-			*pixels++ = 60000 * 0.1;
-			*pixels++ = 60000 * 0.4;
-			*pixels++ = 60000 * 0.9;
+	bool a = 1;
+	while(byte_index < total_bytes) {
+		if(byte_index < (length + HEADER_SIZE)) {
+			file_stream.get(b);
 		}
+		else {
+			if(a) {
+				a = 0;
+				cout << "First rand char; byte " << byte_index << endl;
+			}
+			b = random_char();
+		}
+
+		// If first byte in component, shift to left by one byte
+		if(byte_index % 2 == 0) {
+			current_value = (b << 8) & 0xFF00;
+		} else { // mod == 1
+			current_value |= (b & 0xFF);
+			*(component_pointer++) = current_value;
+			// cout << "ptr " << (component_pointer + current_component) << endl;
+			// current_component++;
+		}
+ 
+		byte_index += 1;
 	}
 
-	// char b;
-	// while(current_pixel < total_pixels) {
-	// 	if(byte_index < length) {
-	// 		file_stream.get(b);
-	// 	}
-	// 	else {
-	// 		b = random_char();
-	// 	}
-
-	// 	cout << "curr pixel " << current_pixel << endl;
-
-	// 	*(p + current_pixel) = 60000;//b;
-
-	// 	cout << "ptr = " << (p + current_pixel) << endl;
-	// 	current_pixel += 1;
-
-	// 	// If first byte in component, shift to left by one byte
-	// 	// if(byte_index % 2 == 0) {
-	// 	// 	current_value = (b << 8) & 0xFF00;
-	// 	// } else { // mod == 1
-	// 	// 	current_value |= (b & 0xFF);
-	// 	// 	set_pixel(current_pixel, current_component, image, current_value);
-	// 	// 	// *(green_buffer + current_pixel) = current_value;
-	// 	// }
- 
-	// 	byte_index += 1;
-	// }
-
 	cout << "syncing" << endl;
-	view.sync();
+	pixel_view.sync();
 	cout << "synced" << endl;
-
-	// //Need to update with one part of component as current_value, and other as random_short
-	// if(byte_index % 2 == 1) {
-	// 	char r = random_char();
-	// 	current_value |= (r & 0xFF);
-	// 	set_pixel(current_pixel, current_component, image, current_value);
-	// }
-
-	// while(current_pixel < total_pixels) {
-	// 	set_pixel(current_pixel, current_component, image, random_short());
-	// }
-	
-
-	cout << "set png" << endl;
-	image.magick("png");
-
-	image.quality(100);
-
-	cout << "write" << endl;
 
 	image.write("out/img.png");
 

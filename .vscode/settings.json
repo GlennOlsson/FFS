@@ -18,6 +18,7 @@
 		"ostream": "cpp",
 		"sstream": "cpp",
 		"streambuf": "cpp",
-		"string": "cpp"
+		"string": "cpp",
+		"complex": "cpp"
 	}
 }
