@@ -9,53 +9,16 @@
 using namespace Magick;
 using namespace std;
 
-short read_pixel(int& pixel_index, char& component, Image& img) {
-	size_t height = img.rows();
-	size_t width = img.columns();
-
-	size_t x = pixel_index % width;
-	size_t y = floor(pixel_index / width); // How many times can width fit in index?
-
-	Color current_color = img.pixelColor(x, y);
-	short component_value;
-	switch (component) {
-	case 0:
-		component_value = current_color.quantumRed();
-		break;
-
-	case 1:
-		component_value = current_color.quantumGreen();
-		break;
-		
-	case 2:
-		component_value = current_color.quantumBlue();
-		break;
-	
-	default:
-		cerr << "COMPONENT TO HIGH: " << component << endl;
-		break;
-	}
-
-	component++;
-	component %= 3;
-	if(component == 0)
-		pixel_index++;
-	
-	return component_value;
-}
-
 /**
  * @brief Assert header is "FFS" followed by length, and return length
  * 
- * @param img the image
- * @return the lenght of data 
+ * @param component_pointer the pointer to each component
+ * @return the length of data 
  */
-int assert_header(Image& img) {
-	auto pixel = img.pixelColor(0, 0);
-
-	unsigned short red = pixel.quantumRed();
-	unsigned short green = pixel.quantumGreen();
-	unsigned short blue = pixel.quantumBlue();
+int assert_header(Quantum*& component_pointer) {
+	unsigned short red = *(component_pointer++);
+	unsigned short green = *(component_pointer++);
+	unsigned short blue = *(component_pointer++);
 
 	assert(((red >> 8) & 0xFF) == 'F');
 	assert((red & 0xFF) == 'F');
@@ -75,7 +38,14 @@ void decode(string filename){
 
 	Image image(filename);
 
-	int length = assert_header(image);
+	Pixels pixel_view(image);
+
+	Geometry image_size = image.size();
+
+	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
+	Quantum *component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
+
+	int length = assert_header(component_pointer);
 
 	ofstream file_stream("out/output", ifstream::binary);
 	if (!file_stream) {
@@ -86,14 +56,8 @@ void decode(string filename){
 	// Stores 2 bytes of data per pixel in current_value
 	int byte_index = 0;
 
-	//Value 0-2, r, g or b
-	char current_component = 0;
-
-	// First pixel saves header
-	int current_pixel = 1;
-
 	while(byte_index < length) {
-		short bytes = read_pixel(current_pixel, current_component, image);
+		short bytes = *(component_pointer++);
 
 		char b1 = (bytes >> 8) & 0xFF;
 		char b2 = bytes & 0xFF;
@@ -106,7 +70,6 @@ void decode(string filename){
 		byte_index += 2;
 	}
 }
-
 
 void assert_correct_arch() {
 	assert(sizeof(char) == 1);

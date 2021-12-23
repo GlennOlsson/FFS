@@ -33,7 +33,7 @@ unsigned char random_char() {
 	Assumes that length is not greater than 2^24 (16 million)
 
 */
-void save_header(Quantum*& pixels, int length) {
+void save_header(Quantum*& component_pointer, int length) {
 	char F = 'F';
 	char S = 'S';
 
@@ -48,9 +48,9 @@ void save_header(Quantum*& pixels, int length) {
 	unsigned short component3 = (L2 << 8) | L3;
 
 	// Increment pointer after assignment
-	*(pixels++) = component1;
-	*(pixels++) = component2;
-	*(pixels++) = component3;
+	*(component_pointer++) = component1;
+	*(component_pointer++) = component2;
+	*(component_pointer++) = component3;
 }
 
 void encode(string path) {
