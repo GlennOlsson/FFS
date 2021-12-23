@@ -131,6 +131,7 @@ void encode(std::string path) {
 	while(length > 0) {
 		int out_file_size = std::min(MAX_FILE_SIZE, length);
 		std::string out_file_name = "out/img" + std::to_string(out_file_index);
+		//TODO: Make concurrent?
 		create_image(out_file_name, file_stream, out_file_size);
 		length -= out_file_size;
 		out_file_index++;

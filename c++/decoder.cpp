@@ -31,10 +31,7 @@ int assert_header(Magick::Quantum*& component_pointer) {
 	return length;
 }
 
-void decode(std::string filename){
-
-	Magick::Image image(filename);
-
+void decode_file(Magick::Image& image, std::ofstream& file_stream) {
 	Magick::Pixels pixel_view(image);
 
 	Magick::Geometry image_size = image.size();
@@ -43,12 +40,6 @@ void decode(std::string filename){
 	Magick::Quantum *component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
 
 	int length = assert_header(component_pointer);
-
-	std::ofstream file_stream("out/output", std::ifstream::binary);
-	if (!file_stream) {
-		std::cerr << "Cannot output to file out/output" << std::endl;
-		return;
-	}
 
 	// Stores 2 bytes of data per pixel in current_value
 	int byte_index = 0;
@@ -66,6 +57,18 @@ void decode(std::string filename){
 
 		byte_index += 2;
 	}
+}
+
+void decode(std::string filename){
+
+	std::ofstream file_stream("out/output", std::ifstream::binary);
+	if (!file_stream) {
+		std::cerr << "Cannot output to file out/output" << std::endl;
+		return;
+	}
+
+	Magick::Image image(filename);
+	decode_file(image, file_stream);
 }
 
 void assert_correct_arch() {
