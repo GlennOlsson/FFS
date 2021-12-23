@@ -10,7 +10,8 @@
 #define HEADER_SIZE 6
 
 // Maximum possible possible number stored in 24 bits == header of output image
-#define MAX_FILE_SIZE 16777216
+// 2^24 - 1
+#define MAX_FILE_SIZE 16777215
 
 #define FILE_TYPE "png"
 

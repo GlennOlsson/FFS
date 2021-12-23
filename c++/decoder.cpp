@@ -5,6 +5,7 @@
 #include <math.h>
 #include <fstream>
 #include <cassert>
+#include <cstdarg>
 
 /**
  * @brief Assert header is "FFS" followed by length, and return length
@@ -34,6 +35,8 @@ int assert_header(Magick::Quantum*& component_pointer) {
 void decode_file(Magick::Image& image, std::ofstream& file_stream) {
 	Magick::Pixels pixel_view(image);
 
+	int pt = file_stream.tellp();
+
 	Magick::Geometry image_size = image.size();
 
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
@@ -59,7 +62,7 @@ void decode_file(Magick::Image& image, std::ofstream& file_stream) {
 	}
 }
 
-void decode(std::string filename){
+void decode(int files, const char** filenames){
 
 	std::ofstream file_stream("out/output", std::ifstream::binary);
 	if (!file_stream) {
@@ -67,8 +70,13 @@ void decode(std::string filename){
 		return;
 	}
 
-	Magick::Image image(filename);
-	decode_file(image, file_stream);
+	Magick::Image image;
+	std::string filename;
+	while(files-- > 0) {
+		filename = *(filenames++);
+		image = Magick::Image(filename);
+		decode_file(image, file_stream);
+	}
 }
 
 void assert_correct_arch() {
@@ -84,10 +92,10 @@ int main(int argc, char const *argv[]){
 
 	std::string filename;
 	if(argc > 1) {
-		filename = argv[1];
-		decode(filename);
+		decode(argc - 1, ++argv);
 	} else {
-		decode("out/img0.png");
+		const char* filename = "out/img0.png";
+		decode(1, &filename);
 	}
 
 	return 0;
