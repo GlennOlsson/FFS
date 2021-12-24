@@ -1,5 +1,7 @@
 #include "file_coder.h"
 
+#include "../helpers/constants.h"
+
 #include <iostream>
 #include <Magick++.h>
 #include <string>
@@ -36,8 +38,6 @@ int assert_header(Magick::Quantum*& component_pointer) {
 
 void decode_file(Magick::Image& image, std::ofstream& file_stream) {
 	Magick::Pixels pixel_view(image);
-
-	int pt = file_stream.tellp();
 
 	Magick::Geometry image_size = image.size();
 
@@ -81,20 +81,20 @@ void FFS::decode(const std::vector<std::string>& files){
 	}
 }
 
-int main(int argc, char const *argv[]){
-	FFS::assert_correct_arch();
-	Magick::InitializeMagick(*argv);
+// int main(int argc, char const *argv[]){
+// 	FFS::assert_correct_arch();
+// 	Magick::InitializeMagick(*argv);
 
-	std::string filename;
-	std::vector<std::string> input_list;
-	if(argc > 1) {
-		for(int i = 1; i < argc; i++) {
-			input_list.push_back(argv[i]);
-		}
-	} else {
-		input_list.push_back("out.nosync/img0.png");
-	}
-	FFS::decode(input_list);
+// 	std::string filename;
+// 	std::vector<std::string> input_list;
+// 	if(argc > 1) {
+// 		for(int i = 1; i < argc; i++) {
+// 			input_list.push_back(argv[i]);
+// 		}
+// 	} else {
+// 		input_list.push_back("out.nosync/img0.png");
+// 	}
+// 	FFS::decode(input_list);
 
-	return 0;
-}
+// 	return 0;
+// }

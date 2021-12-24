@@ -1,5 +1,7 @@
 #include "file_coder.h"
 
+#include "../helpers/constants.h"
+
 #include <iostream>
 #include <Magick++.h>
 #include <string>
@@ -55,7 +57,7 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 	*(component_pointer++) = component3;
 }
 
-void create_image(std::string output_name, std::istream& file_stream, int length) {
+void FFS::create_image(std::string output_name, std::istream& file_stream, int length) {
 
 	// Bytes required for header and file
 	int min_bytes = length + HEADER_SIZE;
@@ -141,17 +143,17 @@ void FFS::encode(std::string path) {
 	}
 }
 
-int main(int argc, char const *argv[]){
-	FFS::assert_correct_arch();
-	Magick::InitializeMagick(*argv);
+// int main(int argc, char const *argv[]){
+// 	FFS::assert_correct_arch();
+// 	Magick::InitializeMagick(*argv);
 
-	std::string filename;
-	if(argc > 1) {
-		filename = argv[1];
-		FFS::encode(filename);
-	} else {
-		FFS::encode("out.nosync/input");
-	}
+// 	std::string filename;
+// 	if(argc > 1) {
+// 		filename = argv[1];
+// 		FFS::encode(filename);
+// 	} else {
+// 		FFS::encode("out.nosync/input");
+// 	}
 
-	return 0;
-}
+// 	return 0;
+// }

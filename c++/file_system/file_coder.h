@@ -6,17 +6,9 @@
 
 // TODO: Include this
 namespace FFS {
-	/**
-	 * @brief Assert that all types used are of the expected byte length 
-	 */
-	void assert_correct_arch() {
-		assert(sizeof(char) == 1);
-		assert(sizeof(short) == 2);
-		assert(sizeof(int) == 4);
-		assert(sizeof(float) == 4);
-		assert(QuantumRange == 65535);
-	}
 
 	void encode(std::string path);
+	void create_image(std::string output_name, std::istream& file_stream, int length);
+
 	void decode(const std::vector<std::string>& files);
 }

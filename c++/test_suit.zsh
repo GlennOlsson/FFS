@@ -104,7 +104,7 @@ compareHash
 
 before
 # Test non-ascii characters
-echo "Bhasdas äöå /()\"23423" > $in_file
+echo "Bhasdas äöå /()\"23423😶‍🌫️🧑‍🍳🤣" > $in_file
 encode
 decode
 compareHash

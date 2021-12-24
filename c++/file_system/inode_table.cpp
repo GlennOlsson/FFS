@@ -1,8 +1,11 @@
 #include "inode_table.h"
+#include "file_coder.h"
 
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
+#include <string>
 
 // Inode Entry...
 
@@ -15,7 +18,7 @@ int FFS::InodeEntry::size() {
 	int value = 0;
 	value += 4; // Length field, int = 4 bytes
 	value += 4; // Amount of entries = 4 bytes
-	value += this->size() * 8; // 8 bytes per element
+	value += this->tweet_blocks.size() * 8; // 8 bytes per element
 	
 	return value;
 }
@@ -91,7 +94,17 @@ FFS::InodeTable& FFS::InodeTable::desterilize(std::istream& stream) {
 	return *(new InodeTable(entries));
 }
 
+void FFS::InodeTable::save(std::string path) {
+	std::basic_fstream<char> stream;
+	int size = this->size();
+
+	this->sterilize(stream);
+	create_image(path, stream, size);
+}
+
 int main(int argc, char const *argv[]) {
 	
+	
+
 	return 0;
 }
