@@ -1,7 +1,13 @@
+compile_flags := --std=c++11 -O2 `Magick++-config --cppflags --cxxflags --ldflags --libs`
+magick_flags := 
+
 encoder: 
-	g++ --std=c++11 -O2 -o out.nosync/encoder file_coding/encoder.cpp `Magick++-config --cppflags --cxxflags --ldflags --libs`
+	g++ $(compile_flags) -o out.nosync/encoder file_system/encoder.cpp 
 
 decoder: 
-	g++ --std=c++11 -O2 -o out.nosync/decoder file_coding/decoder.cpp `Magick++-config --cppflags --cxxflags --ldflags --libs`
+	g++ $(compile_flags) -o out.nosync/decoder file_system/decoder.cpp
 
-all: encoder decoder
+inode_table:
+	g++ $(compile_flags) -o out.nosync/inode_table file_system/inode_table.cpp 
+
+all: encoder decoder inode_table

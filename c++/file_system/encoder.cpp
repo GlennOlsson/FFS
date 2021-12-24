@@ -55,7 +55,7 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 	*(component_pointer++) = component3;
 }
 
-void create_image(std::string output_name, std::ifstream& file_stream, int length) {
+void create_image(std::string output_name, std::istream& file_stream, int length) {
 
 	// Bytes required for header and file
 	int min_bytes = length + HEADER_SIZE;
