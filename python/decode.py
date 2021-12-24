@@ -4,7 +4,7 @@ import io
 import functools
 import sys
 
-input_file_path = "out/image.png"
+input_file_path = "out.nosync/image.png"
 if len(sys.argv) > 1:
 	input_file_path = sys.argv[1]
 
@@ -25,12 +25,12 @@ file_bytes = (b1 << 8*2) | (b2 << 8*1) | (b3 << 8*0)
 # Start after byte 3 and only read file_bytes of content, + 3 as we started at byte 3
 file_content = b[3:file_bytes + 3]
 
-out_file = open("out/decoded", "wb")
+out_file = open("out.nosync/decoded", "wb")
 out_file.write(file_content)
 
-# img.save("out/copy.jpeg")
+# img.save("out.nosync/copy.jpeg")
 
-# input_file = open("out/image.jpeg", "br")
+# input_file = open("out.nosync/image.jpeg", "br")
 
 # b = input_file.read()
 # height = int(len(b) / 3)

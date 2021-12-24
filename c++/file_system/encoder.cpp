@@ -1,3 +1,5 @@
+#include "file_coder.h"
+
 #include <iostream>
 #include <Magick++.h>
 #include <string>
@@ -73,7 +75,7 @@ void create_image(std::string output_name, std::ifstream& file_stream, int lengt
 
 	Magick::Image image(Magick::Geometry(width, height), Magick::Color("white"));
 
-	image.magick("png");
+	image.magick(FILE_TYPE);
 	image.quality(100);
 	
 	image.type(Magick::TrueColorType);
@@ -116,7 +118,7 @@ void create_image(std::string output_name, std::ifstream& file_stream, int lengt
 	image.write(output_name + "." + FILE_TYPE);
 }
 
-void encode(std::string path) {
+void FFS::encode(std::string path) {
 	std::ifstream file_stream(path, std::ifstream::binary);
 	if (!file_stream) {
 		std::cerr << "no file " << path << std::endl;
@@ -131,7 +133,7 @@ void encode(std::string path) {
 	int out_file_index = 0;
 	while(length > 0) {
 		int out_file_size = std::min(MAX_FILE_SIZE, length);
-		std::string out_file_name = "out/img" + std::to_string(out_file_index);
+		std::string out_file_name = "out.nosync/img" + std::to_string(out_file_index);
 		//TODO: Make concurrent?
 		create_image(out_file_name, file_stream, out_file_size);
 		length -= out_file_size;
@@ -139,24 +141,16 @@ void encode(std::string path) {
 	}
 }
 
-void assert_correct_arch() {
-	assert(sizeof(char) == 1);
-	assert(sizeof(short) == 2);
-	assert(sizeof(int) == 4);
-	assert(sizeof(float) == 4);
-	assert(QuantumRange == 65535);
-}
-
 int main(int argc, char const *argv[]){
-	assert_correct_arch();
+	FFS::assert_correct_arch();
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
 	if(argc > 1) {
 		filename = argv[1];
-		encode(filename);
+		FFS::encode(filename);
 	} else {
-		encode("out/input");
+		FFS::encode("out.nosync/input");
 	}
 
 	return 0;

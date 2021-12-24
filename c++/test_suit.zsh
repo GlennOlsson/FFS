@@ -1,14 +1,14 @@
 
-in_file="out/input"
-out_file="out/output"
-img_file="out/img0.png"
+in_file="out.nosync/input"
+out_file="out.nosync/output"
+img_file="out.nosync/img0.png"
 
 encode () {
-	./out/encoder $in_file > /dev/null
+	./out.nosync/encoder $in_file > /dev/null
 }
 
 decode () {
-	./out/decoder $img_file > /dev/null
+	./out.nosync/decoder $img_file > /dev/null
 }
 
 compareSize () {
@@ -31,13 +31,13 @@ compareHash () {
 		echo "OK"
 	else
 		echo "MISSMATCH BETWEEN HASHES"
-		# exit
+		exit
 	fi
 }
 
 setup () {
-	rm -rf out/
-	mkdir out
+	rm -rf out.nosync/
+	mkdir out.nosync
 	make all || (echo "Could not make" && exit)
 	r=0
 }
@@ -46,9 +46,9 @@ before() {
 	r=$((r + 1))
 	echo "Running test $r"
 	# Bind syserr to /dev/null
-	rm $in_file 2> /dev/null || echo "Could not remove out/input"
-	rm $out_file 2> /dev/null || echo "Could not remove out/output"
-	rm $img_file 2> /dev/null ||  echo "Could not remove out/img"
+	rm $in_file 2> /dev/null || echo "Could not remove out.nosync/input"
+	rm $out_file 2> /dev/null || echo "Could not remove out.nosync/output"
+	rm $img_file 2> /dev/null ||  echo "Could not remove out.nosync/img"
 }
 
 setup
@@ -123,4 +123,11 @@ before
 cat "/Users/glenn/Desktop/Zoom-backgrounds.nosync/20210622-224503-krigun.jpg" > $in_file
 encode
 decode
+compareHash
+
+before
+# Test big file requiring splitting
+cat "/Users/glenn/Desktop/Zoom-backgrounds.nosync/Scary.mp4" > $in_file
+encode
+./out.nosync/decoder out.nosync/img0.png out.nosync/img1.png out.nosync/img2.png out.nosync/img3.png out.nosync/img4.png out.nosync/img5.png out.nosync/img6.png
 compareHash

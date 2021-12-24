@@ -18,7 +18,7 @@ colors = [
 
 	# colors.extend([r, g, b])
 
-input_file_path = "out/input"
+input_file_path = "out.nosync/input"
 if len(sys.argv) > 1:
 	input_file_path = sys.argv[1]
 
@@ -61,4 +61,4 @@ img = Image.frombytes("RGB", (closest_root, closest_root), bytes(total_bytes), "
 px = img.load()
 # px[0,0] = (255, 0, 0)
 
-img.save('out/image.png')#, format='JPEG', subsampling=0, quality=100)
+img.save('out.nosync/image.png')#, format='JPEG', subsampling=0, quality=100)

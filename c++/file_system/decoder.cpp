@@ -1,3 +1,4 @@
+#include "file_coder.h"
 
 #include <iostream>
 #include <Magick++.h>
@@ -6,6 +7,7 @@
 #include <fstream>
 #include <cassert>
 #include <cstdarg>
+#include <vector>
 
 /**
  * @brief Assert header is "FFS" followed by length, and return length
@@ -53,50 +55,46 @@ void decode_file(Magick::Image& image, std::ofstream& file_stream) {
 		char b1 = (bytes >> 8) & 0xFF;
 		char b2 = bytes & 0xFF;
 
-		file_stream << b1;
+		file_stream.put(b1);
 		// If should only add one more byte, skip this 
 		if(byte_index + 1 < length)
-			file_stream << b2;
+			file_stream.put(b2);
 
 		byte_index += 2;
 	}
 }
 
-void decode(int files, const char** filenames){
+void FFS::decode(const std::vector<std::string>& files){
 
-	std::ofstream file_stream("out/output", std::ifstream::binary);
+	std::ofstream file_stream("out.nosync/output", std::ifstream::binary);
 	if (!file_stream) {
-		std::cerr << "Cannot output to file out/output" << std::endl;
+		std::cerr << "Cannot output to file out.nosync/output" << std::endl;
 		return;
 	}
 
 	Magick::Image image;
-	std::string filename;
-	while(files-- > 0) {
-		filename = *(filenames++);
+	// std::string filename;
+	for(std::string filename: files) {
+		// filename = *it;
 		image = Magick::Image(filename);
 		decode_file(image, file_stream);
 	}
 }
 
-void assert_correct_arch() {
-	assert(sizeof(char) == 1);
-	assert(sizeof(short) == 2);
-	assert(sizeof(int) == 4);
-	assert(QuantumRange == 65535);
-}
-
 int main(int argc, char const *argv[]){
-	assert_correct_arch();
+	FFS::assert_correct_arch();
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
+	std::vector<std::string> input_list;
 	if(argc > 1) {
-		decode(argc - 1, ++argv);
+		for(int i = 1; i < argc; i++) {
+			input_list.push_back(argv[i]);
+		}
 	} else {
-		const char* filename = "out/img0.png";
-		decode(1, &filename);
+		input_list.push_back("out.nosync/img0.png");
 	}
+	FFS::decode(input_list);
 
 	return 0;
 }
