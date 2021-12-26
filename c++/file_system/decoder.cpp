@@ -7,7 +7,6 @@
 #include <string>
 #include <math.h>
 #include <fstream>
-#include <cassert>
 #include <cstdarg>
 #include <vector>
 
@@ -18,17 +17,22 @@
  * @return the length of data 
  */
 int assert_header(Magick::Quantum*& component_pointer) {
-	unsigned short red = *(component_pointer++);
-	unsigned short green = *(component_pointer++);
-	unsigned short blue = *(component_pointer++);
 
-	assert(((red >> 8) & 0xFF) == 'F');
-	assert((red & 0xFF) == 'F');
-	assert(((green >> 8) & 0xFF) == 'S');
+	unsigned short version_nr = *(component_pointer++);
 
-	unsigned short b1 = green & 0xFF;
-	unsigned short b2 = (blue >> 8) & 0xFF;
-	unsigned short b3 = blue & 0xFF;
+	assert(version_nr == FFS_FILE_VERSION);
+
+	unsigned short component1 = *(component_pointer++);
+	unsigned short component2 = *(component_pointer++);
+	unsigned short component3 = *(component_pointer++);
+
+	assert(((component1 >> 8) & 0xFF) == 'F');
+	assert((component1 & 0xFF) == 'F');
+	assert(((component2 >> 8) & 0xFF) == 'S');
+
+	unsigned short b1 = component2 & 0xFF;
+	unsigned short b2 = (component3 >> 8) & 0xFF;
+	unsigned short b3 = component3 & 0xFF;
 
 	// does not have to be unsigned as only 24 bits, need to use all 
 	// 32 to worry about that
@@ -80,21 +84,3 @@ void FFS::decode(const std::vector<std::string>& files){
 		decode_file(image, file_stream);
 	}
 }
-
-// int main(int argc, char const *argv[]){
-// 	FFS::assert_correct_arch();
-// 	Magick::InitializeMagick(*argv);
-
-// 	std::string filename;
-// 	std::vector<std::string> input_list;
-// 	if(argc > 1) {
-// 		for(int i = 1; i < argc; i++) {
-// 			input_list.push_back(argv[i]);
-// 		}
-// 	} else {
-// 		input_list.push_back("out.nosync/img0.png");
-// 	}
-// 	FFS::decode(input_list);
-
-// 	return 0;
-// }

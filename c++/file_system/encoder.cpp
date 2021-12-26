@@ -7,15 +7,10 @@
 #include <string>
 #include <math.h>
 #include <fstream>
-#include <cassert>
 #include <cstdlib>
 
 // Bytes required for header
-#define HEADER_SIZE 6
-
-// Maximum possible possible number stored in 24 bits == header of output image
-// 2^24 - 1
-#define MAX_FILE_SIZE 16777215
+#define HEADER_SIZE 8
 
 #define FILE_TYPE "png"
 
@@ -26,7 +21,8 @@ unsigned char random_char() {
 /*
 	Sets first pixel as header
 
-	Header consists of first pixel with 3 * 2 = 6 bytes, in order:
+	Header consists of first pixel with 4 * 2 = 8 bytes, in order:
+	VERSION_NR (2 bytes)
 	"F"	"F"
 	"S"	L1
 	L2	L3
@@ -47,11 +43,13 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 	unsigned char L2 = (length >> 8) & 0xFF;
 	unsigned char L3 = length & 0xFF;
 
+	unsigned short version_nr = FFS_FILE_VERSION;
 	unsigned short component1 = (F << 8) | F;
 	unsigned short component2 = (S << 8) | L1;
 	unsigned short component3 = (L2 << 8) | L3;
 
 	// Increment pointer after assignment
+	*(component_pointer++) = version_nr;
 	*(component_pointer++) = component1;
 	*(component_pointer++) = component2;
 	*(component_pointer++) = component3;
@@ -134,7 +132,7 @@ void FFS::encode(std::string path) {
 
 	int out_file_index = 0;
 	while(length > 0) {
-		int out_file_size = std::min(MAX_FILE_SIZE, length);
+		int out_file_size = std::min(FFS_MAX_FILE_SIZE, length);
 		std::string out_file_name = "out.nosync/img" + std::to_string(out_file_index);
 		//TODO: Make concurrent?
 		create_image(out_file_name, file_stream, out_file_size);
@@ -142,18 +140,3 @@ void FFS::encode(std::string path) {
 		out_file_index++;
 	}
 }
-
-// int main(int argc, char const *argv[]){
-// 	FFS::assert_correct_arch();
-// 	Magick::InitializeMagick(*argv);
-
-// 	std::string filename;
-// 	if(argc > 1) {
-// 		filename = argv[1];
-// 		FFS::encode(filename);
-// 	} else {
-// 		FFS::encode("out.nosync/input");
-// 	}
-
-// 	return 0;
-// }

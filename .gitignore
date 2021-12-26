@@ -1,3 +1,5 @@
 python/out
 c++/out.nosync
+c++/a.out
+c++/test.cpp
 *.trace

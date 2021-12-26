@@ -1,5 +1,8 @@
 #include "constants.h"
 
+#include <Magick++.h>
+#include <cassert>
+
 void FFS::assert_correct_arch() {
 	assert(sizeof(char) == 1);
 	assert(sizeof(short) == 2);
