@@ -17,7 +17,7 @@ files :=  file_system/*.cpp helpers/*.cpp
 test_files := $(test_dir)/*.cpp $(test_dir)/helpers/*.cpp
 test_main := $(out_dir)/main_test.out
 
-all: clean
+all:
 	@$(CC) $(compile_flags) $(magick_flags) main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out 
 
 main_test:

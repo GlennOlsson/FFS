@@ -61,24 +61,7 @@ FFS::InodeEntry FFS::InodeEntry::desterilize(std::istream& stream) {
 }
 
 bool FFS::InodeEntry::operator==(const FFS::InodeEntry rhs) const {
-	std::cout << "comp" << std::endl;
-	std::cout << "l " << this->length << std::endl;
-	std::cout << "l2 " << rhs.length << std::endl;
-	std::cout << "b " << this->tweet_blocks.size() << std::endl;
-	std::cout << "b2 " << rhs.tweet_blocks.size() << std::endl;
-	std::cout << "comp1 " << (this->length == rhs.length) << std::endl;
-	std::cout << "comp2 " << (this->tweet_blocks.size()) << std::endl;
-	std::cout << "comp3 " << (rhs.tweet_blocks.size()) << std::endl;
-	std::cout << "comp4 " << (&(rhs.tweet_blocks)) << std::endl;
-	std::cout << "comp5 " << (&(this->tweet_blocks)) << std::endl;
-	std::cout << "comp6 " << (&(this->tweet_blocks) == &(rhs.tweet_blocks)) << std::endl;
-	bool comp = this->length == rhs.length && this->tweet_blocks == rhs.tweet_blocks;
-	std::cout << "compare " << comp << std::endl;
-	return comp;
-}
-
-bool operator==(const FFS::InodeEntry lhs, const FFS::InodeEntry rhs) {
-	return lhs.operator==(rhs);
+	return this->length == rhs.length && this->tweet_blocks == rhs.tweet_blocks;
 }
 
 // Inode Table...

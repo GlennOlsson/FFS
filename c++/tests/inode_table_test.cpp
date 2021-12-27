@@ -9,16 +9,10 @@
 
 #include <iostream>
 
-using std::cout;
-using std::endl;
-
 TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
 	std::unordered_map<unsigned int, FFS::InodeEntry&> m;
 
 	for(int i = 0; i < 10; i++) {
-
-		cout << "Entry " << i << endl;
-
 		unsigned int rand_inode_id = FFS::random_int();
 
 		//Random length between 10 and 10000 bytes
@@ -38,27 +32,9 @@ TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
 		m.insert_or_assign(rand_inode_id, *entry);
 	}
 
-	cout << "Creating table" << endl;
-
 	FFS::InodeTable table(m);
-
-	cout << "ASSERT" << endl;
-
-	cout << "M count" << m.size() << ", t size " << table.entries.size() << endl;;
-
-	for(auto m_p: m) {
-		cout << "m1: " << m_p.first << ", m2 length: " << m_p.second.size() << endl;
-		cout << "t[m1].counties: " << table.entries.count(m_p.first) << endl; 
-		cout << "eqss: " << (table.entries.at(m_p.first) == m_p.second) << endl; 
-	}
-
-	cout << "out of loop" << endl;
 
 	bool maps_eq = m == table.entries;
 
-	cout << "Maps equal? " << (maps_eq ? "t" : "f") << endl;
-
 	REQUIRE(maps_eq);
-
-	cout << "REQUIRE RAN " << endl;
 }
