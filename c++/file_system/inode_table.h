@@ -8,17 +8,15 @@
 namespace FFS {
 
 class InodeEntry {
-
-public:
+private:
 	//TODO: add more metadata
 	// Total file length
 	int length;
 	// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
-	std::vector<unsigned long> tweet_blocks;
+	std::vector<unsigned long>* tweet_blocks;
 	
-
-	InodeEntry(int length, std::vector<unsigned long>& tweet_blocks);
-	InodeEntry(const InodeEntry &entry);
+public:
+	InodeEntry(int length, std::vector<unsigned long>* tweet_blocks);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes
@@ -47,16 +45,16 @@ public:
 	 * @param stream the input stream for the FFS image
 	 * @return InodeEntry the instanciated table
 	 */
-	static InodeEntry desterilize(std::istream& stream);
+	static InodeEntry* desterilize(std::istream& stream);
 
-	bool operator==(const InodeEntry rhs) const;
+	bool operator==(const InodeEntry& rhs) const;
 };
 
 class InodeTable {
 public:
-	std::unordered_map<unsigned int, InodeEntry&> entries;
+	std::unordered_map<unsigned int, InodeEntry*>* entries;
 
-	InodeTable(std::unordered_map<unsigned int, InodeEntry&>& entries);
+	InodeTable(std::unordered_map<unsigned int, InodeEntry*>* entries);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes
@@ -81,8 +79,11 @@ public:
 	 * @param stream the input stream for the FFS image
 	 * @return InodeTable the instanciated table
 	 */
-	static InodeTable& desterilize(std::istream& stream);
+	static InodeTable* desterilize(std::istream& stream);
 
 	void save(std::string path);
+	static InodeTable* load(std::string path);
+
+	bool operator==(const InodeTable& rhs) const;
 };
 }

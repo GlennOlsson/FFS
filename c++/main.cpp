@@ -5,6 +5,7 @@
 #include "helpers/functions.h"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 using std::cout;
@@ -40,7 +41,13 @@ int decode_main(int argc, char const *argv[]){
 	} else {
 		input_list.push_back("out.nosync/img0.png");
 	}
-	FFS::decode(input_list);
+
+	std::ofstream file_stream("out.nosync/output", std::ofstream::binary);
+	if (!file_stream) {
+		std::cerr << "Cannot output to file out.nosync/output" << std::endl;
+		return 1;
+	}
+	FFS::decode(input_list, file_stream);
 
 	return 0;
 }

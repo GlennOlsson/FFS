@@ -13,3 +13,6 @@
 
 // FFS Directory structure version
 #define FFS_DIRECTORY_VERSION 0
+
+// The image type outputted by Magick++
+#define FFS_IMAGE_TYPE "png"

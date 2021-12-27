@@ -41,7 +41,7 @@ int assert_header(Magick::Quantum*& component_pointer) {
 	return length;
 }
 
-void decode_file(Magick::Image& image, std::ofstream& file_stream) {
+void decode_file(Magick::Image& image, std::ostream& file_stream) {
 	Magick::Pixels pixel_view(image);
 
 	Magick::Geometry image_size = image.size();
@@ -69,19 +69,13 @@ void decode_file(Magick::Image& image, std::ofstream& file_stream) {
 	}
 }
 
-void FFS::decode(const std::vector<std::string>& files){
-
-	std::ofstream file_stream("out.nosync/output", std::ifstream::binary);
-	if (!file_stream) {
-		std::cerr << "Cannot output to file out.nosync/output" << std::endl;
-		return;
-	}
+void FFS::decode(const std::vector<std::string>& files, std::ostream& file_stream){
 
 	Magick::Image image;
 	// std::string filename;
 	for(std::string filename: files) {
 		// filename = *it;
-		image = Magick::Image(filename);
+		image = Magick::Image(filename + "." + FFS_IMAGE_TYPE);
 		decode_file(image, file_stream);
 	}
 }

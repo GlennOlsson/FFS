@@ -13,8 +13,6 @@
 // Bytes required for header
 #define HEADER_SIZE 8
 
-#define FILE_TYPE "png"
-
 /*
 	Sets first pixel as header
 
@@ -35,7 +33,7 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 	char S = 'S';
 
 	// Use 3 bytes to represent length of content
-	// Move bits to look at to far-rigth, and 0 all other digits
+	// Move bits to look at to far-right, and 0 all other digits
 	unsigned char L1 = (length >> 16) & 0xFF;
 	unsigned char L2 = (length >> 8) & 0xFF;
 	unsigned char L3 = length & 0xFF;
@@ -73,7 +71,7 @@ void FFS::create_image(std::string output_name, std::istream& file_stream, int l
 
 	Magick::Image image(Magick::Geometry(width, height), Magick::Color("white"));
 
-	image.magick(FILE_TYPE);
+	image.magick(FFS_IMAGE_TYPE);
 	image.quality(100);
 	
 	image.type(Magick::TrueColorType);
@@ -113,7 +111,7 @@ void FFS::create_image(std::string output_name, std::istream& file_stream, int l
 	}
 	pixel_view.sync();
 
-	image.write(output_name + "." + FILE_TYPE);
+	image.write(output_name + "." + FFS_IMAGE_TYPE);
 }
 
 void FFS::encode(std::string path) {
