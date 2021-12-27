@@ -9,9 +9,14 @@
 
 // Inode Entry...
 
-FFS::InodeEntry::InodeEntry(int length, std::vector<long>& tweet_blocks) {
+FFS::InodeEntry::InodeEntry(int length, std::vector<unsigned long>& tweet_blocks) {
 	this->length = length;
 	this->tweet_blocks = tweet_blocks;
+}
+
+FFS::InodeEntry::InodeEntry(const InodeEntry &entry) {
+	this->length = entry.length;
+	this->tweet_blocks = std::vector<unsigned long>(entry.tweet_blocks);
 }
 
 int FFS::InodeEntry::size() {
@@ -26,21 +31,21 @@ int FFS::InodeEntry::size() {
 void FFS::InodeEntry::sterilize(std::ostream& stream) {
 	stream.put(this->length);
 	stream.put(this->tweet_blocks.size());
-	for(long entry: tweet_blocks) {
+	for(unsigned long entry: tweet_blocks) {
 		stream.put(entry);
 	}
 }
 
-FFS::InodeEntry& FFS::InodeEntry::desterilize(std::istream& stream) {
+FFS::InodeEntry FFS::InodeEntry::desterilize(std::istream& stream) {
 	int length, block_count; 
 	stream >> length;
 	stream >> block_count;
 
-	std::vector<long> blocks;
+	std::vector<unsigned long> blocks;
 	char get_ptr[8];
 	while(block_count-- > 0) {
 		stream.read(get_ptr, 8);
-		long block_val = get_ptr[0] << 4 * 7;
+		unsigned long block_val = get_ptr[0] << 4 * 7;
 		block_val |= get_ptr[1] << (4 * 6);
 		block_val |= get_ptr[2] << (4 * 5);
 		block_val |= get_ptr[3] << (4 * 4);
@@ -53,6 +58,27 @@ FFS::InodeEntry& FFS::InodeEntry::desterilize(std::istream& stream) {
 	}
 
 	return *(new InodeEntry(length, blocks));
+}
+
+bool FFS::InodeEntry::operator==(const FFS::InodeEntry rhs) const {
+	std::cout << "comp" << std::endl;
+	std::cout << "l " << this->length << std::endl;
+	std::cout << "l2 " << rhs.length << std::endl;
+	std::cout << "b " << this->tweet_blocks.size() << std::endl;
+	std::cout << "b2 " << rhs.tweet_blocks.size() << std::endl;
+	std::cout << "comp1 " << (this->length == rhs.length) << std::endl;
+	std::cout << "comp2 " << (this->tweet_blocks.size()) << std::endl;
+	std::cout << "comp3 " << (rhs.tweet_blocks.size()) << std::endl;
+	std::cout << "comp4 " << (&(rhs.tweet_blocks)) << std::endl;
+	std::cout << "comp5 " << (&(this->tweet_blocks)) << std::endl;
+	std::cout << "comp6 " << (&(this->tweet_blocks) == &(rhs.tweet_blocks)) << std::endl;
+	bool comp = this->length == rhs.length && this->tweet_blocks == rhs.tweet_blocks;
+	std::cout << "compare " << comp << std::endl;
+	return comp;
+}
+
+bool operator==(const FFS::InodeEntry lhs, const FFS::InodeEntry rhs) {
+	return lhs.operator==(rhs);
 }
 
 // Inode Table...
@@ -100,11 +126,4 @@ void FFS::InodeTable::save(std::string path) {
 
 	this->sterilize(stream);
 	create_image(path, stream, size);
-}
-
-int main(int argc, char const *argv[]) {
-	
-	
-
-	return 0;
 }

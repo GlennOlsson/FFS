@@ -1,22 +1,19 @@
 #include "file_coder.h"
 
 #include "../helpers/constants.h"
+#include "../helpers/functions.h"
 
 #include <iostream>
 #include <Magick++.h>
 #include <string>
 #include <math.h>
 #include <fstream>
-#include <cstdlib>
+#include <cassert>
 
 // Bytes required for header
 #define HEADER_SIZE 8
 
 #define FILE_TYPE "png"
-
-unsigned char random_char() {
-	return rand() % 255;
-}
 
 /*
 	Sets first pixel as header
@@ -56,6 +53,7 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 }
 
 void FFS::create_image(std::string output_name, std::istream& file_stream, int length) {
+	assert(QuantumRange == 65535);
 
 	// Bytes required for header and file
 	int min_bytes = length + HEADER_SIZE;
@@ -100,7 +98,7 @@ void FFS::create_image(std::string output_name, std::istream& file_stream, int l
 			file_stream.get(b);
 		}
 		else {
-			b = random_char();
+			b = random_byte();
 		}
 
 		// If first byte in component, shift to left by one byte

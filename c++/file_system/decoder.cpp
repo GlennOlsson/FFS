@@ -1,6 +1,7 @@
 #include "file_coder.h"
 
 #include "../helpers/constants.h"
+#include "../helpers/functions.h"
 
 #include <iostream>
 #include <Magick++.h>

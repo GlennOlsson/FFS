@@ -13,9 +13,3 @@
 
 // FFS Directory structure version
 #define FFS_DIRECTORY_VERSION 0
-namespace FFS {
-	/**
-	 * @brief Assert that all types used are of the expected byte length 
-	 */
-	void assert_correct_arch();
-}

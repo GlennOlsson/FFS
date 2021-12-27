@@ -8,15 +8,17 @@
 namespace FFS {
 
 class InodeEntry {
-private:
+
+public:
 	//TODO: add more metadata
+	// Total file length
 	int length;
 	// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
-	std::vector<long> tweet_blocks;
+	std::vector<unsigned long> tweet_blocks;
 	
-public:
 
-	InodeEntry(int length, std::vector<long>& tweet_blocks);
+	InodeEntry(int length, std::vector<unsigned long>& tweet_blocks);
+	InodeEntry(const InodeEntry &entry);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes
@@ -45,14 +47,15 @@ public:
 	 * @param stream the input stream for the FFS image
 	 * @return InodeEntry the instanciated table
 	 */
-	static InodeEntry& desterilize(std::istream& stream);
+	static InodeEntry desterilize(std::istream& stream);
+
+	bool operator==(const InodeEntry rhs) const;
 };
 
 class InodeTable {
-private:
+public:
 	std::unordered_map<unsigned int, InodeEntry&> entries;
 
-public:
 	InodeTable(std::unordered_map<unsigned int, InodeEntry&>& entries);
 
 	/**
