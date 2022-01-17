@@ -181,26 +181,17 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 void FFS::InodeTable::save(std::string path) {
 	int size = this->size();
 
-	std::cout << "Size of inode: " << size << " bytes" << std::endl;
+	std::basic_filebuf<char> buf;
+	buf.open("/tmp/ffs_save",
+	std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
 
-	// std::basic_filebuf<char> buf;
-	// buf.open("tmp",
-	// std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
+	std::basic_iostream stream(&buf);
 
-	// std::basic_iostream stream(&buf);
+	this->sterilize(stream);
 
-	std::ofstream ostream("tmp", std::ofstream::binary);
+	stream.seekg(0);
 
-	this->sterilize(ostream);
-
-	ostream.close();
-	// std::filesystem::remove("tmp");
-
-	std::ifstream istream("tmp", std::ofstream::binary);
-
-	create_image(path, istream, size);
-
-	// std::filesystem::remove("tmp");
+	create_image(path, stream, size);
 }
 
 FFS::InodeTable* FFS::InodeTable::load(std::string path) {
@@ -208,7 +199,7 @@ FFS::InodeTable* FFS::InodeTable::load(std::string path) {
 	// std::ios_base::in|std::ios_base::out|std::ios_base::binary);
 
 	std::basic_filebuf<char> buf;
-	buf.open("2tmp",
+	buf.open("/tmp/ffs_load",
 	std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
 
 	std::basic_iostream stream(&buf);
