@@ -4,16 +4,17 @@
 
 #include "../helpers/functions.h"
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
 
 #include <iostream>
 
-FFS::InodeTable* create_table(std::unordered_map<unsigned int, FFS::InodeEntry*>* m = nullptr) {
+FFS::InodeTable* create_table(std::map<unsigned int, FFS::InodeEntry*>* m = nullptr) {
 	if(m == nullptr)
-		m = new std::unordered_map<unsigned int, FFS::InodeEntry*>();
+		m = new std::map<unsigned int, FFS::InodeEntry*>();
 
+	// 10 files
 	for(int i = 0; i < 10; i++) {
 		unsigned int rand_inode_id = FFS::random_int();
 
@@ -39,7 +40,7 @@ FFS::InodeTable* create_table(std::unordered_map<unsigned int, FFS::InodeEntry*>
 }
 
 TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
-	std::unordered_map<unsigned int, FFS::InodeEntry*>* m = new std::unordered_map<unsigned int, FFS::InodeEntry*>();
+	std::map<unsigned int, FFS::InodeEntry*>* m = new std::map<unsigned int, FFS::InodeEntry*>();
 
 	FFS::InodeTable* table = create_table(m);
 

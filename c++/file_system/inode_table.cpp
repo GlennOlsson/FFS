@@ -1,12 +1,15 @@
 #include "inode_table.h"
 #include "file_coder.h"
+#include "../helpers/functions.h"
 
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <unordered_map>
+#include <map>
 #include <string>
+#include <algorithm>
 
+#include <filesystem> //TODO: Remove
 // Inode Entry...
 
 FFS::InodeEntry::InodeEntry(int length, std::vector<unsigned long>* tweet_blocks) {
@@ -24,50 +27,65 @@ int FFS::InodeEntry::size() {
 }
 
 void FFS::InodeEntry::sterilize(std::ostream& stream) {
-	stream.put(this->length);
-	stream.put(this->tweet_blocks->size());
+	//std::cout << "Entry... Length: " << this->length << ", nr blocks: " << this->tweet_blocks->size() << std::endl;
+	write_i(stream, this->length);
+	write_i(stream, this->tweet_blocks->size());
+	// stream << this->length;
+	// stream << this->tweet_blocks->size();
 	for(unsigned long entry: *tweet_blocks) {
-		stream.put(entry);
+		write_l(stream, entry);
+		std::cout << entry << std::endl; 
 	}
 }
 
 FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 	int length, block_count; 
-	stream >> length;
-	stream >> block_count;
+
+	read_i(stream, length);
+	read_i(stream, block_count);
+
+	//stream >> length;
+	//stream >> block_count;
 
 	std::vector<unsigned long>* blocks = new std::vector<unsigned long>();
-	char get_ptr[8];
+	//char get_ptr[8];
 	while(block_count-- > 0) {
-		stream.read(get_ptr, 8);
-		unsigned long block_val = get_ptr[0] << 4 * 7;
-		block_val |= get_ptr[1] << (4 * 6);
-		block_val |= get_ptr[2] << (4 * 5);
-		block_val |= get_ptr[3] << (4 * 4);
-		block_val |= get_ptr[4] << (4 * 3);
-		block_val |= get_ptr[5] << (4 * 2);
-		block_val |= get_ptr[6] << (4 * 1);
-		block_val |= get_ptr[7];
+		long signed_l;
+		read_l(stream, signed_l);
+		// stream.read(get_ptr, 8);
+		// unsigned long block_val = get_ptr[0] << 4 * 7;
+		// block_val |= get_ptr[1] << (4 * 6);
+		// block_val |= get_ptr[2] << (4 * 5);
+		// block_val |= get_ptr[3] << (4 * 4);
+		// block_val |= get_ptr[4] << (4 * 3);
+		// block_val |= get_ptr[5] << (4 * 2);
+		// block_val |= get_ptr[6] << (4 * 1);
+		// block_val |= get_ptr[7];
 
-		blocks->push_back(block_val);
+		unsigned long l = signed_l;
+
+		blocks->push_back(l);
 	}
 
 	return new InodeEntry(length, blocks);
 }
 
 bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
-	return this->length == rhs.length && this->tweet_blocks == rhs.tweet_blocks;
+	std::cout << "compare entries... " << this->length << ", " << rhs.length << std::endl;
+	std::cout << "equalllll? " << (this->length == rhs.length && (*this->tweet_blocks) == (*rhs.tweet_blocks) ? "true" : "false") << std::endl;
+	return this->length == rhs.length && (*this->tweet_blocks) == (*rhs.tweet_blocks);
 }
 
 // Inode Table...
 
-FFS::InodeTable::InodeTable(std::unordered_map<unsigned int, FFS::InodeEntry*>* entries) {
+FFS::InodeTable::InodeTable(std::map<unsigned int, FFS::InodeEntry*>* entries) {
 	this->entries = entries;
 }
 
 int FFS::InodeTable::size() {
 	int size = 4; // 4 bytes for amount of entries
 	for(auto entry: *this->entries) {
+		size += 4; // Size of id, int
 		size += entry.second->size(); // Add the size for each entry
 	}
 
@@ -75,22 +93,71 @@ int FFS::InodeTable::size() {
 }
 
 void FFS::InodeTable::sterilize(std::ostream& stream) {
-	stream << this->entries->size();
+	std::cout << "Table Entries: " << this->entries->size() << std::endl;
+	std::cout << "Should be 10..." << std::endl;
+	// stream << this->entries->size();
+
+	int total_entries = this->entries->size();
+	// stream.put((total_entries >> (3 * 8)) & 0xFF);
+	// stream.put((total_entries >> (2 * 8)) & 0xFF);
+	// stream.put((total_entries >> (1 * 8)) & 0xFF);
+	// stream.put((total_entries >> (0 * 8)) & 0xFF);
+
+	write_i(stream, total_entries);
+
+	std::cout << "output size bytes: " << std::endl;
+	std::cout << "0x" << std::hex << ((total_entries >> (3 * 8)) & 0xFF) << std::dec << std::endl;
+	std::cout << "0x" << std::hex << ((total_entries >> (2 * 8)) & 0xFF) << std::dec << std::endl;
+	std::cout << "0x" << std::hex << ((total_entries >> (1 * 8)) & 0xFF) << std::dec << std::endl;
+	std::cout << "0x" << std::hex << ((total_entries >> (0 * 8)) & 0xFF) << std::dec << std::endl;
+
 	for(auto entry: *this->entries) {
 		int id = entry.first;
-		stream << id;
+		std::cout << "Entry inode: " << id << std::endl;
+		write_i(stream, id);
 		entry.second->sterilize(stream);
 	}
 }
 
 FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 	int entries_count;
-	stream >> entries_count;
 
-	std::unordered_map<unsigned int, FFS::InodeEntry*>* entries = new std::unordered_map<unsigned int, FFS::InodeEntry*>();
+	// char a1;
+	// char a2;
+	// char a3;
+	// char a4;
+
+	// stream.get(a1);
+	// stream.get(a2);
+	// stream.get(a3);
+	// stream.get(a4);
+
+
+	// std::cout << "input size bytes: " << std::endl;
+	// std::cout << "0x" << std::hex << a1 << std::dec << std::endl;
+	// std::cout << "0x" << std::hex << a2 << std::dec << std::endl;
+	// std::cout << "0x" << std::hex << a3 << std::dec << std::endl;
+	// std::cout << "0x" << std::hex << a4 << std::dec << std::endl;
+
+	// entries_count = (a1 << 3*8) | (a2 << 2*8) | (a3 << 1*8) | (a4 << 0*8);
+
+	//stream >> entries_count;
+
+	read_i(stream, entries_count);
+
+	std::cout << "dester, count: " << entries_count << std::endl;
+
+	std::map<unsigned int, FFS::InodeEntry*>* entries = new std::map<unsigned int, FFS::InodeEntry*>();
 	while(entries_count-- > 0) {
-		int id;
-		stream >> id;
+		int signed_id;
+
+		read_i(stream, signed_id);
+
+		unsigned int id = signed_id;
+
+		std::cout << "id: " << id << std::endl;
+
+		//stream >> id;
 		InodeEntry* entry = InodeEntry::desterilize(stream);
 		entries->insert({id, entry});
 	}
@@ -99,21 +166,93 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 }
 
 void FFS::InodeTable::save(std::string path) {
-	std::basic_fstream<char> stream;
 	int size = this->size();
 
-	this->sterilize(stream);
-	create_image(path, stream, size);
+	std::cout << "Size of inode: " << size << " bytes" << std::endl;
+
+	// std::basic_filebuf<char> buf;
+	// buf.open("tmp", std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
+
+	// std::basic_iostream stream(&buf);
+
+	std::ofstream ostream("tmp", std::ofstream::binary);
+
+	this->sterilize(ostream);
+
+	ostream.close();
+	//std::filesystem::remove("tmp");
+
+	std::ifstream istream("tmp", std::ofstream::binary);
+
+	create_image(path, istream, size);
+
+	//std::filesystem::remove("tmp");
 }
 
 FFS::InodeTable* FFS::InodeTable::load(std::string path) {
-	std::basic_fstream<char> stream;
-	
-	decode({path}, stream);
+	//std::basic_fstream<char> stream("tmp", std::ios_base::in|std::ios_base::out|std::ios_base::binary);
+	 
+	// std::basic_filebuf<char> buf;
+	// buf.open("tmp", std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
 
-	return desterilize(stream);
+	// std::basic_iostream stream(&buf);
+
+	std::ofstream ostream("tmp2", std::ofstream::binary);
+
+	decode({path}, ostream);
+
+	ostream.close();
+	//std::filesystem::remove("tmp");
+
+	std::ifstream istream("tmp2", std::ofstream::binary);
+
+	//std::cout << "is_open: " << (buf.is_open() ? "t" : "f") << std::endl;
+
+	auto table = desterilize(istream);
+
+	//std::filesystem::remove("tmp");
+
+	return table;
 }
 
 bool FFS::InodeTable::operator==(const FFS::InodeTable& rhs) const {
-	return this->entries == rhs.entries;
+	std::cout << "comp. lhs: " << (*this->entries).size() << std::endl;
+
+	for(auto it: *this->entries) {
+		std::cout << it.first << std::endl;
+	}
+
+	std::cout << " ---- rhs: " << (*rhs.entries).size() << std::endl;
+
+	for(auto it: *rhs.entries) {
+		std::cout << it.first << std::endl;
+	}
+
+	//or(auto it: *this->entries) {
+	//	unsigned int key = it.first;
+	//	InodeEntry* val = it.second;
+
+	//	InodeEntry* other_val = (*rhs.entries)[key];
+
+	//	if((*val) != (*other_val)) {
+	//		std::cout << "not eq, key=" << key << std::endl;
+
+	//		for(auto v: (*val->tweet_blocks)) {
+	//			std::cout << v << ", ";
+	//		}
+	//		std::cout << "\n-----\n";
+	//		for(auto v: (*other_val->tweet_blocks)) {
+	//			std::cout << v << ", ";
+	//		}
+	//	}
+
+	//	//std::cout << val->length << ", " << other_val->length << "; eq? " << ((*val) == (*other_val) ? "true" : "false") << std::endl;
+	//
+
+	auto pred = [](auto e1, auto e2) {
+		return e1.first == e2.first && *e1.second == *e2.second;
+	};
+
+
+	return this->entries->size() == rhs.entries->size() && std::equal(this->entries->begin(), this->entries->end(), rhs.entries->begin(), pred);
 }

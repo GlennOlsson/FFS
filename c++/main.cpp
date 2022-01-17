@@ -39,7 +39,7 @@ int decode_main(int argc, char const *argv[]){
 			input_list.push_back(argv[i]);
 		}
 	} else {
-		input_list.push_back("out.nosync/img0.png");
+		input_list.push_back("out.nosync/img0");
 	}
 
 	std::ofstream file_stream("out.nosync/output", std::ofstream::binary);

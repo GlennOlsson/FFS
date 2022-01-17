@@ -90,6 +90,8 @@ void FFS::create_image(std::string output_name, std::istream& file_stream, int l
 	// Keeps two bytes, most significan bytes at most significant position
 	unsigned short current_value;
 
+	std::ofstream stre("end.out");
+
 	char b;
 	while(byte_index < total_bytes) {
 		if(byte_index < (length + HEADER_SIZE)) {
@@ -98,6 +100,12 @@ void FFS::create_image(std::string output_name, std::istream& file_stream, int l
 		else {
 			b = random_byte();
 		}
+
+		stre << b;
+
+		//if(byte_index < 20) {
+		//	std::cout << "byte " << byte_index << ": " << ((unsigned int) b) << std::endl;
+		//}
 
 		// If first byte in component, shift to left by one byte
 		if(byte_index % 2 == 0) {

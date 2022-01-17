@@ -54,11 +54,15 @@ void decode_file(Magick::Image& image, std::ostream& file_stream) {
 	// Stores 2 bytes of data per pixel in current_value
 	int byte_index = 0;
 
+	std::ofstream stre("dec.out");
+
 	while(byte_index < length) {
 		short bytes = *(component_pointer++);
 
 		char b1 = (bytes >> 8) & 0xFF;
 		char b2 = bytes & 0xFF;
+
+		stre << b1 << b2;
 
 		file_stream.put(b1);
 		// If should only add one more byte, skip this 

@@ -14,7 +14,7 @@ test_dir := tests
 CC = g++
 
 files :=  file_system/*.cpp helpers/*.cpp
-test_files := $(test_dir)/*.cpp $(test_dir)/helpers/*.cpp
+test_files := $(test_dir)/*.cpp
 test_main := $(out_dir)/main_test.out
 
 all:

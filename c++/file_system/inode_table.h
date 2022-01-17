@@ -3,19 +3,18 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <unordered_map>
+#include <map>
 
 namespace FFS {
 
 class InodeEntry {
-private:
+public:
 	//TODO: add more metadata
 	// Total file length
 	int length;
 	// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
 	std::vector<unsigned long>* tweet_blocks;
 	
-public:
 	InodeEntry(int length, std::vector<unsigned long>* tweet_blocks);
 
 	/**
@@ -52,9 +51,11 @@ public:
 
 class InodeTable {
 public:
-	std::unordered_map<unsigned int, InodeEntry*>* entries;
 
-	InodeTable(std::unordered_map<unsigned int, InodeEntry*>* entries);
+	// Inode -> Inode Entry
+	std::map<unsigned int, InodeEntry*>* entries;
+
+	InodeTable(std::map<unsigned int, InodeEntry*>* entries);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes

@@ -1,14 +1,16 @@
 
 in_file="out.nosync/input"
 out_file="out.nosync/output"
-img_file="out.nosync/img0.png"
+img_file="out.nosync/img0"
+
+main_file="out.nosync/main.out"
 
 encode () {
-	./out.nosync/encoder $in_file > /dev/null
+	$main_file encode $in_file > /dev/null
 }
 
 decode () {
-	./out.nosync/decoder $img_file > /dev/null
+	$main_file decode $img_file > /dev/null
 }
 
 compareSize () {
@@ -48,7 +50,7 @@ before() {
 	# Bind syserr to /dev/null
 	rm $in_file 2> /dev/null || echo "Could not remove out.nosync/input"
 	rm $out_file 2> /dev/null || echo "Could not remove out.nosync/output"
-	rm $img_file 2> /dev/null ||  echo "Could not remove out.nosync/img"
+	rm $img_file.png 2> /dev/null ||  echo "Could not remove out.nosync/img"
 }
 
 setup
@@ -129,5 +131,5 @@ before
 # Test big file requiring splitting
 cat "/Users/glenn/Desktop/Zoom-backgrounds.nosync/Scary.mp4" > $in_file
 encode
-./out.nosync/decoder out.nosync/img0.png out.nosync/img1.png out.nosync/img2.png out.nosync/img3.png out.nosync/img4.png out.nosync/img5.png out.nosync/img6.png
+$main_file decode out.nosync/img0 out.nosync/img1 out.nosync/img2 out.nosync/img3 out.nosync/img4 out.nosync/img5 out.nosync/img6
 compareHash
