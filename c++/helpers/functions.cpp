@@ -65,14 +65,6 @@ void FFS::read_i(std::istream& stream, int& i) {
 	stream.get(c3);
 	stream.get(c4);
 
-	if(c1 == 78 && c2 == -107) {
-		std::cout << "0x" << std::hex << ((unsigned int)c1) << std::dec << std::endl;
-		std::cout << "0x" << std::hex << ((unsigned int)c2) << std::dec << std::endl;
-		std::cout << "0x" << std::hex << ((unsigned int)c3) << std::dec << std::endl;
-		std::cout << "0x" << std::hex << ((unsigned int)c4) << std::dec << std::endl;
-	}
-
-
 	i = ((c1 << 3 * 8) & 0xFF000000) | ((c2 << 2 * 8) & 0x00FF0000) | ((c3 << 1 * 8) & 0x0000FF00) | ((c4 << 0 * 8) & 0x000000FF);
 }
 void FFS::read_l(std::istream& stream, long& l) {
