@@ -114,10 +114,10 @@ void FFS::create_image(std::string output_name, std::istream& input_stream, int 
 	image.write(output_name + "." + FFS_IMAGE_TYPE);
 }
 
-void FFS::encode(std::string path) {
-	std::ifstream file_stream(path, std::ifstream::binary);
+void FFS::encode(std::string input_path, std::string output_path) {
+	std::ifstream file_stream(input_path, std::ifstream::binary);
 	if (!file_stream) {
-		std::cerr << "no file " << path << std::endl;
+		std::cerr << "no file " << input_path << std::endl;
 		return;
 	}
 
@@ -129,7 +129,7 @@ void FFS::encode(std::string path) {
 	int out_file_index = 0;
 	while(length > 0) {
 		int out_file_size = std::min(FFS_MAX_FILE_SIZE, length);
-		std::string out_file_name = "out.nosync/img" + std::to_string(out_file_index);
+		std::string out_file_name = output_path + std::to_string(out_file_index);
 		//TODO: Make concurrent?
 		create_image(out_file_name, file_stream, out_file_size);
 		length -= out_file_size;

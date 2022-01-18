@@ -20,9 +20,9 @@ int encode_main(int argc, char const *argv[]){
 	std::string filename;
 	if(argc > 1) {
 		filename = argv[1];
-		FFS::encode(filename);
+		FFS::encode(filename, "out.nosync/img");
 	} else {
-		FFS::encode("out.nosync/input");
+		FFS::encode("out.nosync/input", "out.nosync/img");
 	}
 
 	return 0;
