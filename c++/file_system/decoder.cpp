@@ -41,7 +41,7 @@ int assert_header(Magick::Quantum*& component_pointer) {
 	return length;
 }
 
-void decode_file(Magick::Image& image, std::ostream& file_stream) {
+void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	Magick::Pixels pixel_view(image);
 
 	Magick::Geometry image_size = image.size();
@@ -54,20 +54,16 @@ void decode_file(Magick::Image& image, std::ostream& file_stream) {
 	// Stores 2 bytes of data per pixel in current_value
 	int byte_index = 0;
 
-	std::ofstream stre("dec.out");
-
 	while(byte_index < length) {
 		short bytes = *(component_pointer++);
 
 		char b1 = (bytes >> 8) & 0xFF;
 		char b2 = bytes & 0xFF;
 
-		stre << b1 << b2;
-
-		file_stream.put(b1);
+		FFS::write_c(output_stream, b1);
 		// If should only add one more byte, skip this 
 		if(byte_index + 1 < length)
-			file_stream.put(b2);
+			FFS::write_c(output_stream, b2);
 
 		byte_index += 2;
 	}
