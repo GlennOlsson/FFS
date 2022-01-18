@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "../helpers/functions.h"
 #include "file_coder.h"
@@ -181,9 +182,11 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 void FFS::InodeTable::save(std::string path) {
 	int size = this->size();
 
-	std::basic_filebuf<char> buf;
-	buf.open("/tmp/ffs_save",
-	std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
+	// std::basic_filebuf<char> buf;
+	// buf.open("/tmp/ffs_save", std::ios_base::in | std::ios_base::out |
+	// 							  std::ios_base::binary | std::ios_base::trunc);
+
+	std::stringbuf buf;
 
 	std::basic_iostream stream(&buf);
 
@@ -198,9 +201,7 @@ FFS::InodeTable* FFS::InodeTable::load(std::string path) {
 	// std::basic_fstream<char> stream("tmp",
 	// std::ios_base::in|std::ios_base::out|std::ios_base::binary);
 
-	std::basic_filebuf<char> buf;
-	buf.open("/tmp/ffs_load",
-	std::ios_base::in|std::ios_base::out|std::ios_base::binary|std::ios_base::trunc);
+	std::stringbuf buf;
 
 	std::basic_iostream stream(&buf);
 
@@ -211,7 +212,7 @@ FFS::InodeTable* FFS::InodeTable::load(std::string path) {
 	// ostream.close();
 	// std::filesystem::remove("tmp");
 
-	//std::ifstream istream("tmp2", std::ofstream::binary);
+	// std::ifstream istream("tmp2", std::ofstream::binary);
 
 	// std::cout << "is_open: " << (buf.is_open() ? "t" : "f") << std::endl;
 
@@ -225,8 +226,7 @@ FFS::InodeTable* FFS::InodeTable::load(std::string path) {
 }
 
 bool FFS::InodeTable::operator==(const FFS::InodeTable& rhs) const {
-
-	//Compare size of tables (maps), and compare content of maps
+	// Compare size of tables (maps), and compare content of maps
 	return this->entries->size() == rhs.entries->size() &&
 		   std::equal(this->entries->begin(), this->entries->end(),
 					  rhs.entries->begin(), [](auto e1, auto e2) {
