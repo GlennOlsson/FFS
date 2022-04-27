@@ -19,21 +19,21 @@
  */
 uint32_t assert_header(Magick::Quantum*& component_pointer) {
 
-	unsigned short version_nr = *(component_pointer++);
+	uint16_t version_nr = *(component_pointer++);
 
 	assert(version_nr == FFS_FILE_VERSION);
 
-	unsigned short component1 = *(component_pointer++);
-	unsigned short component2 = *(component_pointer++);
-	unsigned short component3 = *(component_pointer++);
+	uint16_t component1 = *(component_pointer++);
+	uint16_t component2 = *(component_pointer++);
+	uint16_t component3 = *(component_pointer++);
 
 	assert(((component1 >> 8) & 0xFF) == 'F');
 	assert((component1 & 0xFF) == 'F');
 	assert(((component2 >> 8) & 0xFF) == 'S');
 
-	unsigned short b1 = component2 & 0xFF;
-	unsigned short b2 = (component3 >> 8) & 0xFF;
-	unsigned short b3 = component3 & 0xFF;
+	uint16_t b1 = component2 & 0xFF;
+	uint16_t b2 = (component3 >> 8) & 0xFF;
+	uint16_t b3 = component3 & 0xFF;
 
 	// does not have to be unsigned as only 24 bits, need to use all 
 	// 32 to worry about that
@@ -55,7 +55,7 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	uint32_t byte_index = 0;
 
 	while(byte_index < length) {
-		short bytes = *(component_pointer++);
+		uint16_t bytes = *(component_pointer++);
 
 		char b1 = (bytes >> 8) & 0xFF;
 		char b2 = bytes & 0xFF;

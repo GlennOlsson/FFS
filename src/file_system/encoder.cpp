@@ -38,10 +38,10 @@ void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 	unsigned char L2 = (length >> 8) & 0xFF;
 	unsigned char L3 = length & 0xFF;
 
-	unsigned short version_nr = FFS_FILE_VERSION;
-	unsigned short component1 = (F << 8) | F;
-	unsigned short component2 = (S << 8) | L1;
-	unsigned short component3 = (L2 << 8) | L3;
+	uint16_t version_nr = FFS_FILE_VERSION;
+	uint16_t component1 = (F << 8) | F;
+	uint16_t component2 = (S << 8) | L1;
+	uint16_t component3 = (L2 << 8) | L3;
 
 	// Increment pointer after assignment
 	*(component_pointer++) = version_nr;
@@ -88,7 +88,7 @@ void FFS::create_image(std::string output_name, std::istream& input_stream, uint
 	uint32_t byte_index = HEADER_SIZE;
 
 	// Keeps two bytes, most significan bytes at most significant position
-	unsigned short current_value;
+	uint16_t current_value;
 
 	char b;
 	while(byte_index < total_bytes) {
