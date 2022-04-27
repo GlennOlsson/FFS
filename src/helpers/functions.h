@@ -2,13 +2,7 @@
 
 #include <iostream>
 
-namespace FFS {
-	/**
-	 * @brief Assert that all types used are of the expected byte length 
-	 */
-	
-	void assert_correct_arch();
-	 
+namespace FFS {	 
 	uint32_t random_int();
 	/** 
 	 * Exclusive

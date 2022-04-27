@@ -4,14 +4,6 @@
 #include <cstdlib>
 #include <iostream>
 
-void FFS::assert_correct_arch() {
-	assert(sizeof(char) == 1);
-	assert(sizeof(short) == 2);
-	assert(sizeof(int) == 4);
-	assert(sizeof(float) == 4);
-	assert(sizeof(uint64_t) == 8);
-}
-
 uint32_t FFS::random_int() { return rand(); }
 
 uint32_t FFS::random_int(uint32_t high) { return random_int() % high; }

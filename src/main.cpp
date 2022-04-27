@@ -14,7 +14,6 @@ using std::endl;
 
 
 int encode_main(int argc, char const *argv[]){
-	FFS::assert_correct_arch();
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
@@ -29,7 +28,6 @@ int encode_main(int argc, char const *argv[]){
 }
 
 int decode_main(int argc, char const *argv[]){
-	FFS::assert_correct_arch();
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
