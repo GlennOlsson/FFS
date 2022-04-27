@@ -13,9 +13,9 @@ public:
 	// Total file length
 	uint32_t length;
 	// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
-	std::vector<unsigned long>* tweet_blocks;
+	std::vector<uint64_t>* tweet_blocks;
 	
-	InodeEntry(uint32_t length, std::vector<unsigned long>* tweet_blocks);
+	InodeEntry(uint32_t length, std::vector<uint64_t>* tweet_blocks);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes

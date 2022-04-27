@@ -13,7 +13,7 @@
 // Inode Entry...
 
 FFS::InodeEntry::InodeEntry(uint32_t length,
-							std::vector<unsigned long>* tweet_blocks) {
+							std::vector< uint64_t>* tweet_blocks) {
 	this->length = length;
 	this->tweet_blocks = tweet_blocks;
 }
@@ -30,7 +30,7 @@ uint32_t FFS::InodeEntry::size() {
 void FFS::InodeEntry::sterilize(std::ostream& stream) {
 	FFS::write_i(stream, this->length);
 	FFS::write_i(stream, this->tweet_blocks->size());
-	for (unsigned long entry : *tweet_blocks) {
+	for (uint64_t entry : *tweet_blocks) {
 		FFS::write_l(stream, entry);
 	}
 }
@@ -41,12 +41,12 @@ FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 	FFS::read_i(stream, length);
 	FFS::read_i(stream, block_count);
 
-	std::vector<unsigned long>* blocks = new std::vector<unsigned long>();
+	std::vector<uint64_t>* blocks = new std::vector<uint64_t>();
 	while (block_count-- > 0) {
-		long signed_l;
+		uint64_t signed_l;
 		FFS::read_l(stream, signed_l);
 
-		unsigned long l = signed_l;
+		uint64_t l = signed_l;
 
 		blocks->push_back(l);
 	}

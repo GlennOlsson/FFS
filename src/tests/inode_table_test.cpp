@@ -21,11 +21,11 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr)
 		//Random length between 10 and 10000 bytes
 		uint32_t rand_length = FFS::random_int(10, 10000);
 
-		std::vector<unsigned long>* rand_blocks = new std::vector<unsigned long>();
+		std::vector<uint64_t>* rand_blocks = new std::vector<uint64_t>();
 
 		uint32_t rand_block_counts = FFS::random_int(1, 100);
 		for(uint32_t j = 0; j < rand_block_counts; j++) {
-			unsigned long rand_tweet_id = FFS::random_long();
+			uint64_t rand_tweet_id = FFS::random_long();
 			
 			rand_blocks->push_back(rand_tweet_id);
 		}
