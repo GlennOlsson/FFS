@@ -1,8 +1,8 @@
+#pragma once
+
 #include <vector>
 #include <string>
 #include <Magick++.h>
-
-#pragma once
 
 // TODO: Include this
 namespace FFS {

@@ -7,7 +7,9 @@
             ],
             "defines": [],
             "macFrameworkPath": [
-                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+                "/Library/Developer/CommandLineTools/usr/include/c++/v1",
+                "/usr/local/lib",
+                "/usr/local/include"
             ],
             "compilerPath": "/usr/bin/g++",
             "cStandard": "c17",

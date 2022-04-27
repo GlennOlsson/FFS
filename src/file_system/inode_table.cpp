@@ -98,7 +98,7 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 
 	auto entries = new std::map< uint32_t, FFS::InodeEntry*>();
 
-	while (entries_count-- > 0) {
+	while(entries_count--) {
 		uint32_t signed_id;
 
 		FFS::read_i(stream, signed_id);

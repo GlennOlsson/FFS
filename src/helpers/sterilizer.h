@@ -1,7 +1,0 @@
-
-
-namespace FFS {
-class Sterilizer {
-
-};
-}
