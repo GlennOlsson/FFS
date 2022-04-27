@@ -12,13 +12,13 @@
 #include "file_coder.h"
 // Inode Entry...
 
-FFS::InodeEntry::InodeEntry(uint32_t length,
+FFS::InodeTable::InodeEntry::InodeEntry(uint32_t length,
 							std::vector< uint64_t>* tweet_blocks) {
 	this->length = length;
 	this->tweet_blocks = tweet_blocks;
 }
 
-uint32_t FFS::InodeEntry::size() {
+uint32_t FFS::InodeTable::InodeEntry::size() {
 	uint32_t value = 0;
 	value += 4;								  // Length field, int = 4 bytes
 	value += 4;								  // Amount of entries = 4 bytes
@@ -27,7 +27,7 @@ uint32_t FFS::InodeEntry::size() {
 	return value;
 }
 
-void FFS::InodeEntry::sterilize(std::ostream& stream) {
+void FFS::InodeTable::InodeEntry::sterilize(std::ostream& stream) {
 	FFS::write_i(stream, this->length);
 	FFS::write_i(stream, this->tweet_blocks->size());
 	for (uint64_t entry : *tweet_blocks) {
@@ -35,7 +35,7 @@ void FFS::InodeEntry::sterilize(std::ostream& stream) {
 	}
 }
 
-FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
+FFS::InodeTable::InodeEntry* FFS::InodeTable::InodeEntry::desterilize(std::istream& stream) {
 	uint32_t length, block_count;
 
 	FFS::read_i(stream, length);
@@ -54,7 +54,7 @@ FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 	return new InodeEntry(length, blocks);
 }
 
-bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
+bool FFS::InodeTable::InodeEntry::operator==(const FFS::InodeTable::InodeEntry& rhs) const {
 	// Equal if same amount of blocks, and the blocks array is equal (order
 	// matters!!)
 	return this->length == rhs.length &&
@@ -63,7 +63,7 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 
 // Inode Table...
 
-FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
+FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeTable::InodeEntry*>* entries) {
 	this->entries = entries;
 }
 
@@ -96,7 +96,7 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 
 	FFS::read_i(stream, entries_count);
 
-	auto entries = new std::map< uint32_t, FFS::InodeEntry*>();
+	auto entries = new std::map< uint32_t, FFS::InodeTable::InodeEntry*>();
 
 	while(entries_count--) {
 		uint32_t signed_id;

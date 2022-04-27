@@ -1,5 +1,8 @@
 #include "catch.hpp"
 
+// So we can access private fields of the class
+#define private public
+
 #include "../file_system/inode_table.h"
 
 #include "../helpers/functions.h"
@@ -10,9 +13,9 @@
 
 #include <iostream>
 
-FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr) {
+FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeTable::InodeEntry*>* m = nullptr) {
 	if(m == nullptr)
-		m = new std::map<uint32_t, FFS::InodeEntry*>();
+		m = new std::map<uint32_t, FFS::InodeTable::InodeEntry*>();
 
 	// 10 files
 	for(uint32_t i = 0; i < 10; i++) {
@@ -30,7 +33,7 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr)
 			rand_blocks->push_back(rand_tweet_id);
 		}
 
-		FFS::InodeEntry* entry = new FFS::InodeEntry(rand_length, rand_blocks);
+		FFS::InodeTable::InodeEntry* entry = new FFS::InodeTable::InodeEntry(rand_length, rand_blocks);
 
 		m->insert_or_assign(rand_inode_id, entry);
 	}
@@ -40,7 +43,7 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr)
 }
 
 TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
-	std::map<uint32_t, FFS::InodeEntry*>* m = new std::map<uint32_t, FFS::InodeEntry*>();
+	std::map<uint32_t, FFS::InodeTable::InodeEntry*>* m = new std::map<uint32_t, FFS::InodeTable::InodeEntry*>();
 
 	FFS::InodeTable* table = create_table(m);
 

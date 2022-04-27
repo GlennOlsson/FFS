@@ -30,7 +30,6 @@ FFS::Directory* create_directory() {
 		}
 
 		std::string name = name_stream.str();
-		std::cout << "Random filename: " << name << std::endl;
 
 		entries->insert({name, rand_inode_id});
 	}

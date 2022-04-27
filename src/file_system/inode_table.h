@@ -7,8 +7,10 @@
 
 namespace FFS {
 
-class InodeEntry {
-public:
+class InodeTable {
+private:
+	class InodeEntry {
+	public:
 	//TODO: add more metadata
 	// Total file length
 	uint32_t length;
@@ -49,14 +51,12 @@ public:
 	bool operator==(const InodeEntry& rhs) const;
 };
 
-class InodeTable {
-public:
-
 	// Inode -> Inode Entry
 	std::map<uint32_t, InodeEntry*>* entries;
 
 	InodeTable(std::map<uint32_t, InodeEntry*>* entries);
 
+public:
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
