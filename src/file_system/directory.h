@@ -39,10 +39,34 @@ public:
 	static Directory* desterilize(std::istream& stream);
 
 	/**
+	 * @brief Save directory as an FFS image to file at path
+	 * 
+	 * @param path the path to save the file to
+	 */
+	void save(std::string path);
+
+	/**
+	 * @brief Load a directory from an FFS image
+	 * 
+	 * @param path the path of the FFS image
+	 * @return Directory* a pointer to the resulting directory
+	 */
+	static Directory* load(std::string path);
+
+	/**
 	 * @brief Get the content of the directory
 	 * 
 	 * @return std::vector<std::string> a list of all filenames 
 	 */
 	std::vector<std::string> content();
+
+	/**
+	 * @brief Compare equality of two directories
+	 * 
+	 * @param rhs the other directory to compare with
+	 * @return true if the directories are equal
+	 * @return false if the directories are unequal
+	 */
+	bool operator==(const Directory& rhs) const;
 };
 }

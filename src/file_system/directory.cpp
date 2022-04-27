@@ -68,10 +68,42 @@ FFS::Directory* FFS::Directory::desterilize(std::istream& stream) {
 
 	return new FFS::Directory(entries);
 }
+
+void FFS::Directory::save(std::string path) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	this->sterilize(stream);
+
+	uint32_t size = this->size();
+	create_image(path, stream, size);
+}
+
+FFS::Directory* FFS::Directory::load(std::string path) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	decode({path}, stream);
+
+	return desterilize(stream);
+}
+
 std::vector<std::string> FFS::Directory::content() {
 	std::vector<std::string> names(this->entries->size());
 	for(auto entry: *this->entries)
 		names.push_back(entry.first);
 	
 	return names;
+}
+
+
+bool FFS::Directory::operator==(const FFS::Directory& rhs) const {
+	// Compare size of tables (maps), and compare content of maps
+	return this->entries->size() == rhs.entries->size() &&
+		   std::equal(this->entries->begin(), this->entries->end(),
+					  rhs.entries->begin(), [](auto e1, auto e2) {
+						  // Compare keys and values
+						  return e1.first == e2.first &&
+								 e1.second == e2.second;
+					  });
 }

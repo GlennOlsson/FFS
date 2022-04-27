@@ -129,7 +129,6 @@ FFS::InodeTable* FFS::InodeTable::load(std::string path) {
 	decode({path}, stream);
 
 	return desterilize(stream);
-	;
 }
 
 bool FFS::InodeTable::operator==(const FFS::InodeTable& rhs) const {
