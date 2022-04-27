@@ -35,10 +35,10 @@ unsigned char FFS::random_byte() { return ((unsigned int)random_int()) % 255; }
 
 void FFS::write_c(std::ostream& stream, char c) { stream.put(c); }
 void FFS::write_i(std::ostream& stream, int i) {
-	stream.put((i >> 3 * 8) & 0xFF);
-	stream.put((i >> 2 * 8) & 0xFF);
-	stream.put((i >> 1 * 8) & 0xFF);
-	stream.put((i >> 0 * 8) & 0xFF);
+	stream.put((i >> (3 * 8)) & 0xFF);
+	stream.put((i >> (2 * 8)) & 0xFF);
+	stream.put((i >> (1 * 8)) & 0xFF);
+	stream.put((i >> (0 * 8)) & 0xFF);
 }
 void FFS::write_l(std::ostream& stream, long l) {
 	write_i(stream, l >> 4 * 8);
@@ -53,8 +53,8 @@ void FFS::read_i(std::istream& stream, int& i) {
 	stream.get(c3);
 	stream.get(c4);
 
-	i = ((c1 << 3 * 8) & 0xFF000000) | ((c2 << 2 * 8) & 0xFF0000) |
-		((c3 << 1 * 8) & 0xFF00) | ((c4 << 0 * 8) & 0xFF);
+	i = ((c1 << (3 * 8)) & 0xFF000000) | ((c2 << (2 * 8)) & 0xFF0000) |
+		((c3 << (1 * 8)) & 0xFF00) | ((c4 << (0 * 8)) & 0xFF);
 }
 void FFS::read_l(std::istream& stream, long& l) {
 	int i1, i2;
