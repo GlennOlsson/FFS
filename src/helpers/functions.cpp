@@ -31,9 +31,9 @@ uint64_t FFS::random_long(uint64_t low, uint64_t high) {
 	return low + (random_long((high - low)));
 }
 
-unsigned char FFS::random_byte() { return ((uint32_t)random_int()) % 255; }
+uint8_t FFS::random_byte() { return ((uint32_t)random_int()) % 255; }
 
-void FFS::write_c(std::ostream& stream, char c) { stream.put(c); }
+void FFS::write_c(std::ostream& stream, uint8_t c) { stream.put(c); }
 void FFS::write_i(std::ostream& stream, uint32_t i) {
 	stream.put((i >> (3 * 8)) & 0xFF);
 	stream.put((i >> (2 * 8)) & 0xFF);
@@ -45,7 +45,12 @@ void FFS::write_l(std::ostream& stream, uint64_t l) {
 	write_i(stream, l & 0xFFFFFFFF);
 }
 
-void FFS::read_c(std::istream& stream, char& c) { stream.get(c); }
+void FFS::read_c(std::istream& stream, uint8_t& c) { 
+	// istream.get does not accept uint8_t
+	char _c;
+	stream.get(_c); 
+	c = _c;
+}
 void FFS::read_i(std::istream& stream, uint32_t& i) {
 	char c1, c2, c3, c4;
 	stream.get(c1);

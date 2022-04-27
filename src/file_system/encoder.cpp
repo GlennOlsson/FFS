@@ -29,14 +29,14 @@
 
 */
 void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
-	char F = 'F';
-	char S = 'S';
+	uint8_t F = 'F';
+	uint8_t S = 'S';
 
 	// Use 3 bytes to represent length of content
 	// Move bits to look at to far-right, and 0 all other digits
-	unsigned char L1 = (length >> 16) & 0xFF;
-	unsigned char L2 = (length >> 8) & 0xFF;
-	unsigned char L3 = length & 0xFF;
+	uint8_t L1 = (length >> 16) & 0xFF;
+	uint8_t L2 = (length >> 8) & 0xFF;
+	uint8_t L3 = length & 0xFF;
 
 	uint16_t version_nr = FFS_FILE_VERSION;
 	uint16_t component1 = (F << 8) | F;
@@ -90,7 +90,7 @@ void FFS::create_image(std::string output_name, std::istream& input_stream, uint
 	// Keeps two bytes, most significan bytes at most significant position
 	uint16_t current_value;
 
-	char b;
+	uint8_t b;
 	while(byte_index < total_bytes) {
 		if(byte_index < (length + HEADER_SIZE)) {
 			FFS::read_c(input_stream, b);

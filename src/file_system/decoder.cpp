@@ -57,8 +57,8 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	while(byte_index < length) {
 		uint16_t bytes = *(component_pointer++);
 
-		char b1 = (bytes >> 8) & 0xFF;
-		char b2 = bytes & 0xFF;
+		uint8_t b1 = (bytes >> 8) & 0xFF;
+		uint8_t b2 = bytes & 0xFF;
 
 		FFS::write_c(output_stream, b1);
 		// If should only add one more byte, skip this 

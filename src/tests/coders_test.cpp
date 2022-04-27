@@ -52,7 +52,7 @@ TEST_CASE("Encode and decode plain text", "[coders]") {
 	REQUIRE(files_eq(INPUT_FILE_PATH, OUTPUT_FILE_PATH));
 }
 
-TEST_CASE("Encode and decode special character text", "[coders]") {
+TEST_CASE("Encode and decode special uint8_tacter text", "[coders]") {
 	
 	std::string s = "Bagare Bengtson bakom berget bakar bara brända bullar 🥵🍪⏲🧑‍🍳";
 	save_to_file(s, INPUT_FILE_PATH);
