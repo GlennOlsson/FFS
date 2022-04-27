@@ -12,14 +12,14 @@
 #include "file_coder.h"
 // Inode Entry...
 
-FFS::InodeEntry::InodeEntry(int length,
+FFS::InodeEntry::InodeEntry(uint32_t length,
 							std::vector<unsigned long>* tweet_blocks) {
 	this->length = length;
 	this->tweet_blocks = tweet_blocks;
 }
 
-int FFS::InodeEntry::size() {
-	int value = 0;
+uint32_t FFS::InodeEntry::size() {
+	uint32_t value = 0;
 	value += 4;								  // Length field, int = 4 bytes
 	value += 4;								  // Amount of entries = 4 bytes
 	value += this->tweet_blocks->size() * 8;  // 8 bytes per element
@@ -36,7 +36,7 @@ void FFS::InodeEntry::sterilize(std::ostream& stream) {
 }
 
 FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
-	int length, block_count;
+	uint32_t length, block_count;
 
 	FFS::read_i(stream, length);
 	FFS::read_i(stream, block_count);
@@ -63,12 +63,12 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 
 // Inode Table...
 
-FFS::InodeTable::InodeTable(std::map<unsigned int, FFS::InodeEntry*>* entries) {
+FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 	this->entries = entries;
 }
 
-int FFS::InodeTable::size() {
-	int size = 4;  // 4 bytes for amount of entries
+uint32_t FFS::InodeTable::size() {
+	uint32_t size = 4;  // 4 bytes for amount of entries
 	for (auto entry : *this->entries) {
 		size += 4;					   // Size of id, int
 		size += entry.second->size();  // Add the size for each entry
@@ -78,13 +78,13 @@ int FFS::InodeTable::size() {
 }
 
 void FFS::InodeTable::sterilize(std::ostream& stream) {
-	int total_entries = this->entries->size();
+	uint32_t total_entries = this->entries->size();
 
 	FFS::write_i(stream, total_entries);
 
 	// For each entry add its id, and the sterilized entry
 	for (auto entry : *this->entries) {
-		int id = entry.first;
+		uint32_t id = entry.first;
 		FFS::write_i(stream, id);
 
 		entry.second->sterilize(stream);
@@ -92,18 +92,18 @@ void FFS::InodeTable::sterilize(std::ostream& stream) {
 }
 
 FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
-	int entries_count;
+	uint32_t entries_count;
 
 	FFS::read_i(stream, entries_count);
 
-	auto entries = new std::map<unsigned int, FFS::InodeEntry*>();
+	auto entries = new std::map< uint32_t, FFS::InodeEntry*>();
 
 	while (entries_count-- > 0) {
-		int signed_id;
+		uint32_t signed_id;
 
 		FFS::read_i(stream, signed_id);
 
-		unsigned int id = signed_id;
+		uint32_t id = signed_id;
 
 		InodeEntry* entry = InodeEntry::desterilize(stream);
 		entries->insert({id, entry});
@@ -118,7 +118,7 @@ void FFS::InodeTable::save(std::string path) {
 
 	this->sterilize(stream);
 
-	int size = this->size();
+	uint32_t size = this->size();
 	create_image(path, stream, size);
 }
 

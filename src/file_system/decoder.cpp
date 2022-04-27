@@ -17,7 +17,7 @@
  * @param component_pointer the pointer to each component
  * @return the length of data 
  */
-int assert_header(Magick::Quantum*& component_pointer) {
+uint32_t assert_header(Magick::Quantum*& component_pointer) {
 
 	unsigned short version_nr = *(component_pointer++);
 
@@ -37,7 +37,7 @@ int assert_header(Magick::Quantum*& component_pointer) {
 
 	// does not have to be unsigned as only 24 bits, need to use all 
 	// 32 to worry about that
-	int length = (b1 << 2 * 8) | (b2 << 8) | b3;
+	uint32_t length = (b1 << 2 * 8) | (b2 << 8) | b3;
 	return length;
 }
 
@@ -49,10 +49,10 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
 	Magick::Quantum *component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
 
-	int length = assert_header(component_pointer);
+	uint32_t length = assert_header(component_pointer);
 
 	// Stores 2 bytes of data per pixel in current_value
-	int byte_index = 0;
+	uint32_t byte_index = 0;
 
 	while(byte_index < length) {
 		short bytes = *(component_pointer++);

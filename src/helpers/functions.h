@@ -9,17 +9,17 @@ namespace FFS {
 	
 	void assert_correct_arch();
 	 
-	int random_int();
+	uint32_t random_int();
 	/** 
 	 * Exclusive
 	 * 
 	*/
-	int random_int(int high);
+	uint32_t random_int(uint32_t high);
 	/** 
 	 * Low inclusive, high exclusive 
 	 * 
 	*/
-	int random_int(int low, int high);
+	uint32_t random_int(uint32_t low, uint32_t high);
 
 	long random_long();
 	/** 
@@ -36,10 +36,10 @@ namespace FFS {
 	unsigned char random_byte();
 
 	void write_c(std::ostream& stream, char c);
-	void write_i(std::ostream& stream, int i);
+	void write_i(std::ostream& stream, uint32_t i);
 	void write_l(std::ostream& stream, long l);
 	
 	void read_c(std::istream& stream, char& c);
-	void read_i(std::istream& stream, int& i);
+	void read_i(std::istream& stream, uint32_t& i);
 	void read_l(std::istream& stream, long& l);
 }

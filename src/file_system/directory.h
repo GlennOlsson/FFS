@@ -10,7 +10,7 @@ private:
 	/**
 	 * @brief Map of (filename, inode id) describing the content of the directory
 	 */
-	std::map<std::string, int> entries;
+	std::map<std::string, uint32_t> entries;
 
 public:
 	/**

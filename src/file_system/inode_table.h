@@ -11,18 +11,18 @@ class InodeEntry {
 public:
 	//TODO: add more metadata
 	// Total file length
-	int length;
+	uint32_t length;
 	// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
 	std::vector<unsigned long>* tweet_blocks;
 	
-	InodeEntry(int length, std::vector<unsigned long>* tweet_blocks);
+	InodeEntry(uint32_t length, std::vector<unsigned long>* tweet_blocks);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
-	 * @return int the amount of bytes occupied by object
+	 * @return uint32_t the amount of bytes occupied by object
 	 */
-	int size();
+	uint32_t size();
 
 	/**
 	 * @brief Sterilizes the entry into the stream as bytes in the following manner
@@ -53,16 +53,16 @@ class InodeTable {
 public:
 
 	// Inode -> Inode Entry
-	std::map<unsigned int, InodeEntry*>* entries;
+	std::map<uint32_t, InodeEntry*>* entries;
 
-	InodeTable(std::map<unsigned int, InodeEntry*>* entries);
+	InodeTable(std::map<uint32_t, InodeEntry*>* entries);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
-	 * @return int the amount of bytes occupied by object
+	 * @return uint32_t the amount of bytes occupied by object
 	 */
-	int size();
+	uint32_t size();
 
 	/**
 	 * @brief Sterilizes the entry into the stream as bytes in the following manner

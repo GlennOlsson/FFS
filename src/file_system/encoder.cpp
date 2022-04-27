@@ -28,7 +28,7 @@
 	Assumes that length is not greater than 2^24 (16 million)
 
 */
-void save_header(Magick::Quantum*& component_pointer, int length) {
+void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 	char F = 'F';
 	char S = 'S';
 
@@ -50,24 +50,24 @@ void save_header(Magick::Quantum*& component_pointer, int length) {
 	*(component_pointer++) = component3;
 }
 
-void FFS::create_image(std::string output_name, std::istream& input_stream, int length) {
+void FFS::create_image(std::string output_name, std::istream& input_stream, uint32_t length) {
 	assert(QuantumRange == 65535);
 
 	// Bytes required for header and file
-	int min_bytes = length + HEADER_SIZE;
+	uint32_t min_bytes = length + HEADER_SIZE;
 
 	// Assume 16bit depth for each component
 	// 2 bytes per component, 3 components per pixel, 2*3
-	int required_pixels = ceil((double) min_bytes / 6.0);
+	uint32_t required_pixels = ceil((double) min_bytes / 6.0);
 
 	// Find closest square that can fit the pixels
-	int width = ceil(sqrt(required_pixels));
-	int height = ceil((double) required_pixels / (double) width);
-	int total_pixels = width * height;
+	uint32_t width = ceil(sqrt(required_pixels));
+	uint32_t height = ceil((double) required_pixels / (double) width);
+	uint32_t total_pixels = width * height;
 
 	// Bytes required to change in output image
 	// file length + header size + filler pixels
-	int total_bytes = total_pixels * 6;
+	uint32_t total_bytes = total_pixels * 6;
 
 	Magick::Image image(Magick::Geometry(width, height), Magick::Color("white"));
 
@@ -85,7 +85,7 @@ void FFS::create_image(std::string output_name, std::istream& input_stream, int 
 	save_header(component_pointer, length);
 
 	// First pixel saves header
-	int byte_index = HEADER_SIZE;
+	uint32_t byte_index = HEADER_SIZE;
 
 	// Keeps two bytes, most significan bytes at most significant position
 	unsigned short current_value;
@@ -123,12 +123,12 @@ void FFS::encode(std::string input_path, std::string output_path) {
 
 	// length of file:
 	file_stream.seekg (0, file_stream.end);
-	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
+	uint32_t length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
 	file_stream.seekg (0, file_stream.beg);
 
-	int out_file_index = 0;
+	uint32_t out_file_index = 0;
 	while(length > 0) {
-		int out_file_size = std::min(FFS_MAX_FILE_SIZE, length);
+		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE, (int) length);
 		std::string out_file_name = output_path + std::to_string(out_file_index);
 		//TODO: Make concurrent?
 		create_image(out_file_name, file_stream, out_file_size);

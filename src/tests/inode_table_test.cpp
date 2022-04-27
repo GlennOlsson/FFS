@@ -10,21 +10,21 @@
 
 #include <iostream>
 
-FFS::InodeTable* create_table(std::map<unsigned int, FFS::InodeEntry*>* m = nullptr) {
+FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr) {
 	if(m == nullptr)
-		m = new std::map<unsigned int, FFS::InodeEntry*>();
+		m = new std::map<uint32_t, FFS::InodeEntry*>();
 
 	// 10 files
-	for(int i = 0; i < 10; i++) {
-		unsigned int rand_inode_id = FFS::random_int();
+	for(uint32_t i = 0; i < 10; i++) {
+		uint32_t rand_inode_id = FFS::random_int();
 
 		//Random length between 10 and 10000 bytes
-		int rand_length = FFS::random_int(10, 10000);
+		uint32_t rand_length = FFS::random_int(10, 10000);
 
 		std::vector<unsigned long>* rand_blocks = new std::vector<unsigned long>();
 
-		int rand_block_counts = FFS::random_int(1, 100);
-		for(int j = 0; j < rand_block_counts; j++) {
+		uint32_t rand_block_counts = FFS::random_int(1, 100);
+		for(uint32_t j = 0; j < rand_block_counts; j++) {
 			unsigned long rand_tweet_id = FFS::random_long();
 			
 			rand_blocks->push_back(rand_tweet_id);
@@ -40,7 +40,7 @@ FFS::InodeTable* create_table(std::map<unsigned int, FFS::InodeEntry*>* m = null
 }
 
 TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
-	std::map<unsigned int, FFS::InodeEntry*>* m = new std::map<unsigned int, FFS::InodeEntry*>();
+	std::map<uint32_t, FFS::InodeEntry*>* m = new std::map<uint32_t, FFS::InodeEntry*>();
 
 	FFS::InodeTable* table = create_table(m);
 

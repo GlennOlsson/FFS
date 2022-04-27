@@ -29,9 +29,9 @@ void save_to_file(std::string& content, const std::string& file) {
 	stream << content;
 }
 
-std::vector<std::string>& image_paths(int count) {
+std::vector<std::string>& image_paths(uint32_t count) {
 	std::vector<std::string>* v = new std::vector<std::string>;
-	for(int i = 0; i < count; i++) {
+	for(uint32_t i = 0; i < count; i++) {
 		v->push_back(ENCODED_IMAGE_PATH + std::to_string(i));
 	}
 	return *v;
