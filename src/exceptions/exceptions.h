@@ -3,25 +3,24 @@
 #include <string>
 
 namespace FFS {
-class BadFile: public std::exception {
-	virtual std::string reason() = 0;
+class BadFFSFile: public std::exception {
 };
 
-class BadFFSHeader: public BadFile {
+class BadFFSHeader: public BadFFSFile {
 private:
 	std::string reason_str;
 
 public:
 	BadFFSHeader(std::string why);
-	std::string reason();
+	const char* what() const noexcept;
 };
 
-class EarlyEOF: public BadFile {
+class UnexpectedEOF: public BadFFSFile {
 private:
 	uint64_t location;
 
 public:
-	EarlyEOF(uint64_t eof_location);
-	std::string reason();
+	UnexpectedEOF(uint64_t eof_location);
+	const char* what() const noexcept;
 };
 };

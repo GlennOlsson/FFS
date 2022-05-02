@@ -2,6 +2,7 @@
 
 #include "../helpers/constants.h"
 #include "../helpers/functions.h"
+#include "../exceptions/exceptions.h"
 
 #include <iostream>
 #include <Magick++.h>
@@ -21,15 +22,19 @@ uint32_t assert_header(Magick::Quantum*& component_pointer) {
 
 	uint16_t version_nr = *(component_pointer++);
 
-	assert(version_nr == FFS_FILE_VERSION);
+	if(version_nr != FFS_FILE_VERSION)
+		throw FFS::BadFFSHeader("Bad version");
 
 	uint16_t component1 = *(component_pointer++);
 	uint16_t component2 = *(component_pointer++);
 	uint16_t component3 = *(component_pointer++);
 
-	assert(((component1 >> 8) & 0xFF) == 'F');
-	assert((component1 & 0xFF) == 'F');
-	assert(((component2 >> 8) & 0xFF) == 'S');
+	bool ok_1 = ((component1 >> 8) & 0xFF) == 'F';
+	bool ok_2 = (component1 & 0xFF) == 'F';
+	bool ok_3 = ((component2 >> 8) & 0xFF) == 'S';
+
+	if(!ok_1 || !ok_2 || !ok_3)
+		throw FFS::BadFFSHeader("Bad letters");
 
 	uint16_t b1 = component2 & 0xFF;
 	uint16_t b2 = (component3 >> 8) & 0xFF;

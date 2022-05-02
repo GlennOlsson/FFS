@@ -9,16 +9,22 @@ FFS::BadFFSHeader::BadFFSHeader(std::string why) {
 	this->reason_str = why;
 }
 
-std::string FFS::BadFFSHeader::reason() {
-	return this->reason_str;
+const char* FFS::BadFFSHeader::what() const noexcept {
+	return this->reason_str.c_str();
 }
 
-FFS::EarlyEOF::EarlyEOF(uint64_t location) {
+FFS::UnexpectedEOF::UnexpectedEOF(uint64_t location) {
 	this->location = location;
 }
 
-std::string FFS::EarlyEOF::reason() {
+const char* FFS::UnexpectedEOF::what() const noexcept {
 	std::stringstream ss;
 	ss << "EOF at position " << this->location;
-	return ss.str();
+
+	std::string str = ss.str();
+
+	char* c_str = new char[str.size()];
+	strcpy(c_str, str.c_str());
+	
+	return c_str;
 }

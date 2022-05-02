@@ -7,11 +7,15 @@
 #include "../src/helpers/functions.h"
 #include "../src/helpers/constants.h"
 #include "../src/file_system/file_coder.h"
+#include "../src/exceptions/exceptions.h"
 
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <exception>
+#include <cassert>
 
+#define DIR_OUTPUT "out.nosync/directory"
 
 FFS::Directory* create_directory() {
 
@@ -43,38 +47,80 @@ FFS::Directory* create_directory() {
 TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]") {
 	FFS::Directory* directory = create_directory();
 
-	std::string directory_output = "out.nosync/directory";
-
-	directory->save(directory_output);
-	FFS::Directory* desterilized_dir = FFS::Directory::load(directory_output);
+	directory->save(DIR_OUTPUT);
+	FFS::Directory* desterilized_dir = FFS::Directory::load(DIR_OUTPUT);
 
 	bool dirs_eq = *directory == *desterilized_dir;
 
 	REQUIRE(dirs_eq);
 }
 
-TEST_CASE("Manipulated sterlizied data throws exception", "[directory]") {
-	FFS::Directory* directory = create_directory();
-
-	std::string directory_output = "out.nosync/directory";
+// Copies stream, flips byte at _at_ and creates FFS image of directory
+// If it does not throw when creating image, check that directory and modified-directory are unequal
+// If it does throw, make sure it is a FFS File exception
+void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
+	uint32_t total_bytes = dir->size();
+	assert(total_bytes > at);
 	
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
+	dir->sterilize(stream);
 
-	directory->sterilize(stream);
+	std::stringstream cp_stream;
 
-	stream.seekp(100);
-	stream.seekg(100);
-	char c = stream.get();
-	stream.put(~c);
-	stream.flush();
+	uint32_t index = 0;
+	char c;
+	while(index++ < at) {
+		c = stream.peek();
+		cp_stream.put(c);
+	}
+	// Invert so we know it's not the same bytes
+	c = stream.peek();
+	cp_stream.put(~c);
+	// Want to keep same size of buffer
+	while(index++ < total_bytes) {
+		c = stream.peek();
+		cp_stream.put(c);
+	}
 
-	uint32_t size = directory->size();
-	FFS::create_image(directory_output, stream, size);
+	// Reset to original state
+	stream.seekg(0);
 
-	FFS::Directory* desterilized_dir = FFS::Directory::load(directory_output);
+	try { // If doesn't fail, make sure they are unequal
+		FFS::create_image(DIR_OUTPUT, cp_stream, total_bytes);
+		
+		FFS::Directory* cp_dir = FFS::Directory::load(DIR_OUTPUT);
+		bool dirs_eq = *cp_dir == *dir;
 
-	bool dirs_eq = *directory == *desterilized_dir;
+		REQUIRE_FALSE(dirs_eq);
+	} catch(const FFS::BadFFSFile& b) {
+		SUCCEED("Threw correct exception");
+	} catch(std::exception& e) {
+		std::stringstream ss;
+		ss << "Threw wrong exception: " << e.what();
+		FAIL(ss.str());
+	}
+}
 
-	REQUIRE(dirs_eq);
+TEST_CASE("Manipulated middle of sterlizied data leads to exception or unequal dir", "[directory]") {
+	FFS::Directory* directory = create_directory();
+	
+	uint32_t total_bytes = directory->size();
+
+	uint32_t middle = total_bytes / 2;
+
+	test_flip_byte_and_create(middle, directory);
+}
+
+TEST_CASE("Manipulated start of sterlizied data leads to exception or unequal dir", "[directory]") {
+	FFS::Directory* directory = create_directory();
+	
+	test_flip_byte_and_create(0, directory);
+}
+
+TEST_CASE("Manipulated end of sterlizied data leads to exception or unequal dir", "[directory]") {
+	FFS::Directory* directory = create_directory();
+	uint32_t total_bytes = directory->size();
+	
+	test_flip_byte_and_create(total_bytes - 1, directory);
 }

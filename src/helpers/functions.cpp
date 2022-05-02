@@ -38,23 +38,28 @@ void FFS::write_l(std::ostream& stream, uint64_t l) {
 	write_i(stream, l & 0xFFFFFFFF);
 }
 
+void FFS::read_c(std::istream& stream, char& c) { 
+	stream.get(c);
+
+	if(stream.rdstate() & std::ios_base::eofbit) {
+		throw FFS::UnexpectedEOF((uint64_t) stream.tellg() - 1);
+	}
+}
+
 void FFS::read_c(std::istream& stream, uint8_t& c) { 
 	// istream.get does not accept uint8_t
 	char _c;
-	stream.get(_c);
-
-	if(_c == std::istream::traits_type::eof()) {
-		throw EarlyEOF(stream.tellg());
-	}
+	read_c(stream, _c);
 
 	c = _c;
 }
+
 void FFS::read_i(std::istream& stream, uint32_t& i) {
 	char c1, c2, c3, c4;
-	stream.get(c1);
-	stream.get(c2);
-	stream.get(c3);
-	stream.get(c4);
+	read_c(stream, c1);
+	read_c(stream, c2);
+	read_c(stream, c3);
+	read_c(stream, c4);
 
 	i = ((c1 << (3 * 8)) & 0xFF000000) | ((c2 << (2 * 8)) & 0xFF0000) |
 		((c3 << (1 * 8)) & 0xFF00) | ((c4 << (0 * 8)) & 0xFF);

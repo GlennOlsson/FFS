@@ -72,6 +72,9 @@
 		"unordered_map": "cpp",
 		"vector": "cpp",
 		"filesystem": "cpp",
-		"regex": "cpp"
+		"regex": "cpp",
+		"hash_map": "cpp",
+		"random": "cpp",
+		"set": "cpp"
 	}
 }
