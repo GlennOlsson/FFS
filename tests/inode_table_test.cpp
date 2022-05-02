@@ -3,9 +3,9 @@
 // So we can access private fields of the class
 #define private public
 
-#include "../file_system/inode_table.h"
+#include "../src/file_system/inode_table.h"
 
-#include "../helpers/functions.h"
+#include "../src/helpers/functions.h"
 
 #include <map>
 #include <vector>

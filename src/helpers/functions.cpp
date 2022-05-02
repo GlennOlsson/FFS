@@ -1,4 +1,5 @@
 #include "functions.h"
+#include "../exceptions/exceptions.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -40,7 +41,12 @@ void FFS::write_l(std::ostream& stream, uint64_t l) {
 void FFS::read_c(std::istream& stream, uint8_t& c) { 
 	// istream.get does not accept uint8_t
 	char _c;
-	stream.get(_c); 
+	stream.get(_c);
+
+	if(_c == std::istream::traits_type::eof()) {
+		throw EarlyEOF(stream.tellg());
+	}
+
 	c = _c;
 }
 void FFS::read_i(std::istream& stream, uint32_t& i) {

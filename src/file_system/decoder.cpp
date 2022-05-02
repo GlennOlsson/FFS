@@ -35,8 +35,7 @@ uint32_t assert_header(Magick::Quantum*& component_pointer) {
 	uint16_t b2 = (component3 >> 8) & 0xFF;
 	uint16_t b3 = component3 & 0xFF;
 
-	// does not have to be unsigned as only 24 bits, need to use all 
-	// 32 to worry about that
+	// only 24 bits, max length is 16.78 Mb
 	uint32_t length = (b1 << 2 * 8) | (b2 << 8) | b3;
 	return length;
 }

@@ -1,9 +1,9 @@
 #include "catch.hpp"
 
-#include "../file_system/file_coder.h"
+#include "../src/file_system/file_coder.h"
 
-#include "../helpers/constants.h"
-#include "../helpers/functions.h"
+#include "../src/helpers/constants.h"
+#include "../src/helpers/functions.h"
 
 #include <fstream>
 #include <iostream>

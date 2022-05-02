@@ -3,11 +3,14 @@
 // So we can access private fields of the class
 #define private public
 
-#include "../file_system/directory.h"
-#include "../helpers/functions.h"
+#include "../src/file_system/directory.h"
+#include "../src/helpers/functions.h"
+#include "../src/helpers/constants.h"
+#include "../src/file_system/file_coder.h"
 
 #include <sstream>
 #include <iostream>
+#include <fstream>
 
 
 FFS::Directory* create_directory() {
@@ -43,6 +46,32 @@ TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]
 	std::string directory_output = "out.nosync/directory";
 
 	directory->save(directory_output);
+	FFS::Directory* desterilized_dir = FFS::Directory::load(directory_output);
+
+	bool dirs_eq = *directory == *desterilized_dir;
+
+	REQUIRE(dirs_eq);
+}
+
+TEST_CASE("Manipulated sterlizied data throws exception", "[directory]") {
+	FFS::Directory* directory = create_directory();
+
+	std::string directory_output = "out.nosync/directory";
+	
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	directory->sterilize(stream);
+
+	stream.seekp(100);
+	stream.seekg(100);
+	char c = stream.get();
+	stream.put(~c);
+	stream.flush();
+
+	uint32_t size = directory->size();
+	FFS::create_image(directory_output, stream, size);
+
 	FFS::Directory* desterilized_dir = FFS::Directory::load(directory_output);
 
 	bool dirs_eq = *directory == *desterilized_dir;
