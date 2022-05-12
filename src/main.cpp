@@ -66,7 +66,7 @@ int decode_main(int argc, char const *argv[]){
 		std::cerr << "Cannot output to file out.nosync/output" << std::endl;
 		return 1;
 	}
-	FFS::decode(input_list, file_stream);
+	FFS::decode(&input_list, file_stream);
 
 	return 0;
 }

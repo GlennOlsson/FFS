@@ -63,7 +63,7 @@ TEST_CASE("Encode and decode special character text", "[coders]") {
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	FFS::decode(image_paths(1), out_stream);
+	FFS::decode(out_blobs, out_stream);
 	out_stream.close();
 
 	REQUIRE(files_eq(INPUT_FILE_PATH, OUTPUT_FILE_PATH));
@@ -73,11 +73,11 @@ TEST_CASE("Encode and decode a pdf file", "[coders]") {
 	
 	std::string pdf_path = "tests/assets.nosync/pdf.pdf";
 
-	FFS::encode(pdf_path, ENCODED_IMAGE_PATH);
+	std::vector<Magick::Blob*>* out_blobs = FFS::encode(pdf_path);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	FFS::decode(image_paths(1), out_stream);
+	FFS::decode(out_blobs, out_stream);
 	out_stream.close();
 
 	REQUIRE(files_eq(pdf_path, OUTPUT_FILE_PATH));
@@ -87,11 +87,11 @@ TEST_CASE("Encode and decode a image file", "[coders]") {
 	
 	std::string image_path = "tests/assets.nosync/image.png";
 
-	FFS::encode(image_path, ENCODED_IMAGE_PATH);
+	std::vector<Magick::Blob*>* out_blobs = FFS::encode(image_path);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	FFS::decode(image_paths(1), out_stream);
+	FFS::decode(out_blobs, out_stream);
 	out_stream.close();
 
 	REQUIRE(files_eq(image_path, OUTPUT_FILE_PATH));
@@ -101,27 +101,32 @@ TEST_CASE("Encode and decode a big movie that requires multiple splitted files",
 	
 	std::string movie_path = "tests/assets.nosync/movie.mp4";
 
-	FFS::encode(movie_path, ENCODED_IMAGE_PATH);
+	std::vector<Magick::Blob*>* out_blobs = FFS::encode(movie_path);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
 	// Know that the current version of the movie and the codebase should require 6 image files
-	FFS::decode(image_paths(6), out_stream);
+	FFS::decode(out_blobs, out_stream);
 	out_stream.close();
 
 	REQUIRE(files_eq(movie_path, OUTPUT_FILE_PATH));
 }
 
 TEST_CASE("Ensure decoder throws when image is not FFS image", "[coders]") {
-	std::string image_path = "tests/assets.nosync/image"; // Omit .png as that is added automatically
+	std::string image_path = "tests/assets.nosync/image.png";
 
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	std::vector<std::string> v;
-	v.push_back(image_path);
+	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>(1);
+
+	Magick::Blob blob;
+	Magick::Image img(image_path);
+	img.write(&blob);
+
+	blobs->push_back(&blob);
 
 	try {
-		FFS::decode(v, out_stream);
+		FFS::decode(blobs, out_stream);
 		FAIL("Did not throw exception");
 	} catch(const FFS::BadFFSFile& b) {
 		SUCCEED("Threw exception as expected");

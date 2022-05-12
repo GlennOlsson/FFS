@@ -12,7 +12,7 @@ namespace FFS {
 	Magick::Blob* create_image(std::istream& input_stream, uint32_t length);
 	
 	// TODO: Take list of Blob instead
-	void decode(const std::vector<Magick::Blob*>& blobs, std::ostream& file_stream);
+	void decode(const std::vector<Magick::Blob*>* blobs, std::ostream& file_stream);
 
 
 	void _save_encoded_image(std::string out_path, std::istream& file_stream, uint32_t length);
