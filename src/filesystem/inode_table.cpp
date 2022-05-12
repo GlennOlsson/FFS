@@ -70,6 +70,9 @@ FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 FFS::InodeTable::InodeTable() {
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 
+	Directory* root_dir = new Directory();
+	std::vector<post_id> ids = FFS::Storage::upload_file(root_dir);
+	// TODO: Update entries with root dir and its id
 	this->entries = empty_entries;
 }
 

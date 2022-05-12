@@ -80,13 +80,12 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	}
 }
 
-void FFS::decode(const std::vector<std::string>& files, std::ostream& file_stream){
+void FFS::decode(const std::vector<Magick::Blob>& blobs, std::ostream& file_stream){
 
 	Magick::Image image;
 	// std::string filename;
-	for(std::string filename: files) {
-		// filename = *it;
-		image = Magick::Image(filename + "." + FFS_IMAGE_TYPE);
+	for(Magick::Blob blob: blobs) {
+		image = Magick::Image(blob);
 		decode_file(image, file_stream);
 	}
 }
