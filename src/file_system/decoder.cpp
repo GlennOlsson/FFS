@@ -28,8 +28,6 @@ uint32_t assert_header(Magick::Quantum*& component_pointer) {
 	bool ok_2 = (comp1 & 0xFF) == 'F';
 	bool ok_3 = ((comp2 >> 8) & 0xFF) == 'S';
 
-	std::cout << "OK Letters: " << (ok_1 ? "1 ok" : "1 bad") << ", " << (ok_2 ? "2 ok" : "2 bad") << ", " << (ok_3 ? "3 ok" : "3 bad") << std::endl;
-
 	if(!ok_1 || !ok_2 || !ok_3)
 		throw FFS::BadFFSHeader("Bad letters");
 	

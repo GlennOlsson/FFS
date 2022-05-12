@@ -4,6 +4,7 @@
 
 #include "../src/helpers/constants.h"
 #include "../src/helpers/functions.h"
+#include "../src/exceptions/exceptions.h"
 
 #include <fstream>
 #include <iostream>
@@ -83,7 +84,7 @@ TEST_CASE("Encode and decode a pdf file", "[coders]") {
 
 TEST_CASE("Encode and decode a image file", "[coders]") {
 	
-	std::string image_path = "tests/assets.nosync/image.jpg";
+	std::string image_path = "tests/assets.nosync/image.png";
 
 	FFS::encode(image_path, ENCODED_IMAGE_PATH);
 	
@@ -108,4 +109,20 @@ TEST_CASE("Encode and decode a big movie that requires multiple splitted files",
 	out_stream.close();
 
 	REQUIRE(files_eq(movie_path, OUTPUT_FILE_PATH));
+}
+
+TEST_CASE("Ensure decoder throws when image is not FFS image", "[coders]") {
+	std::string image_path = "tests/assets.nosync/image"; // Omit .png as that is added automatically
+
+	std::ofstream out_stream(OUTPUT_FILE_PATH);
+
+	std::vector<std::string> v;
+	v.push_back(image_path);
+
+	try {
+		FFS::decode(v, out_stream);
+		FAIL("Did not throw exception");
+	} catch(const FFS::BadFFSFile& b) {
+		SUCCEED("Threw exception as expected");
+	}
 }
