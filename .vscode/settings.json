@@ -75,6 +75,9 @@
 		"regex": "cpp",
 		"hash_map": "cpp",
 		"random": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"future": "cpp",
+		"thread": "cpp",
+		"variant": "cpp"
 	}
 }

@@ -1,9 +1,9 @@
 
 #pragma once
 
-// Maximum possible possible number stored in 24 bits == header of output image
-// 2^24 - 1
-#define FFS_MAX_FILE_SIZE 16777215
+// FFS image header length attribute is 32 bits so can store up to 4.2Gb of data
+// But set max to 5 Mb
+#define FFS_MAX_FILE_SIZE 5000000
 
 // FFS Inode Table structure version
 #define FFS_INODE_TABLE_VERSION 0

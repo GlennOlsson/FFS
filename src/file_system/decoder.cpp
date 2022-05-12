@@ -14,34 +14,43 @@
 
 /**
  * @brief Assert header is "FFS" followed by length, and return length
+ * Header structure is described in doc/Binary-Structures.md
  * 
  * @param component_pointer the pointer to each component
  * @return the length of data 
  */
 uint32_t assert_header(Magick::Quantum*& component_pointer) {
 
-	uint16_t version_nr = *(component_pointer++);
+	uint16_t comp1 = *(component_pointer++);
+	uint16_t comp2 = *(component_pointer++);
 
-	if(version_nr != FFS_FILE_VERSION)
-		throw FFS::BadFFSHeader("Bad version");
+	bool ok_1 = ((comp1 >> 8) & 0xFF) == 'F';
+	bool ok_2 = (comp1 & 0xFF) == 'F';
+	bool ok_3 = ((comp2 >> 8) & 0xFF) == 'S';
 
-	uint16_t component1 = *(component_pointer++);
-	uint16_t component2 = *(component_pointer++);
-	uint16_t component3 = *(component_pointer++);
-
-	bool ok_1 = ((component1 >> 8) & 0xFF) == 'F';
-	bool ok_2 = (component1 & 0xFF) == 'F';
-	bool ok_3 = ((component2 >> 8) & 0xFF) == 'S';
+	std::cout << "OK Letters: " << (ok_1 ? "1 ok" : "1 bad") << ", " << (ok_2 ? "2 ok" : "2 bad") << ", " << (ok_3 ? "3 ok" : "3 bad") << std::endl;
 
 	if(!ok_1 || !ok_2 || !ok_3)
 		throw FFS::BadFFSHeader("Bad letters");
+	
+	uint8_t ffs_version = comp2 & 0xFF;
 
-	uint16_t b1 = component2 & 0xFF;
-	uint16_t b2 = (component3 >> 8) & 0xFF;
-	uint16_t b3 = component3 & 0xFF;
+	if(ffs_version != FFS_FILE_VERSION)
+		throw FFS::BadFFSHeader("Bad version");
 
-	// only 24 bits, max length is 16.78 Mb
-	uint32_t length = (b1 << 2 * 8) | (b2 << 8) | b3;
+	uint16_t comp;
+	uint64_t timestamp = 0;
+	for(int i = 1; i <= 4; ++i) {
+		comp = *(component_pointer++);
+		timestamp |= comp << (64 - (16 * i));
+	}
+
+	uint32_t length = 0;
+	for(int i = 1; i <= 2; ++i) {
+		comp = *(component_pointer++);
+		length |= comp << (32 - (16 * i));
+	}
+
 	return length;
 }
 
@@ -51,7 +60,7 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	Magick::Geometry image_size = image.size();
 
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
-	Magick::Quantum *component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
+	Magick::Quantum* component_pointer = pixel_view.get(0, 0, image_size.width(), image_size.height());
 
 	uint32_t length = assert_header(component_pointer);
 

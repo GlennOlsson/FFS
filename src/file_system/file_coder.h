@@ -4,7 +4,6 @@
 #include <string>
 #include <Magick++.h>
 
-// TODO: Include this
 namespace FFS {
 
 	void encode(std::string input_path, std::string output_path);
