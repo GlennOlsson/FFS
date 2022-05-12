@@ -92,9 +92,6 @@ public:
 	Magick::Blob* blob();
 	static InodeTable* from_blob(Magick::Blob* blob);
 
-	void save(std::string path);
-	static InodeTable* load(std::string path);
-
 	// TODO: Test these methods
 	inode_id new_file(std::vector<post_id>* posts, uint32_t length);
 	InodeEntry* entry(const inode_id& id);

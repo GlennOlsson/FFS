@@ -89,12 +89,3 @@ void FFS::decode(const std::vector<Magick::Blob*>* blobs, std::ostream& file_str
 		decode_file(image, file_stream);
 	}
 }
-
-void FFS::_read_encoded_image(const std::string& path, std::ostream& file_stream) {
-	Magick::Image img(path);
-	Magick::Blob* blob = new Magick::Blob();
-	img.write(blob);
-
-	std::vector<Magick::Blob*> blobs = {blob};
-	decode(&blobs, file_stream);
-}

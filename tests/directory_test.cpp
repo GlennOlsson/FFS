@@ -14,6 +14,7 @@
 #include <fstream>
 #include <exception>
 #include <cassert>
+#include <Magick++.h>
 
 #define DIR_OUTPUT "out.nosync/directory.png"
 
@@ -72,6 +73,7 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 
 	uint32_t index = 0;
 	char c;
+	// Copy stream
 	while(index++ < at) {
 		c = stream.peek();
 		cp_stream.put(c);
@@ -89,9 +91,9 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 	stream.seekg(0);
 
 	try { // If doesn't fail, make sure they are unequal
-		FFS::_save_encoded_image(DIR_OUTPUT, cp_stream, total_bytes);
+		Magick::Blob* blob = FFS::create_image(cp_stream, total_bytes);
 		
-		FFS::Directory* cp_dir = FFS::Directory::load(DIR_OUTPUT);
+		FFS::Directory* cp_dir = FFS::Directory::from_blob(blob);
 		bool dirs_eq = *cp_dir == *dir;
 
 		REQUIRE_FALSE(dirs_eq);

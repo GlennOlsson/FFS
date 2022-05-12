@@ -159,25 +159,6 @@ FFS::InodeTable* FFS::InodeTable::from_blob(Magick::Blob* blob) {
 	return desterilize(stream);
 }
 
-void FFS::InodeTable::save(std::string path) {
-	std::stringbuf buf;
-	std::basic_iostream stream(&buf);
-
-	this->sterilize(stream);
-
-	uint32_t size = this->size();
-	_save_encoded_image(path, stream, size);
-}
-
-FFS::InodeTable* FFS::InodeTable::load(std::string path) {
-	std::stringbuf buf;
-	std::basic_iostream stream(&buf);
-
-	_read_encoded_image({path}, stream);
-
-	return desterilize(stream);
-}
-
 FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32_t length) {
 	InodeEntry* entry = new InodeEntry(length, posts);
 	inode_id new_id;

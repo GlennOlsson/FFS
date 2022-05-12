@@ -133,9 +133,3 @@ std::vector<Magick::Blob*>* FFS::encode(std::string input_path) {
 
 	return blobs;
 }
-
-void FFS::_save_encoded_image(std::string out_path, std::istream& file_stream, uint32_t length) {
-	Magick::Blob* blob = create_image(file_stream, length);
-	Magick::Image img(*blob); // only one blob
-	img.write(out_path);
-}
