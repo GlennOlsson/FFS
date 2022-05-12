@@ -15,7 +15,7 @@
 #include <exception>
 #include <cassert>
 
-#define DIR_OUTPUT "out.nosync/directory"
+#define DIR_OUTPUT "out.nosync/directory.png"
 
 FFS::Directory* create_directory() {
 

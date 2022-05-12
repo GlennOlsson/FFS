@@ -55,7 +55,7 @@ TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
 TEST_CASE("Sterlizing and desterlizing inode table creates same table", "[inode_table]") {
 	FFS::InodeTable* table = create_table();
 
-	std::string inode_table_output = "out.nosync/inode_table";
+	std::string inode_table_output = "out.nosync/inode_table.png";
 
 	table->save(inode_table_output);
 	FFS::InodeTable* desterilized_table = FFS::InodeTable::load(inode_table_output);

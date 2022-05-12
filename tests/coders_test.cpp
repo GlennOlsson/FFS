@@ -117,7 +117,7 @@ TEST_CASE("Ensure decoder throws when image is not FFS image", "[coders]") {
 
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>(1);
+	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>();
 
 	Magick::Blob blob;
 	Magick::Image img(image_path);
