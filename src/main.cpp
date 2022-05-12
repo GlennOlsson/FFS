@@ -1,5 +1,5 @@
-#include "file_system/file_coder.h"
-#include "file_system/inode_table.h"
+#include "filesystem/file_coder.h"
+#include "filesystem/inode_table.h"
 
 #include "helpers/constants.h"
 #include "helpers/functions.h"

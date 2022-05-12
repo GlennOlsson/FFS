@@ -3,7 +3,7 @@
 // So we can access private fields of the class
 #define private public
 
-#include "../src/file_system/inode_table.h"
+#include "../src/filesystem/inode_table.h"
 
 #include "../src/helpers/functions.h"
 

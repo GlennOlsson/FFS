@@ -3,10 +3,10 @@
 // So we can access private fields of the class
 #define private public
 
-#include "../src/file_system/directory.h"
+#include "../src/filesystem/directory.h"
 #include "../src/helpers/functions.h"
 #include "../src/helpers/constants.h"
-#include "../src/file_system/file_coder.h"
+#include "../src/filesystem/file_coder.h"
 #include "../src/exceptions/exceptions.h"
 
 #include <sstream>

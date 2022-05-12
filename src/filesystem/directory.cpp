@@ -6,8 +6,14 @@
 #include <string>
 #include <sstream>
 
-FFS::Directory::Directory(std::map<std::string, uint32_t>* entries) {
+FFS::Directory::Directory(std::map<std::string, FFS::inode_id>* entries) {
 	this->entries = entries;
+}
+
+FFS::Directory::Directory() {
+	std::map<std::string, FFS::inode_id>* empty_entries = new std::map<std::string, FFS::inode_id>();
+
+	this->entries = empty_entries;
 }
 
 uint32_t FFS::Directory::size() {
@@ -96,6 +102,14 @@ std::vector<std::string> FFS::Directory::content() {
 	return names;
 }
 
+// Create file in directory
+FFS::inode_id FFS::Directory::create_file(std::string name) {
+	return 0;
+}
+// Get a file with specified name
+FFS::inode_id FFS::Directory::get_file(std::string name) {
+	return 0;
+}
 
 bool FFS::Directory::operator==(const FFS::Directory& rhs) const {
 	// Compare size of tables (maps), and compare content of maps

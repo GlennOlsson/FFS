@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../helpers/types.h"
+
 #include <string>
 #include <map>
 #include <vector>
@@ -11,11 +13,13 @@ private:
 	/**
 	 * @brief Map of (filename, inode id) describing the content of the directory. The filename is limited to 255 characters
 	 */
-	std::map<std::string, uint32_t>* entries;
+	std::map<std::string, inode_id>* entries;
 
-	Directory(std::map<std::string, uint32_t>* entries);
+	Directory(std::map<std::string, inode_id>* entries);
 
 public:
+	
+	Directory();
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
@@ -59,6 +63,11 @@ public:
 	 * @return std::vector<std::string> a list of all filenames 
 	 */
 	std::vector<std::string> content();
+
+	// Create file in directory
+	inode_id create_file(std::string name);
+	// Get a file with specified name
+	inode_id get_file(std::string name);
 
 	/**
 	 * @brief Compare equality of two directories

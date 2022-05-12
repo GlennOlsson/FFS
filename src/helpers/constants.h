@@ -1,4 +1,3 @@
-
 #pragma once
 
 // FFS image header length attribute is 32 bits so can store up to 4.2Gb of data

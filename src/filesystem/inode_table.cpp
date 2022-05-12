@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "../helpers/functions.h"
+#include "../helpers/types.h"
+
 #include "file_coder.h"
 // Inode Entry...
 
@@ -63,6 +65,12 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 
 FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 	this->entries = entries;
+}
+
+FFS::InodeTable::InodeTable() {
+	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
+
+	this->entries = empty_entries;
 }
 
 uint32_t FFS::InodeTable::size() {

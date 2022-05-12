@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "../src/file_system/file_coder.h"
+#include "../src/filesystem/file_coder.h"
 
 #include "../src/helpers/constants.h"
 #include "../src/helpers/functions.h"

@@ -1,15 +1,12 @@
 #pragma once
 
+#include "../helpers/types.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
 #include <map>
 namespace FFS {
-
-typedef uint32_t inode_id;
-
-// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
-typedef uint64_t post_id;
 
 class InodeEntry {
 private:
@@ -63,6 +60,8 @@ private:
 	InodeTable(std::map<inode_id, InodeEntry*>* entries);
 
 public:
+	InodeTable();
+
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
