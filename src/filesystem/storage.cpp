@@ -15,24 +15,29 @@ std::string path_of(FFS::post_id id) {
 	return path_stream.str();
 }
 
-std::vector<FFS::post_id>* upload_file(std::vector<Magick::Blob*>* blobs) {
+FFS::post_id FFS::Storage::upload_file(Magick::Blob* blob) {
+	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
+	FFS::post_id id = FFS::random_long();
+	std::string path = path_of(id);
+
+	Magick::Image img(*blob);
+	img.write(path);
+	
+	return id;
+}
+
+std::vector<FFS::post_id>* FFS::Storage::upload_file(std::vector<Magick::Blob*>* blobs) {
 	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>(blobs->size());
 
 	for(Magick::Blob* blob: *blobs) {
-		// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
-		FFS::post_id id = FFS::random_long();
-		std::string path = path_of(id);
-
+		FFS::post_id id = upload_file(blob);
 		posts->push_back(id);
-
-		Magick::Image img(*blob);
-		img.write(path);
 	}
 
 	return posts;
 }
 
-Magick::Blob* get_file(FFS::post_id id) {
+Magick::Blob* FFS::Storage::get_file(FFS::post_id id) {
 	std::string path = path_of(id);
 	Magick::Image img(path);
 

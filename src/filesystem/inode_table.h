@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <Magick++.h>
+
 namespace FFS {
 
 class InodeEntry {
@@ -17,7 +19,7 @@ private:
 	
 public:
 	InodeEntry(uint32_t length, std::vector<post_id>* post_blocks);
-
+	InodeEntry(uint32_t length, post_id post);
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
@@ -86,6 +88,8 @@ public:
 	 * @return InodeTable the instanciated table
 	 */
 	static InodeTable* desterilize(std::istream& stream);
+
+	Magick::Blob* blob();
 
 	void save(std::string path);
 	static InodeTable* load(std::string path);

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <sstream>
+#include <Magick++.h>
 
 FFS::Directory::Directory(std::map<std::string, FFS::inode_id>* entries) {
 	this->entries = entries;
@@ -73,6 +74,17 @@ FFS::Directory* FFS::Directory::desterilize(std::istream& stream) {
 	}
 
 	return new FFS::Directory(entries);
+}
+
+Magick::Blob* FFS::Directory::blob() {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	this->sterilize(stream);
+
+	uint32_t size = this->size();
+
+	return create_image(stream, size);
 }
 
 void FFS::Directory::save(std::string path) {

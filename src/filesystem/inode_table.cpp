@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <Magick++.h>
 
 // Inode Entry...
 
@@ -21,6 +22,12 @@ FFS::InodeEntry::InodeEntry(uint32_t length,
 							std::vector<post_id>* post_blocks) {
 	this->length = length;
 	this->post_blocks = post_blocks;
+}
+
+FFS::InodeEntry::InodeEntry(uint32_t length, post_id post) {
+	this->length = length;
+	this->post_blocks = new std::vector<post_id>();
+	this->post_blocks->push_back(post);
 }
 
 uint32_t FFS::InodeEntry::size() {
@@ -73,8 +80,16 @@ FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 FFS::InodeTable::InodeTable() {
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 
-	// Directory* root_dir = new Directory();
-	// std::vector<post_id> ids = FFS::Storage::upload_file(root_dir);
+	Directory* root_dir = new Directory();
+	Magick::Blob* blob = root_dir->blob();
+
+	post_id id = FFS::Storage::upload_file(blob);
+	uint32_t dir_bytes = root_dir->size();
+
+	InodeEntry* entry = new InodeEntry(dir_bytes, id);
+	// Root dir should have inode id 0
+	empty_entries->insert({0, entry});
+
 	// TODO: Update entries with root dir and its id
 	this->entries = empty_entries;
 }
@@ -120,6 +135,17 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 	}
 
 	return new InodeTable(entries);
+}
+
+Magick::Blob* FFS::InodeTable::blob() {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	this->sterilize(stream);
+
+	uint32_t size = this->size();
+
+	return create_image(stream, size);
 }
 
 void FFS::InodeTable::save(std::string path) {

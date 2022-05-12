@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <Magick++.h>
 
 namespace FFS {
 class Directory {
@@ -41,6 +42,13 @@ public:
 	 * @return Directory the instanciated directory
 	 */
 	static Directory* desterilize(std::istream& stream);
+
+	/**
+	 * @brief Get a Blob representing the directory as a FFS image
+	 * 
+	 * @return Magick::Blob* 
+	 */
+	Magick::Blob* blob();
 
 	/**
 	 * @brief Save directory as an FFS image to file at path
