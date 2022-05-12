@@ -15,3 +15,5 @@
 
 // The image type outputted by Magick++
 #define FFS_IMAGE_TYPE "png"
+
+#define FFS_TMP_FS_PATH "out.nosync/tmp_fs"
