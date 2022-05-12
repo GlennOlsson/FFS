@@ -13,9 +13,9 @@
 
 #include <iostream>
 
-FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeTable::InodeEntry*>* m = nullptr) {
+FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr) {
 	if(m == nullptr)
-		m = new std::map<uint32_t, FFS::InodeTable::InodeEntry*>();
+		m = new std::map<uint32_t, FFS::InodeEntry*>();
 
 	// 10 files
 	for(uint32_t i = 0; i < 10; i++) {
@@ -28,12 +28,12 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeTable::InodeEntry*>* 
 
 		uint32_t rand_block_counts = FFS::random_int(1, 100);
 		for(uint32_t j = 0; j < rand_block_counts; j++) {
-			uint64_t rand_tweet_id = FFS::random_long();
+			uint64_t rand_post_id = FFS::random_long();
 			
-			rand_blocks->push_back(rand_tweet_id);
+			rand_blocks->push_back(rand_post_id);
 		}
 
-		FFS::InodeTable::InodeEntry* entry = new FFS::InodeTable::InodeEntry(rand_length, rand_blocks);
+		FFS::InodeEntry* entry = new FFS::InodeEntry(rand_length, rand_blocks);
 
 		m->insert_or_assign(rand_inode_id, entry);
 	}
@@ -43,7 +43,7 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeTable::InodeEntry*>* 
 }
 
 TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
-	std::map<uint32_t, FFS::InodeTable::InodeEntry*>* m = new std::map<uint32_t, FFS::InodeTable::InodeEntry*>();
+	std::map<uint32_t, FFS::InodeEntry*>* m = new std::map<uint32_t, FFS::InodeEntry*>();
 
 	FFS::InodeTable* table = create_table(m);
 

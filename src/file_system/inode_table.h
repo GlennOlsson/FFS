@@ -4,20 +4,22 @@
 #include <string>
 #include <iostream>
 #include <map>
-
 namespace FFS {
 
-class InodeTable {
+typedef uint32_t inode_id;
+
+// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
+typedef uint64_t post_id;
+
+class InodeEntry {
 private:
-	class InodeEntry {
-	public:
 	//TODO: add more metadata
 	// Total file length
 	uint32_t length;
-	// twitter id is 64 bit https://developer.twitter.com/en/docs/twitter-ids
-	std::vector<uint64_t>* tweet_blocks;
+	std::vector<post_id>* post_blocks;
 	
-	InodeEntry(uint32_t length, std::vector<uint64_t>* tweet_blocks);
+public:
+	InodeEntry(uint32_t length, std::vector<post_id>* post_blocks);
 
 	/**
 	 * @brief Returns the size of the object in terms of bytes
@@ -29,8 +31,8 @@ private:
 	/**
 	 * @brief Sterilizes the entry into the stream as bytes in the following manner
 	 * byte 0-3: length attribute (int)
-	 * byte 4-7: n = amount of tweet blocks (int)
-	 * byte 8-...: 8 bytes per element, n elements (tweet_blocks attribute)
+	 * byte 4-7: n = amount of post blocks (int)
+	 * byte 8-...: 8 bytes per element, n elements (post_blocks attribute)
 	 *
 	 * 
 	 * With 4 bytes representing the amount of blocks we can achieve a theoretical
@@ -49,12 +51,16 @@ private:
 	static InodeEntry* desterilize(std::istream& stream);
 
 	bool operator==(const InodeEntry& rhs) const;
+
+	friend class InodeTable;
 };
+class InodeTable {
+private:
 
 	// Inode -> Inode Entry
-	std::map<uint32_t, InodeEntry*>* entries;
+	std::map<inode_id, InodeEntry*>* entries;
 
-	InodeTable(std::map<uint32_t, InodeEntry*>* entries);
+	InodeTable(std::map<inode_id, InodeEntry*>* entries);
 
 public:
 	/**
@@ -84,6 +90,10 @@ public:
 
 	void save(std::string path);
 	static InodeTable* load(std::string path);
+
+	// TODO: Test these methods
+	inode_id new_file(std::vector<post_id>* posts, uint32_t length);
+	InodeEntry* entry(const inode_id& id);
 
 	bool operator==(const InodeTable& rhs) const;
 };
