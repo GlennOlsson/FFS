@@ -9,6 +9,7 @@
 #include <math.h>
 #include <fstream>
 #include <cassert>
+#include <vector>
 
 // Bytes required for header
 #define HEADER_SIZE 16
@@ -34,7 +35,7 @@ void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 	*(component_pointer++) = length & 0xFFFF;
 }
 
-void FFS::create_image(std::string output_name, std::istream& input_stream, uint32_t length) {
+Magick::Blob* FFS::create_image(std::istream& input_stream, uint32_t length) {
 	assert(QuantumRange == 65535);
 
 	// Bytes required for header and file
@@ -96,14 +97,19 @@ void FFS::create_image(std::string output_name, std::istream& input_stream, uint
 
 	pixel_view.sync();
 
-	image.write(output_name + "." + FFS_IMAGE_TYPE);
+	Magick::Blob* blob = new Magick::Blob();
+	image.write(blob);
+	
+	return blob;
 }
 
-void FFS::encode(std::string input_path, std::string output_path) {
+std::vector<Magick::Blob*>* FFS::encode(std::string input_path) {
 	std::ifstream file_stream(input_path, std::ifstream::binary);
 	if (!file_stream) {
 		std::cerr << "no file " << input_path << std::endl;
-		return;
+
+		std::vector<Magick::Blob*>* empty_list = new std::vector<Magick::Blob*>();
+		return empty_list;
 	}
 
 	// length of file:
@@ -113,12 +119,23 @@ void FFS::encode(std::string input_path, std::string output_path) {
 
 	uint32_t out_file_index = 0;
 
+	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>();
+
 	while(length > 0) {
 		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE, (int) length);
-		std::string out_file_name = output_path + std::to_string(out_file_index);
-		//TODO: Make concurrent?
-		create_image(out_file_name, file_stream, out_file_size);
+
+		Magick::Blob* blob = create_image(file_stream, out_file_size);
+		blobs->push_back(blob);
+
 		length -= out_file_size;
 		out_file_index++;
 	}
+
+	return blobs;
+}
+
+void FFS::_save_encoded_image(std::string out_path, std::istream& file_stream, uint32_t length) {
+	Magick::Blob* blob = create_image(file_stream, length);
+	Magick::Image img(*blob); // only one blob
+	img.write(out_path + "." + FFS_IMAGE_TYPE);
 }

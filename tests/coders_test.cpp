@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <Magick++.h>
 
 #define INPUT_FILE_PATH std::string("/tmp/ffs_in")
 #define OUTPUT_FILE_PATH std::string("/tmp/ffs_out")
@@ -43,11 +44,11 @@ TEST_CASE("Encode and decode plain text", "[coders]") {
 	std::string s = "Hello my name is glenn";
 	save_to_file(s, INPUT_FILE_PATH);
 
-	FFS::encode(INPUT_FILE_PATH, ENCODED_IMAGE_PATH);
+	std::vector<Magick::Blob*>* out_blobs = FFS::encode(INPUT_FILE_PATH);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	FFS::decode(image_paths(1), out_stream);
+	FFS::decode(out_blobs, out_stream);
 	out_stream.close();
 
 	REQUIRE(files_eq(INPUT_FILE_PATH, OUTPUT_FILE_PATH));
@@ -58,7 +59,7 @@ TEST_CASE("Encode and decode special character text", "[coders]") {
 	std::string s = "Bagare Bengtson bakom berget bakar bara brända bullar 🥵🍪⏲🧑‍🍳";
 	save_to_file(s, INPUT_FILE_PATH);
 
-	FFS::encode(INPUT_FILE_PATH, ENCODED_IMAGE_PATH);
+	std::vector<Magick::Blob*>* out_blobs = FFS::encode(INPUT_FILE_PATH);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 

@@ -1,5 +1,12 @@
 #include "inode_table.h"
 
+#include "../helpers/functions.h"
+#include "../helpers/types.h"
+
+#include "storage.h"
+#include "file_coder.h"
+#include "directory.h"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -8,10 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "../helpers/functions.h"
-#include "../helpers/types.h"
-
-#include "file_coder.h"
 // Inode Entry...
 
 FFS::InodeEntry::InodeEntry(uint32_t length,
@@ -70,8 +73,8 @@ FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 FFS::InodeTable::InodeTable() {
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 
-	Directory* root_dir = new Directory();
-	std::vector<post_id> ids = FFS::Storage::upload_file(root_dir);
+	// Directory* root_dir = new Directory();
+	// std::vector<post_id> ids = FFS::Storage::upload_file(root_dir);
 	// TODO: Update entries with root dir and its id
 	this->entries = empty_entries;
 }
@@ -126,14 +129,14 @@ void FFS::InodeTable::save(std::string path) {
 	this->sterilize(stream);
 
 	uint32_t size = this->size();
-	create_image(path, stream, size);
+	_save_encoded_image(path, stream, size);
 }
 
 FFS::InodeTable* FFS::InodeTable::load(std::string path) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
-	decode({path}, stream);
+	_read_encoded_image({path}, stream);
 
 	return desterilize(stream);
 }

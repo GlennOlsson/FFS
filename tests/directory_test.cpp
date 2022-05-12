@@ -87,7 +87,7 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 	stream.seekg(0);
 
 	try { // If doesn't fail, make sure they are unequal
-		FFS::create_image(DIR_OUTPUT, cp_stream, total_bytes);
+		FFS::_save_encoded_image(DIR_OUTPUT, cp_stream, total_bytes);
 		
 		FFS::Directory* cp_dir = FFS::Directory::load(DIR_OUTPUT);
 		bool dirs_eq = *cp_dir == *dir;

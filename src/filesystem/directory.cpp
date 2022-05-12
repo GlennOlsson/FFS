@@ -82,14 +82,14 @@ void FFS::Directory::save(std::string path) {
 	this->sterilize(stream);
 
 	uint32_t size = this->size();
-	create_image(path, stream, size);
+	_save_encoded_image(path, stream, size);
 }
 
 FFS::Directory* FFS::Directory::load(std::string path) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
-	decode({path}, stream);
+	_read_encoded_image({path}, stream);
 
 	return desterilize(stream);
 }
