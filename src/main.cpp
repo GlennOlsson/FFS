@@ -22,7 +22,7 @@ int encode_main(int argc, char const *argv[]){
 	if(argc > 1) {
 		filename = argv[1];
 	} else {
-		filename = "out.nosync/input.png";
+		filename = "out.nosync/input";
 	}
 	std::vector<Magick::Blob*>* blobs = FFS::encode(filename);
 
@@ -61,7 +61,7 @@ int decode_main(int argc, char const *argv[]){
 		input_list.push_back(blob);
 	}
 
-	std::ofstream file_stream("out.nosync/output.png", std::ofstream::binary);
+	std::ofstream file_stream("out.nosync/output", std::ofstream::binary);
 	if (!file_stream) {
 		std::cerr << "Cannot output to file out.nosync/output" << std::endl;
 		return 1;
