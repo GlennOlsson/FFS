@@ -148,6 +148,17 @@ Magick::Blob* FFS::InodeTable::blob() {
 	return create_image(stream, size);
 }
 
+FFS::InodeTable* FFS::InodeTable::from_blob(Magick::Blob* blob) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
+	v->push_back(blob);
+	decode(v, stream);
+
+	return desterilize(stream);
+}
+
 void FFS::InodeTable::save(std::string path) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);

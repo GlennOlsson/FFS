@@ -57,8 +57,9 @@ TEST_CASE("Sterlizing and desterlizing inode table creates same table", "[inode_
 
 	std::string inode_table_output = "out.nosync/inode_table.png";
 
-	table->save(inode_table_output);
-	FFS::InodeTable* desterilized_table = FFS::InodeTable::load(inode_table_output);
+	Magick::Blob* b = table->blob();
+
+	FFS::InodeTable* desterilized_table = FFS::InodeTable::from_blob(b);
 
 	bool tables_eq = *table == *desterilized_table;
 

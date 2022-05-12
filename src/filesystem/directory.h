@@ -50,6 +50,8 @@ public:
 	 */
 	Magick::Blob* blob();
 
+	static Directory* from_blob(Magick::Blob* blob);
+
 	/**
 	 * @brief Save directory as an FFS image to file at path
 	 * 

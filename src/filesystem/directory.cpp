@@ -87,6 +87,17 @@ Magick::Blob* FFS::Directory::blob() {
 	return create_image(stream, size);
 }
 
+FFS::Directory* FFS::Directory::from_blob(Magick::Blob* blob) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
+	v->push_back(blob);
+	decode(v, stream);
+
+	return desterilize(stream);
+}
+
 void FFS::Directory::save(std::string path) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);

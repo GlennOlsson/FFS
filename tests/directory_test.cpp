@@ -47,8 +47,10 @@ FFS::Directory* create_directory() {
 TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]") {
 	FFS::Directory* directory = create_directory();
 
-	directory->save(DIR_OUTPUT);
-	FFS::Directory* desterilized_dir = FFS::Directory::load(DIR_OUTPUT);
+
+	Magick::Blob* b = directory->blob();
+
+	FFS::Directory* desterilized_dir = FFS::Directory::from_blob(b);
 
 	bool dirs_eq = *directory == *desterilized_dir;
 

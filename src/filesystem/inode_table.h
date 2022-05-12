@@ -90,6 +90,7 @@ public:
 	static InodeTable* desterilize(std::istream& stream);
 
 	Magick::Blob* blob();
+	static InodeTable* from_blob(Magick::Blob* blob);
 
 	void save(std::string path);
 	static InodeTable* load(std::string path);
