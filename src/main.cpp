@@ -4,6 +4,8 @@
 #include "helpers/constants.h"
 #include "helpers/functions.h"
 
+#include "user_io/cmd.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -71,6 +73,10 @@ int decode_main(int argc, char const *argv[]){
 	return 0;
 }
 
+void fs_interact(int argc, char const *argv[]){
+	interact();
+}
+
 int main(int argc, char const *argv[]) {
 
 	if(argc < 2) {
@@ -84,8 +90,8 @@ int main(int argc, char const *argv[]) {
 		encode_main(argc - 1, ++argv);
 	} else if(argument == "decode") {
 		decode_main(argc - 1, ++argv);
-	} else if(argument == "inode_table") {
-		cout << "Inode table" << endl;
+	} else if(argument == "fs") {
+		fs_interact(argc - 1, ++argv);
 	} else {
 		cerr << "Argument not covered: " << argv[1] << endl;
 		return 1;
