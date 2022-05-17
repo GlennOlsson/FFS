@@ -19,28 +19,32 @@
 // Inode Entry...
 
 FFS::InodeEntry::InodeEntry(uint32_t length,
-							std::vector<post_id>* post_blocks) {
+							std::vector<post_id>* post_blocks, uint8_t is_dir = false) {
 	this->length = length;
+	this->is_dir = is_dir;
 	this->post_blocks = post_blocks;
 }
 
-FFS::InodeEntry::InodeEntry(uint32_t length, post_id post) {
+FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = false) {
 	this->length = length;
+	this->is_dir = is_dir;
 	this->post_blocks = new std::vector<post_id>();
 	this->post_blocks->push_back(post);
 }
 
 uint32_t FFS::InodeEntry::size() {
 	uint32_t value = 0;
-	value += 4;								  // Length field, int = 4 bytes
-	value += 4;								  // Amount of entries = 4 bytes
-	value += this->post_blocks->size() * 8;  // 8 bytes per element
+	value += sizeof(uint32_t); // length
+	value += sizeof(uint8_t); // is_dir
+	value += sizeof(uint32_t); // amount of post blocks
+	value += this->post_blocks->size() * sizeof(uint64_t); // per post block
 
 	return value;
 }
 
 void FFS::InodeEntry::sterilize(std::ostream& stream) {
 	FFS::write_i(stream, this->length);
+	FFS::write_c(stream, this->is_dir);
 	FFS::write_i(stream, this->post_blocks->size());
 	for (post_id entry : *post_blocks) {
 		FFS::write_l(stream, entry);
@@ -49,8 +53,10 @@ void FFS::InodeEntry::sterilize(std::ostream& stream) {
 
 FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 	uint32_t length, block_count;
+	uint8_t is_dir;
 
 	FFS::read_i(stream, length);
+	FFS::read_c(stream, is_dir);
 	FFS::read_i(stream, block_count);
 
 	std::vector<post_id>* blocks = new std::vector<post_id>();
@@ -61,7 +67,7 @@ FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 		blocks->push_back(l);
 	}
 
-	return new InodeEntry(length, blocks);
+	return new InodeEntry(length, blocks, is_dir);
 }
 
 bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
@@ -159,8 +165,8 @@ FFS::InodeTable* FFS::InodeTable::from_blob(Magick::Blob* blob) {
 	return desterilize(stream);
 }
 
-FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32_t length) {
-	InodeEntry* entry = new InodeEntry(length, posts);
+FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32_t length, uint8_t is_dir) {
+	InodeEntry* entry = new InodeEntry(length, posts, is_dir);
 	inode_id new_id;
 	if(this->entries->empty()) {
 		new_id = 0;

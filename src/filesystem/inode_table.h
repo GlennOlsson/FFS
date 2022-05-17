@@ -15,11 +15,12 @@ private:
 	//TODO: add more metadata
 	// Total file length
 	uint32_t length;
+	uint8_t is_dir;
 	std::vector<post_id>* post_blocks;
 	
 public:
-	InodeEntry(uint32_t length, std::vector<post_id>* post_blocks);
-	InodeEntry(uint32_t length, post_id post);
+	InodeEntry(uint32_t length, std::vector<post_id>* post_blocks, uint8_t is_dir);
+	InodeEntry(uint32_t length, post_id post, uint8_t is_dir);
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 
@@ -93,7 +94,7 @@ public:
 	static InodeTable* from_blob(Magick::Blob* blob);
 
 	// TODO: Test these methods
-	inode_id new_file(std::vector<post_id>* posts, uint32_t length);
+	inode_id new_file(std::vector<post_id>* posts, uint32_t length, uint8_t is_dir);
 	InodeEntry* entry(const inode_id& id);
 
 	bool operator==(const InodeTable& rhs) const;

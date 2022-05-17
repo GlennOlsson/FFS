@@ -33,7 +33,9 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr)
 			rand_blocks->push_back(rand_post_id);
 		}
 
-		FFS::InodeEntry* entry = new FFS::InodeEntry(rand_length, rand_blocks);
+		uint8_t is_dir = FFS::random_byte() % 2; // will be either 0 or 1
+
+		FFS::InodeEntry* entry = new FFS::InodeEntry(rand_length, rand_blocks, is_dir);
 
 		m->insert_or_assign(rand_inode_id, entry);
 	}
