@@ -15,13 +15,17 @@ std::string path_of(FFS::post_id id) {
 	return path_stream.str();
 }
 
-FFS::post_id FFS::Storage::upload_file(Magick::Blob* blob) {
-	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
-	FFS::post_id id = FFS::random_long();
+void FFS::Storage::save_file(FFS::post_id id, Magick::Blob* blob) { 
 	std::string path = path_of(id);
 
 	Magick::Image img(*blob);
 	img.write(path);
+}
+
+FFS::post_id FFS::Storage::upload_file(Magick::Blob* blob) {
+	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
+	FFS::post_id id = FFS::random_long();
+	save_file(id, blob);
 	
 	return id;
 }

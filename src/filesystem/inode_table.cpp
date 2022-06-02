@@ -4,6 +4,8 @@
 #include "../helpers/types.h"
 #include "../helpers/constants.h"
 
+#include "../system/state.h"
+
 #include "storage.h"
 #include "file_coder.h"
 #include "directory.h"
@@ -87,7 +89,7 @@ FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 FFS::InodeTable::InodeTable() {
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 
-	Directory* root_dir = new Directory();
+	Directory* root_dir = new Directory(FFS_ROOT_INODE);
 	Magick::Blob* blob = root_dir->blob();
 
 	post_id id = FFS::Storage::upload_file(blob);
@@ -177,6 +179,8 @@ FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32
 		new_id = biggest_id + 1;
 	}
 	this->entries->insert({new_id, entry});
+
+	FFS::State::save_table();
 
 	return new_id;
 }

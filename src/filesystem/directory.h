@@ -16,11 +16,16 @@ private:
 	 */
 	std::map<std::string, inode_id>* entries;
 
-	Directory(std::map<std::string, inode_id>* entries);
+	Directory(std::map<std::string, inode_id>* entries, inode_id self_id);
+
+	// Re-upload
+	void upload();
+
+	inode_id self_id;
 
 public:
 	
-	Directory();
+	Directory(inode_id self_id);
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 

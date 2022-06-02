@@ -42,7 +42,7 @@ FFS::Directory* create_directory() {
 		entries->insert({name, rand_inode_id});
 	}
 
-	return new FFS::Directory(entries);
+	return new FFS::Directory(entries, -1);
 }
 
 TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]") {
