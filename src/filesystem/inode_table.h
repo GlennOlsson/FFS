@@ -16,11 +16,13 @@ private:
 	// Total file length
 	uint32_t length;
 	uint8_t is_dir;
-	std::vector<post_id>* post_blocks;
 	
 public:
 	InodeEntry(uint32_t length, std::vector<post_id>* post_blocks, uint8_t is_dir);
 	InodeEntry(uint32_t length, post_id post, uint8_t is_dir);
+	
+	std::vector<post_id>* post_blocks;
+	
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 

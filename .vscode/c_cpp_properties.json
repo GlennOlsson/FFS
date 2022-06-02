@@ -3,21 +3,23 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/src/**/*"
+                "${workspaceFolder}/**/*",
+                "/usr/local/include/",
+                "/usr/local/Cellar/imagemagick/7.1.0-29/include/ImageMagick-7"
             ],
             "defines": [],
             "macFrameworkPath": [
-                "/Library/Developer/CommandLineTools/usr/include/c++/v1",
-                "/usr/local/lib",
-                "/usr/local/include"
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk/System/Library/Frameworks"
             ],
-            "compilerPath": "/usr/bin/g++",
+            "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
+            "cppStandard": "c++98",
             "intelliSenseMode": "macos-clang-x64",
             "compilerArgs": [
-                "--std=c++20"
-            ],
-            "cppStandard": "c++20"
+                "-Wall",
+                "--std=c++20",
+                "-O2"
+            ]
         }
     ],
     "version": 4

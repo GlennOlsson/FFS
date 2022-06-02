@@ -17,3 +17,6 @@
 #define FFS_IMAGE_TYPE "png"
 
 #define FFS_TMP_FS_PATH "out.nosync/tmp_fs"
+
+// Inode ID for root directory
+#define FFS_ROOT_INODE 0

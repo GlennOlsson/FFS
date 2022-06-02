@@ -2,6 +2,7 @@
 
 #include "../helpers/functions.h"
 #include "../helpers/types.h"
+#include "../helpers/constants.h"
 
 #include "storage.h"
 #include "file_coder.h"
@@ -93,8 +94,8 @@ FFS::InodeTable::InodeTable() {
 	uint32_t dir_bytes = root_dir->size();
 
 	InodeEntry* entry = new InodeEntry(dir_bytes, id);
-	// Root dir should have inode id 0
-	empty_entries->insert({0, entry});
+	// Root dir should specific inode id
+	empty_entries->insert({FFS_ROOT_INODE, entry});
 
 	// TODO: Update entries with root dir and its id
 	this->entries = empty_entries;

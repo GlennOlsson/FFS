@@ -107,10 +107,10 @@ std::vector<std::string> FFS::Directory::content() {
 }
 
 // Create file in directory
-FFS::inode_id FFS::Directory::create_file(std::string name) {
-	return 0;
+void FFS::Directory::add_entry(std::string name, FFS::inode_id id) {
+	this->entries->insert({name, id});
 }
-// Get a file with specified name
+// Get a file with specified name. Throws NoFileWithName exception if file does not exist
 FFS::inode_id FFS::Directory::get_file(std::string name) {
 	return 0;
 }

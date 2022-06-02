@@ -41,6 +41,8 @@ Magick::Blob* FFS::create_image(std::istream& input_stream, uint32_t length) {
 	// Bytes required for header and file
 	uint32_t min_bytes = length + HEADER_SIZE;
 
+	assert(min_bytes <= FFS_MAX_FILE_SIZE);
+
 	// Assume 16bit depth for each component
 	// 2 bytes per component, 3 components per pixel, 2*3
 	uint32_t required_pixels = ceil((double) min_bytes / 6.0);

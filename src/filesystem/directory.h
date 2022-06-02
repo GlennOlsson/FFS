@@ -60,7 +60,7 @@ public:
 	std::vector<std::string> content();
 
 	// Create file in directory
-	inode_id create_file(std::string name);
+	void add_entry(std::string name, inode_id id);
 	// Get a file with specified name
 	inode_id get_file(std::string name);
 
