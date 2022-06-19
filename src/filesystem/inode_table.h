@@ -92,9 +92,6 @@ public:
 	 */
 	static InodeTable* desterilize(std::istream& stream);
 
-	Magick::Blob* blob();
-	static InodeTable* from_blob(Magick::Blob* blob);
-
 	// TODO: Test these methods
 	inode_id new_file(std::vector<post_id>* posts, uint32_t length, uint8_t is_dir);
 	InodeEntry* entry(const inode_id& id);

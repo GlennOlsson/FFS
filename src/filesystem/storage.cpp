@@ -1,5 +1,7 @@
 #include "storage.h"
 
+#include "file_coder.h"
+
 #include "../helpers/types.h"
 #include "../helpers/functions.h"
 #include "../helpers/constants.h"
@@ -13,6 +15,51 @@ std::string path_of(FFS::post_id id) {
 	std::stringstream path_stream;
 	path_stream << FFS_TMP_FS_PATH << "/ffs_" << std::to_string(id) << "." << FFS_IMAGE_TYPE;
 	return path_stream.str();
+}
+
+
+Magick::Blob* blob(FFS::Directory& dir) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	dir.sterilize(stream);
+
+	uint32_t size = dir.size();
+
+	return FFS::create_image(stream, size);
+}
+
+Magick::Blob* blob(FFS::InodeTable& table) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	table.sterilize(stream);
+
+	uint32_t size = table.size();
+
+	return FFS::create_image(stream, size);
+}
+
+FFS::Directory* dir_from_blob(Magick::Blob* blob) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
+	v->push_back(blob);
+	FFS::decode(v, stream);
+
+	return FFS::Directory::desterilize(stream);
+}
+
+FFS::InodeTable* itable_from_blob(Magick::Blob* blob) {
+	std::stringbuf buf;
+	std::basic_iostream stream(&buf);
+
+	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
+	v->push_back(blob);
+	FFS::decode(v, stream);
+
+	return FFS::InodeTable::desterilize(stream);
 }
 
 void FFS::Storage::save_file(FFS::post_id id, Magick::Blob* blob) { 

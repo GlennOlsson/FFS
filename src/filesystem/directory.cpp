@@ -99,28 +99,6 @@ FFS::Directory* FFS::Directory::desterilize(std::istream& stream) {
 	return new FFS::Directory(entries, -1);
 }
 
-Magick::Blob* FFS::Directory::blob() {
-	std::stringbuf buf;
-	std::basic_iostream stream(&buf);
-
-	this->sterilize(stream);
-
-	uint32_t size = this->size();
-
-	return create_image(stream, size);
-}
-
-FFS::Directory* FFS::Directory::from_blob(Magick::Blob* blob) {
-	std::stringbuf buf;
-	std::basic_iostream stream(&buf);
-
-	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
-	v->push_back(blob);
-	decode(v, stream);
-
-	return desterilize(stream);
-}
-
 std::vector<std::string> FFS::Directory::content() {
 	std::vector<std::string> names(this->entries->size());
 	for(auto entry: *this->entries)

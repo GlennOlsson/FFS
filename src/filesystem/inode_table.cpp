@@ -146,28 +146,6 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 	return new InodeTable(entries);
 }
 
-Magick::Blob* FFS::InodeTable::blob() {
-	std::stringbuf buf;
-	std::basic_iostream stream(&buf);
-
-	this->sterilize(stream);
-
-	uint32_t size = this->size();
-
-	return create_image(stream, size);
-}
-
-FFS::InodeTable* FFS::InodeTable::from_blob(Magick::Blob* blob) {
-	std::stringbuf buf;
-	std::basic_iostream stream(&buf);
-
-	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
-	v->push_back(blob);
-	decode(v, stream);
-
-	return desterilize(stream);
-}
-
 FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32_t length, uint8_t is_dir) {
 	InodeEntry* entry = new InodeEntry(length, posts, is_dir);
 	inode_id new_id;

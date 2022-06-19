@@ -49,15 +49,6 @@ public:
 	static Directory* desterilize(std::istream& stream);
 
 	/**
-	 * @brief Get a Blob representing the directory as a FFS image
-	 * 
-	 * @return Magick::Blob* 
-	 */
-	Magick::Blob* blob();
-
-	static Directory* from_blob(Magick::Blob* blob);
-
-	/**
 	 * @brief Get the content of the directory
 	 * 
 	 * @return std::vector<std::string> a list of all filenames 
