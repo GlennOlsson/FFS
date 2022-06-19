@@ -5,6 +5,7 @@
 #include "../helpers/functions.h"
 #include "../system/state.h"
 #include "file_coder.h"
+#include "storage.h"
 
 #include <string>
 #include <sstream>
@@ -13,8 +14,6 @@
 FFS::Directory::Directory(std::map<std::string, FFS::inode_id>* entries, FFS::inode_id self_id) {
 	this->entries = entries;
 	this->self_id = self_id;
-
-	upload();
 }
 
 FFS::Directory::Directory(FFS::inode_id self_id) {
@@ -22,22 +21,6 @@ FFS::Directory::Directory(FFS::inode_id self_id) {
 
 	this->entries = empty_entries;
 	this->self_id = self_id;
-
-	upload();
-}
-
-void FFS::Directory::upload() {
-	// If -1, don't save in FS. Used for testing
-	if(this->self_id == -1)
-		return;
-
-	auto new_id = FFS::Storage::upload_file(this->blob());
-	auto table = FFS::State::get_inode_table();
-	auto inode = table->entry(this->self_id);
-	
-	// Free old list
-	delete inode->post_blocks;
-	inode->post_blocks = new std::vector<FFS::post_id>({new_id});
 }
 
 uint32_t FFS::Directory::size() {
@@ -110,7 +93,6 @@ std::vector<std::string> FFS::Directory::content() {
 // Create file in directory
 void FFS::Directory::add_entry(std::string name, FFS::inode_id id) {
 	this->entries->insert({name, id});
-	upload();
 }
 // Get a file with specified name. Throws NoFileWithName exception if file does not exist
 FFS::inode_id FFS::Directory::get_file(std::string name) {

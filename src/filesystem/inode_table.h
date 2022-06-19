@@ -6,7 +6,6 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include <Magick++.h>
 
 namespace FFS {
 

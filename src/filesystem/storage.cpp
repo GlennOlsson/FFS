@@ -6,6 +6,8 @@
 #include "../helpers/functions.h"
 #include "../helpers/constants.h"
 
+#include "../system/state.h"
+
 #include <Magick++.h>
 #include <vector>
 #include <string>
@@ -18,7 +20,7 @@ std::string path_of(FFS::post_id id) {
 }
 
 
-Magick::Blob* blob(FFS::Directory& dir) {
+Magick::Blob* FFS::Storage::blob(FFS::Directory& dir) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -29,7 +31,7 @@ Magick::Blob* blob(FFS::Directory& dir) {
 	return FFS::create_image(stream, size);
 }
 
-Magick::Blob* blob(FFS::InodeTable& table) {
+Magick::Blob* FFS::Storage::blob(FFS::InodeTable& table) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -40,7 +42,7 @@ Magick::Blob* blob(FFS::InodeTable& table) {
 	return FFS::create_image(stream, size);
 }
 
-FFS::Directory* dir_from_blob(Magick::Blob* blob) {
+FFS::Directory* FFS::Storage::dir_from_blob(Magick::Blob* blob) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -51,7 +53,7 @@ FFS::Directory* dir_from_blob(Magick::Blob* blob) {
 	return FFS::Directory::desterilize(stream);
 }
 
-FFS::InodeTable* itable_from_blob(Magick::Blob* blob) {
+FFS::InodeTable* FFS::Storage::itable_from_blob(Magick::Blob* blob) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -60,6 +62,22 @@ FFS::InodeTable* itable_from_blob(Magick::Blob* blob) {
 	FFS::decode(v, stream);
 
 	return FFS::InodeTable::desterilize(stream);
+}
+
+void FFS::Storage::upload(FFS::Directory& dir) {
+	// If -1, don't save in FS. Used for testing
+	if(dir.self_id == -1)
+		return;
+
+	auto new_id = FFS::Storage::upload_file(FFS::Storage::blob(dir));
+	auto table = FFS::State::get_inode_table();
+	auto inode = table->entry(dir.self_id);
+	
+	// Free old list
+	delete inode->post_blocks;
+	inode->post_blocks = new std::vector<FFS::post_id>({new_id});
+
+	FFS::State::save_table();
 }
 
 void FFS::Storage::save_file(FFS::post_id id, Magick::Blob* blob) { 

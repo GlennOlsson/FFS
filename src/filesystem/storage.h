@@ -23,6 +23,9 @@ namespace FFS::Storage {
 	Directory* dir_from_blob(Magick::Blob* blob);
 	InodeTable* itable_from_blob(Magick::Blob* blob);
 
+	void upload(FFS::Directory&);
+	void upload(FFS::InodeTable&);
+
 	void save_file(post_id id, Magick::Blob* blob);
 	std::vector<post_id>* upload_file(std::vector<Magick::Blob*>* blobs);
 	post_id upload_file(Magick::Blob* blob);

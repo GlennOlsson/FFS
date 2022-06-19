@@ -6,11 +6,10 @@
 #include <map>
 #include <vector>
 #include <iostream>
-#include <Magick++.h>
 
 namespace FFS {
 class Directory {
-private:
+public:
 	/**
 	 * @brief Map of (filename, inode id) describing the content of the directory. The filename is limited to 255 characters
 	 */
@@ -18,12 +17,7 @@ private:
 
 	Directory(std::map<std::string, inode_id>* entries, inode_id self_id);
 
-	// Re-upload
-	void upload();
-
 	inode_id self_id;
-
-public:
 	
 	Directory(inode_id self_id);
 	/**

@@ -90,7 +90,7 @@ FFS::InodeTable::InodeTable() {
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 
 	Directory* root_dir = new Directory(FFS_ROOT_INODE);
-	Magick::Blob* blob = root_dir->blob();
+	Magick::Blob* blob = FFS::Storage::blob(*root_dir);
 
 	post_id id = FFS::Storage::upload_file(blob);
 	uint32_t dir_bytes = root_dir->size();
