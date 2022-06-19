@@ -96,8 +96,8 @@ FFS::post_id FFS::Storage::upload_file(Magick::Blob* blob) {
 }
 
 std::vector<FFS::post_id>* FFS::Storage::upload_file(std::vector<Magick::Blob*>* blobs) {
-	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>(blobs->size());
-
+	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();
+	
 	for(Magick::Blob* blob: *blobs) {
 		FFS::post_id id = upload_file(blob);
 		posts->push_back(id);

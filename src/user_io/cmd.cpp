@@ -60,9 +60,12 @@ void save() {
 		dirs.pop_back(); // Removes last element == filename
 
 		FFS::InodeTable* table = FFS::State::get_inode_table();
+
+		// Root dir entry
 		FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
 		// Assumes directory is only 1 post
 		auto blob = FFS::Storage::get_file(dir_entry->post_blocks->at(0));
+		// Root dir (/)
 		FFS::Directory* dir = FFS::Storage::dir_from_blob(blob);
 		for(string dir_name: dirs) {
 			auto inode_id = dir->get_file(dir_name);
@@ -78,8 +81,6 @@ void save() {
 		auto file_size = ftell(file);
 
 		table->new_file(post_ids, file_size, false);
-
-		cout << "Saved file" << endl;
 
         fclose(file);
     } else {

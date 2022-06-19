@@ -116,7 +116,8 @@ std::vector<Magick::Blob*>* FFS::encode(std::string input_path) {
 
 	// length of file:
 	file_stream.seekg (0, file_stream.end);
-	uint32_t length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
+	// must be int so it can go under 0
+	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
 	file_stream.seekg (0, file_stream.beg);
 
 	uint32_t out_file_index = 0;
