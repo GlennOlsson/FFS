@@ -26,7 +26,7 @@ void FFS::State::save_table() {
 		return;
 	}
 
-	auto blob = table->blob();
+	auto blob = FFS::Storage::blob(*table);
 
 	FFS::Storage::save_file(inode_table_id, blob);
 }

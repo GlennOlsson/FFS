@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 
@@ -62,12 +63,12 @@ void save() {
 		FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
 		// Assumes directory is only 1 post
 		auto blob = FFS::Storage::get_file(dir_entry->post_blocks->at(0));
-		FFS::Directory* dir = FFS::Directory::from_blob(blob);
+		FFS::Directory* dir = FFS::Storage::dir_from_blob(blob);
 		for(string dir_name: dirs) {
 			auto inode_id = dir->get_file(dir_name);
 			dir_entry = table->entry(inode_id);
 			blob = FFS::Storage::get_file(dir_entry->post_blocks->at(0));
-			dir = FFS::Directory::from_blob(blob);
+			dir = FFS::Storage::dir_from_blob(blob);
 		}
 
 		auto blobs = FFS::encode(src_path);
@@ -95,6 +96,28 @@ void read() {
 	cout << "Lorem ipsum dolor..." << endl;
 }
 
+void print_table() {
+	auto table = FFS::State::get_inode_table();
+	auto entries = table->entries;
+	for(auto entry: *entries) {
+		auto id = entry.first;
+		auto entry_obj = entry.second;
+
+		stringstream ss;
+
+		ss << "inode " << id << ": ";
+
+		bool is_dir = entry_obj->is_dir;
+		ss << (is_dir ? "directory" : "file") << " of " << entry_obj->length << " bytes at ";
+
+		for(auto post_id: *entry_obj->post_blocks) {
+			ss << post_id << ", ";
+		}
+		
+		cout << ss.str() << "\n";
+	}
+}
+
 void parse_input(string& cmd) {
 	if(cmd == "save")
 		save();
@@ -102,6 +125,8 @@ void parse_input(string& cmd) {
 		read();
 	else if(cmd == "ls")
 		cout << "/" << endl; // Static, always at root dir
+	else if(cmd == "table")
+		print_table();
 	else {
 		cout << cmd << " does not match any commands" << endl;
 	}

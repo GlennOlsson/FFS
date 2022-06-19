@@ -86,6 +86,7 @@ FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 	this->entries = entries;
 }
 
+// Creates empty inode table with only a root directory
 FFS::InodeTable::InodeTable() {
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 

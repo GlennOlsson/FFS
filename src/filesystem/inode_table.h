@@ -10,13 +10,12 @@
 namespace FFS {
 
 class InodeEntry {
-private:
+public:
 	//TODO: add more metadata
 	// Total file length
 	uint32_t length;
 	uint8_t is_dir;
 	
-public:
 	InodeEntry(uint32_t length, std::vector<post_id>* post_blocks, uint8_t is_dir);
 	InodeEntry(uint32_t length, post_id post, uint8_t is_dir);
 	
@@ -56,14 +55,12 @@ public:
 	friend class InodeTable;
 };
 class InodeTable {
-private:
-
+public:
 	// Inode -> Inode Entry
 	std::map<inode_id, InodeEntry*>* entries;
 
 	InodeTable(std::map<inode_id, InodeEntry*>* entries);
 
-public:
 	InodeTable();
 
 	/**
