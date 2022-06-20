@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../helpers/types.h"
+
 #include <string>
 
 namespace FFS {
@@ -30,9 +32,16 @@ class StorageException: public std::exception {
 class NoFileWithName: public StorageException {
 private:
 	std::string name;
-	std::string parent_dir;
 public:
-	NoFileWithName(std::string file_name, std::string parent_dir);
+	NoFileWithName(std::string file_name);
+	const char* what() const noexcept;
+};
+
+class NoFileWithInode: public StorageException {
+private:
+	FFS::inode_id inode;
+public:
+	NoFileWithInode(FFS::inode_id inode);
 	const char* what() const noexcept;
 };
 

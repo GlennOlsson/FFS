@@ -3,24 +3,26 @@
 #include "storage.h"
 
 #include "../helpers/functions.h"
+
 #include "../system/state.h"
+
 #include "file_coder.h"
 #include "storage.h"
+
+#include "../exceptions/exceptions.h"
 
 #include <string>
 #include <sstream>
 #include <Magick++.h>
 
-FFS::Directory::Directory(std::map<std::string, FFS::inode_id>* entries, FFS::inode_id self_id) {
+FFS::Directory::Directory(std::map<std::string, FFS::inode_id>* entries) {
 	this->entries = entries;
-	this->self_id = self_id;
 }
 
-FFS::Directory::Directory(FFS::inode_id self_id) {
+FFS::Directory::Directory() {
 	std::map<std::string, FFS::inode_id>* empty_entries = new std::map<std::string, FFS::inode_id>();
 
 	this->entries = empty_entries;
-	this->self_id = self_id;
 }
 
 uint32_t FFS::Directory::size() {
@@ -79,7 +81,7 @@ FFS::Directory* FFS::Directory::desterilize(std::istream& stream) {
 		entries->insert({name, inode_id});
 	}
 
-	return new FFS::Directory(entries, -1);
+	return new FFS::Directory(entries);
 }
 
 std::vector<std::string> FFS::Directory::content() {
@@ -96,7 +98,10 @@ void FFS::Directory::add_entry(std::string name, FFS::inode_id id) {
 }
 // Get a file with specified name. Throws NoFileWithName exception if file does not exist
 FFS::inode_id FFS::Directory::get_file(std::string name) {
-	return 0;
+	if(this->entries->contains(name))
+		return this->entries->at(name);
+
+	throw NoFileWithName(name);
 }
 
 bool FFS::Directory::operator==(const FFS::Directory& rhs) const {

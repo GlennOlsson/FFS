@@ -15,11 +15,9 @@ public:
 	 */
 	std::map<std::string, inode_id>* entries;
 
-	Directory(std::map<std::string, inode_id>* entries, inode_id self_id);
-
-	inode_id self_id;
+	Directory(std::map<std::string, inode_id>* entries);
+	Directory();
 	
-	Directory(inode_id self_id);
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 

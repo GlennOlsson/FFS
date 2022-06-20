@@ -6,6 +6,8 @@
 
 #include "../system/state.h"
 
+#include "../exceptions/exceptions.h"
+
 #include "storage.h"
 #include "file_coder.h"
 #include "directory.h"
@@ -84,23 +86,21 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 
 FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
 	std::cout << "init inode table" << std::endl;
-	
+
 	this->entries = entries;
 }
 
 // Creates empty inode table with only a root directory
 FFS::InodeTable::InodeTable() {
-	std::cout << "init inode table" << std::endl;
-	
 	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
 
-	Directory* root_dir = new Directory(FFS_ROOT_INODE);
+	Directory* root_dir = new Directory();
 	Magick::Blob* blob = FFS::Storage::blob(*root_dir);
 
 	post_id id = FFS::Storage::upload_file(blob);
 	uint32_t dir_bytes = root_dir->size();
 
-	InodeEntry* entry = new InodeEntry(dir_bytes, id);
+	InodeEntry* entry = new InodeEntry(dir_bytes, id, true);
 	// Root dir should specific inode id
 	empty_entries->insert({FFS_ROOT_INODE, entry});
 
@@ -153,6 +153,8 @@ FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
 
 FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32_t length, uint8_t is_dir) {
 	InodeEntry* entry = new InodeEntry(length, posts, is_dir);
+	
+	// Find next inode id to use
 	inode_id new_id;
 	if(this->entries->empty()) {
 		new_id = 0;
@@ -161,6 +163,8 @@ FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32
 		inode_id biggest_id = r_it->first;
 		new_id = biggest_id + 1;
 	}
+
+	// Use new id as inode id, and return it
 	this->entries->insert({new_id, entry});
 
 	FFS::State::save_table();
@@ -169,7 +173,10 @@ FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32
 }
 
 FFS::InodeEntry* FFS::InodeTable::entry(const FFS::inode_id& id) {
-	return this->entries->at(id);
+	if(this->entries->contains(id))
+		return this->entries->at(id);
+	
+	throw FFS::NoFileWithInode(id);
 }
 
 bool FFS::InodeTable::operator==(const FFS::InodeTable& rhs) const {
