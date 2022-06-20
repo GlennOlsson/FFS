@@ -82,13 +82,10 @@ void save() {
 				blobs = FFS::Storage::get_file(dir_entry->post_blocks);
 				dir = FFS::Storage::dir_from_blobs(blobs);
 			} catch(const FFS::NoFileWithName& b) {
-				cout << "Dir " << dir_name << " does not exits, creating" << endl;
 				FFS::Directory* new_dir = new FFS::Directory();
 				auto new_inode_id = FFS::Storage::upload(*new_dir);
 				dir->add_entry(dir_name, new_inode_id);
 				FFS::Storage::update(*dir, inode_id);
-
-				cout << "Created " << dir_name << " with inode " << new_inode_id << endl;
 
 				dir = new_dir; // Switch pointer
 				inode_id = new_inode_id;
@@ -105,7 +102,7 @@ void save() {
 		dir->add_entry(filename, file_inode_id);
 		FFS::Storage::update(*dir, inode_id);
 
-		cout << "Saved file as inode " << file_inode_id << " in dir with inode " << inode_id << endl;
+		cout << "Saved file" << endl;
 
         fclose(file);
     } else {
@@ -131,13 +128,6 @@ void read() {
 	string filename = dirs.back();
 	dirs.pop_back(); // Removes last element == filename
 
-	cout << "Dirs: " << endl;
-	for(auto dir_name: dirs) {
-		cout << dir_name << endl;
-	}
-
-	cout << "final filename: " << filename << endl;
-
 	FFS::InodeTable* table = FFS::State::get_inode_table();
 
 	// Root dir entry
@@ -153,7 +143,6 @@ void read() {
 			blobs = FFS::Storage::get_file(dir_entry->post_blocks);
 			dir = FFS::Storage::dir_from_blobs(blobs);
 
-			cout << "dir with name " << dir_name << " has inode " << inode << endl;
 		} catch(const FFS::NoFileWithName& b) {
 			cout << "Directory " << dir_name << " does not exist" << endl;
 			return;
@@ -181,13 +170,13 @@ void read() {
 void print_table() {
 	auto table = FFS::State::get_inode_table();
 	auto entries = table->entries;
+	stringstream ss;
+
 	for(auto entry: *entries) {
 		auto id = entry.first;
 		auto entry_obj = entry.second;
 
-		stringstream ss;
-
-		ss << "inode " << id << ": ";
+		ss << "inode " << id << ": "; 
 
 		bool is_dir = entry_obj->is_dir;
 		ss << (is_dir ? "directory" : "file") << " of " << entry_obj->length << " bytes at ";
@@ -195,9 +184,10 @@ void print_table() {
 		for(auto post_id: *entry_obj->post_blocks) {
 			ss << post_id << ", ";
 		}
-		
-		cout << ss.str() << "\n";
+
+		ss << endl;
 	}
+	cout << ss.str();
 }
 
 void print_root_dir() {

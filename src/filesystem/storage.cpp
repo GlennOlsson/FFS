@@ -75,15 +75,11 @@ void FFS::Storage::update(FFS::Directory& dir, FFS::inode_id inode_id) {
 	auto new_post_id = FFS::Storage::upload_file(FFS::Storage::blob(dir));
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
-	
-	std::cout << "dir with inode " << inode_id << " before had block " << inode_entry->post_blocks->front() << std::endl;
 
 	// Free old list
 	delete inode_entry->post_blocks;
 	inode_entry->post_blocks = new std::vector<FFS::post_id>();
 	inode_entry->post_blocks->push_back(new_post_id);
-
-	std::cout << "dir with inode " << inode_id << " now has block " << new_post_id << std::endl;
 
 	FFS::State::save_table();
 }

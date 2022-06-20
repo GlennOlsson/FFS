@@ -157,13 +157,11 @@ FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32
 	// Find next inode id to use
 	inode_id new_id;
 	if(this->entries->empty()) {
-		std::cout << "Table empty so id = 0" << std::endl;
 		new_id = 0;
 	} else {
 		auto r_it = this->entries->rbegin();
 		inode_id biggest_id = r_it->first;
 		new_id = biggest_id + 1;
-		std::cout << "Biggest ID = " << biggest_id << ", new id = " << new_id << std::endl;
 	}
 
 	// Use new id as inode id, and return it

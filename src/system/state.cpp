@@ -11,9 +11,7 @@ FFS::InodeTable* FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {
 		InodeTable* table = new InodeTable();
 		State::inode_table = table;
-		std::cout << "created table, saving" << std::endl;
 		save_table();
-		std::cout << "Saved table" << std::endl;
 	}
 
 	return State::inode_table;
