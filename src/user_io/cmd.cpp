@@ -1,4 +1,4 @@
-// TODO:	Handle overwrite of file
+// TODO:
 //			Handle remove of file
 //			Enable user to create only dir (mkdir)
 //			Enable user to remove dir (rmdir)
@@ -51,6 +51,58 @@ vector<string> path_parts(string path) {
 	return v;
 }
 
+struct Traverser {
+	FFS::Directory* dir;
+	FFS::inode_id dir_inode;
+	string filename;
+};
+
+// traverse a tree of directories, returning a structure containing the parent directory and its inode id, along
+// with the filename (could be a directory name too). If create_on_nonexistant is false and one part of the path
+// does not exist, a NoFileWithName exception will be thrown
+struct Traverser* traverse_path(string path, bool create_on_nonexistant) {
+
+	vector<string> dirs = path_parts(path);
+	string filename = dirs.back();
+	dirs.pop_back(); // Removes last element == filename
+
+	FFS::InodeTable* table = FFS::State::get_inode_table();
+
+	// Root dir entry
+	FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
+	// Assumes directory is only 1 post
+	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
+	// Root dir (/)
+	FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
+
+	FFS::inode_id inode_id = FFS_ROOT_INODE;;
+	for(string dir_name: dirs) {
+		try {
+			inode_id = dir->get_file(dir_name);
+			dir_entry = table->entry(inode_id);
+			if(!dir_entry->is_dir) {
+				throw FFS::BadFFSPath(path, dir_name);
+			}
+			blobs = FFS::Storage::get_file(dir_entry->post_blocks);
+			dir = FFS::Storage::dir_from_blobs(blobs);
+		} catch(const FFS::NoFileWithName& b) {
+			if(create_on_nonexistant) {
+				FFS::Directory* new_dir = new FFS::Directory();
+				auto new_inode_id = FFS::Storage::upload(*new_dir);
+				dir->add_entry(dir_name, new_inode_id);
+				FFS::Storage::update(*dir, inode_id);
+
+				dir = new_dir; // Switch pointer
+				inode_id = new_inode_id;
+			} else {
+				throw b;
+			}
+		}
+	}
+
+	return new struct Traverser({dir, inode_id, filename});
+}
+
 // Save src file to FFS at save_path (it's name and parent directories)
 void save() {
 	string src_path;
@@ -62,57 +114,26 @@ void save() {
 		cout << "Enter FFS path name: ";
 		cin >> save_path;
 
-		vector<string> dirs = path_parts(save_path);
-		string filename = dirs.back();
-		dirs.pop_back(); // Removes last element == filename
+		auto traverser = traverse_path(save_path, true);
 
-		FFS::InodeTable* table = FFS::State::get_inode_table();
+		auto table = FFS::State::get_inode_table();
 
-		// Root dir entry
-		FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
-		// Assumes directory is only 1 post
-		auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
-		// Root dir (/)
-		FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
-
-		FFS::inode_id inode_id = FFS_ROOT_INODE;;
-		for(string dir_name: dirs) {
-			try {
-				inode_id = dir->get_file(dir_name);
-				dir_entry = table->entry(inode_id);
-				if(!dir_entry->is_dir) {
-					cout << dir_name << " is not a directory, cannot overwrite!" << endl;
-					return;
-				}
-				blobs = FFS::Storage::get_file(dir_entry->post_blocks);
-				dir = FFS::Storage::dir_from_blobs(blobs);
-			} catch(const FFS::NoFileWithName& b) {
-				FFS::Directory* new_dir = new FFS::Directory();
-				auto new_inode_id = FFS::Storage::upload(*new_dir);
-				dir->add_entry(dir_name, new_inode_id);
-				FFS::Storage::update(*dir, inode_id);
-
-				dir = new_dir; // Switch pointer
-				inode_id = new_inode_id;
-			}
-		}
-
-		if(dir->entries->contains(filename)) {
+		if(traverser->dir->entries->contains(traverser->filename)) {
 			cout << "file at path exists, overwriting" << endl;
-			auto inode_id = dir->entries->at(filename);
-			dir->entries->erase(filename);
+			auto inode_id = traverser->dir->entries->at(traverser->filename);
+			traverser->dir->entries->erase(traverser->filename);
 			table->entries->erase(inode_id);
 		}
 
-		blobs = FFS::encode(src_path);
+		auto blobs = FFS::encode(src_path);
 		auto post_ids = FFS::Storage::upload_file(blobs);
 
 		fseek(file, 0L, SEEK_END);
 		auto file_size = ftell(file);
 
 		auto file_inode_id = table->new_file(post_ids, file_size, false);
-		dir->add_entry(filename, file_inode_id);
-		FFS::Storage::update(*dir, inode_id);
+		traverser->dir->add_entry(traverser->filename, file_inode_id);
+		FFS::Storage::update(*traverser->dir, traverser->dir_inode);
 
 		cout << "Saved file" << endl;
 
@@ -136,44 +157,23 @@ void read() {
 	cout << "Enter FFS path: ";
 	cin >> ffs_path;
 
-	vector<string> dirs = path_parts(ffs_path);
-	string filename = dirs.back();
-	dirs.pop_back(); // Removes last element == filename
+	auto traverser = traverse_path(ffs_path, false);
 
-	FFS::InodeTable* table = FFS::State::get_inode_table();
-
-	// Root dir entry
-	FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
-	// Assumes directory is only 1 post
-	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
-	// Root dir (/)
-	FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
-	for(string dir_name: dirs) {
-		try {
-			auto inode = dir->get_file(dir_name);
-			dir_entry = table->entry(inode);
-			blobs = FFS::Storage::get_file(dir_entry->post_blocks);
-			dir = FFS::Storage::dir_from_blobs(blobs);
-
-		} catch(const FFS::NoFileWithName& b) {
-			cout << "Directory " << dir_name << " does not exist" << endl;
-			return;
-		}
-	}
+	auto table = FFS::State::get_inode_table();
 
 	FFS::inode_id inode_id;
 	try {
-		inode_id = dir->get_file(filename);
+		inode_id = traverser->dir->get_file(traverser->filename);
 	} catch(const FFS::NoFileWithName& b) {
-		cout << "no file named " << filename << endl;
+		cout << "no file named " << traverser->filename << endl;
 		return;
 	}
 
 	auto entry = table->entry(inode_id);
-	blobs = FFS::Storage::get_file(entry->post_blocks);
+	auto blobs = FFS::Storage::get_file(entry->post_blocks);
 	if(entry->is_dir) {
 		auto dir = FFS::Storage::dir_from_blobs(blobs);
-		print_dir(dir, filename);
+		print_dir(dir, traverser->filename);
 	} else {
 		FFS::decode(blobs, cout);
 	}
@@ -236,6 +236,20 @@ void print_inode_content() {
 	}
 }
 
+// Erases it from inode table and directory entries, but not the actual blocks
+void remove_file() {
+	string path;
+	cout << "Enter file to remove: ";
+	cin >> path;
+	auto traverser = traverse_path(path, false);
+
+	auto table = FFS::State::get_inode_table();
+
+	auto inode_id = traverser->dir->entries->at(traverser->filename);
+	traverser->dir->entries->erase(traverser->filename);
+	table->entries->erase(inode_id);
+}
+
 void parse_input(string& cmd) {
 	if(cmd == "save")
 		save();
@@ -247,6 +261,8 @@ void parse_input(string& cmd) {
 		print_root_dir(); // Static, always at root dir
 	else if(cmd == "inode")
 		print_inode_content();
+	else if(cmd == "rm")
+		remove_file();
 	else {
 		cout << cmd << " does not match any commands" << endl;
 	}

@@ -32,3 +32,20 @@ std::stringstream ss;
 
     return c_str;
 }
+
+FFS::BadFFSPath::BadFFSPath(std::string path, std::string bad_part) : 
+    path(path), 
+    bad_part(bad_part) 
+{};
+
+const char* FFS::BadFFSPath::what() const noexcept {
+    std::stringstream ss;
+    ss << "The path [" << this->path << "] is bad due to [" << this->bad_part << "] not being a directory";
+
+    std::string str = ss.str();
+
+	char* c_str = new char[str.size()];
+	strcpy(c_str, str.c_str());
+
+    return c_str;
+}

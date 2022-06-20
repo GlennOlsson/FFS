@@ -9,9 +9,14 @@ FFS::post_id FFS::State::inode_table_id = 0;
 
 FFS::InodeTable* FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {
-		InodeTable* table = new InodeTable();
-		State::inode_table = table;
-		save_table();
+		// try to load from storage, else create new
+		try {
+			auto blob = FFS::Storage::get_file(inode_table_id);
+			State::inode_table = FFS::Storage::itable_from_blob(blob);
+		} catch(std::exception& e) {
+			State::inode_table = new InodeTable();
+			save_table();
+		}
 	}
 
 	return State::inode_table;

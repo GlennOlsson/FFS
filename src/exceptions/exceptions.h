@@ -45,4 +45,14 @@ public:
 	const char* what() const noexcept;
 };
 
+// when part of the path is a file rather than a directory
+class BadFFSPath: public StorageException {
+private:
+	std::string path;
+	std::string bad_part;
+public:
+	BadFFSPath(std::string path, std::string bad_part);
+	const char* what() const noexcept;
+};
+
 };
