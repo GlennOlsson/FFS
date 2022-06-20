@@ -75,6 +75,10 @@ void save() {
 			try {
 				inode_id = dir->get_file(dir_name);
 				dir_entry = table->entry(inode_id);
+				if(!dir_entry->is_dir) {
+					cout << dir_name << " is not a directory, cannot overwrite!" << endl;
+					return;
+				}
 				blobs = FFS::Storage::get_file(dir_entry->post_blocks);
 				dir = FFS::Storage::dir_from_blobs(blobs);
 			} catch(const FFS::NoFileWithName& b) {
