@@ -97,6 +97,13 @@ void save() {
 			}
 		}
 
+		if(dir->entries->contains(filename)) {
+			cout << "file at path exists, overwriting" << endl;
+			auto inode_id = dir->entries->at(filename);
+			dir->entries->erase(filename);
+			table->entries->erase(inode_id);
+		}
+
 		blobs = FFS::encode(src_path);
 		auto post_ids = FFS::Storage::upload_file(blobs);
 
