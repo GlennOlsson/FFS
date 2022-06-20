@@ -1,3 +1,8 @@
+// TODO:	Handle overwrite of file
+//			Handle remove of file
+//			Enable user to create only dir (mkdir)
+//			Enable user to remove dir (rmdir)
+
 #include "cmd.h"
 
 #include "../filesystem/ffs.h"
