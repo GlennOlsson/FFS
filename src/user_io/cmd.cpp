@@ -81,10 +81,10 @@ void save() {
 				cout << "Dir " << dir_name << " does not exits, creating" << endl;
 				FFS::Directory* new_dir = new FFS::Directory();
 				auto new_inode_id = FFS::Storage::upload(*new_dir);
-				dir->add_entry(dir_name, inode_id);
+				dir->add_entry(dir_name, new_inode_id);
 				FFS::Storage::update(*dir, inode_id);
 
-				cout << "Created " << dir_name << " with inode " << inode_id << endl;
+				cout << "Created " << dir_name << " with inode " << new_inode_id << endl;
 
 				dir = new_dir; // Switch pointer
 				inode_id = new_inode_id;
@@ -113,7 +113,7 @@ void print_dir(FFS::Directory* dir, string dir_name) {
 	auto dir_content = dir->entries;
 	cout << "Content of " << dir_name << endl;
 	for(auto item: *dir_content) {
-		cout << "\t" << item.first << endl;
+		cout << "\t" << item.first << " (inode " << item.second << ")" << endl;
 	}
 }
 
@@ -148,6 +148,8 @@ void read() {
 			dir_entry = table->entry(inode);
 			blobs = FFS::Storage::get_file(dir_entry->post_blocks);
 			dir = FFS::Storage::dir_from_blobs(blobs);
+
+			cout << "dir with name " << dir_name << " has inode " << inode << endl;
 		} catch(const FFS::NoFileWithName& b) {
 			cout << "Directory " << dir_name << " does not exist" << endl;
 			return;
@@ -207,15 +209,38 @@ void print_root_dir() {
 	print_dir(root_dir, "/");
 }
 
+void print_inode_content() {
+	FFS::inode_id inode_id;
+	cout << "Enter inode id to read: ";
+	cin >> inode_id;
+
+	auto table = FFS::State::get_inode_table();
+	if(!table->entries->contains(inode_id)) {
+		cout << "No entry with inode " << inode_id << endl;
+		return;
+	}
+
+	auto inode_entry = table->entry(inode_id);
+	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+	if(inode_entry->is_dir) {
+		auto dir = FFS::Storage::dir_from_blobs(blobs);
+		print_dir(dir, "Directory");
+	} else {
+		FFS::decode(blobs, cout);
+	}
+}
+
 void parse_input(string& cmd) {
 	if(cmd == "save")
 		save();
 	else if(cmd == "read")
 		read();
-	else if(cmd == "ls")
-		print_root_dir(); // Static, always at root dir
 	else if(cmd == "table")
 		print_table();
+	else if(cmd == "ls")
+		print_root_dir(); // Static, always at root dir
+	else if(cmd == "inode")
+		print_inode_content();
 	else {
 		cout << cmd << " does not match any commands" << endl;
 	}
