@@ -121,6 +121,7 @@ Magick::Blob* FFS::Storage::get_file(FFS::post_id id) {
 }
 
 std::vector<Magick::Blob*>* FFS::Storage::get_file(std::vector<FFS::post_id>* ids) {
+	// TODO: Cache and check cache?
 	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
 	for(auto id: *ids) {
 		v->push_back(get_file(id));
