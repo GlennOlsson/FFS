@@ -59,7 +59,10 @@ struct Traverser {
 
 // traverse a tree of directories, returning a structure containing the parent directory and its inode id, along
 // with the filename (could be a directory name too). If create_on_nonexistant is false and one part of the path
-// does not exist, a NoFileWithName exception will be thrown
+// does not exist, a NoFileWithName exception will be thrown. If create_on_nonexistant is true, the non-existing
+// directories will be created.
+//
+// No check is made if the file exists in the specified path
 struct Traverser* traverse_path(string path, bool create_on_nonexistant) {
 
 	vector<string> dirs = path_parts(path);
@@ -245,9 +248,19 @@ void remove_file() {
 
 	auto table = FFS::State::get_inode_table();
 
-	auto inode_id = traverser->dir->entries->at(traverser->filename);
+	FFS::inode_id inode_id;
+	try {
+		inode_id = traverser->dir->get_file(traverser->filename);
+	} catch (FFS::NoFileWithName& e) {
+		cout << "No file with name " << traverser->filename << endl;
+		return;
+	}
 	traverser->dir->entries->erase(traverser->filename);
 	table->entries->erase(inode_id);
+
+	// Automatically saves table as well
+	FFS::Storage::update(*traverser->dir, traverser->dir_inode);
+
 }
 
 void parse_input(string& cmd) {
