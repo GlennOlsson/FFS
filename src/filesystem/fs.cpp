@@ -146,7 +146,7 @@ void FFS::FS::create_file(std::string path, std::istream* stream) {
 
 	auto blobs = FFS::encode(*stream);
 
-	auto post_ids = FFS::Storage::upload_file(blobs);
-	parent_dir->add_entry(dir_name, inode);
-	FFS::Storage::update(*parent_dir, parent_inode);
+	// auto post_ids = FFS::Storage::upload_file(blobs);
+	// parent_dir->add_entry(dir_name, inode);
+	// FFS::Storage::update(*parent_dir, parent_inode);
 }

@@ -17,8 +17,8 @@ namespace FFS::Storage {
 	 * 
 	 * @return Magick::Blob* 
 	 */
-	Magick::Blob* blob(Directory&);
-	Magick::Blob* blob(InodeTable&);
+	std::vector<Magick::Blob*>* blobs(Directory&);
+	std::vector<Magick::Blob*>* blobs(InodeTable&);
 
 	Directory* dir_from_blobs(std::vector<Magick::Blob*>* blob);
 	InodeTable* itable_from_blob(Magick::Blob* blob);
@@ -28,7 +28,6 @@ namespace FFS::Storage {
 
 	void save_file(post_id id, Magick::Blob* blob);
 	std::vector<post_id>* upload_file(std::vector<Magick::Blob*>* blobs);
-	post_id upload_file(Magick::Blob* blob);
 	Magick::Blob* get_file(post_id id);
 	std::vector<Magick::Blob*>* get_file(std::vector<post_id>* ids);
 };

@@ -20,24 +20,22 @@ std::string path_of(FFS::post_id id) {
 }
 
 
-Magick::Blob* FFS::Storage::blob(FFS::Directory& dir) {
+std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::Directory& dir) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
 	dir.sterilize(stream);
-	uint32_t size = dir.size();
-	return FFS::create_image(stream, size);
+
+	return FFS::encode(stream);
 }
 
-Magick::Blob* FFS::Storage::blob(FFS::InodeTable& table) {
+std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::InodeTable& table) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
 	table.sterilize(stream);
 
-	uint32_t size = table.size();
-
-	return FFS::create_image(stream, size);
+	return FFS::encode(stream);
 }
 
 FFS::Directory* FFS::Storage::dir_from_blobs(std::vector<Magick::Blob*>* blobs) {
@@ -62,24 +60,21 @@ FFS::InodeTable* FFS::Storage::itable_from_blob(Magick::Blob* blob) {
 
 // Upload new directory and save to inode table
 FFS::inode_id FFS::Storage::upload(FFS::Directory& dir) {
-	auto post_id = FFS::Storage::upload_file(FFS::Storage::blob(dir));
+	auto post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(dir));
 	auto table = FFS::State::get_inode_table();
 
-	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();
-	posts->push_back(post_id);
-	return table->new_file(posts, dir.size(), true);
+	return table->new_file(post_ids, dir.size(), true);
 }
 
 // Update existing directory with new blocks
 void FFS::Storage::update(FFS::Directory& dir, FFS::inode_id inode_id) {
-	auto new_post_id = FFS::Storage::upload_file(FFS::Storage::blob(dir));
+	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(dir));
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
 
 	// Free old list
 	delete inode_entry->post_blocks;
-	inode_entry->post_blocks = new std::vector<FFS::post_id>();
-	inode_entry->post_blocks->push_back(new_post_id);
+	inode_entry->post_blocks = new_post_ids;
 
 	FFS::State::save_table();
 }
@@ -91,10 +86,10 @@ void FFS::Storage::save_file(FFS::post_id id, Magick::Blob* blob) {
 	img.write(path);
 }
 
-FFS::post_id FFS::Storage::upload_file(Magick::Blob* blob) {
+FFS::post_id _upload_file(Magick::Blob* blob) {
 	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
 	FFS::post_id id = FFS::random_long();
-	save_file(id, blob);
+	FFS::Storage::save_file(id, blob);
 	
 	return id;
 }
@@ -103,7 +98,7 @@ std::vector<FFS::post_id>* FFS::Storage::upload_file(std::vector<Magick::Blob*>*
 	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();
 
 	for(Magick::Blob* blob: *blobs) {
-		FFS::post_id id = upload_file(blob);
+		FFS::post_id id = _upload_file(blob);
 		posts->push_back(id);
 	}
 

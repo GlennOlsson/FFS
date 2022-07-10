@@ -30,7 +30,8 @@ void FFS::State::save_table() {
 		return;
 	}
 
-	auto blob = FFS::Storage::blob(*table);
+	auto blobs = FFS::Storage::blobs(*table);
 
-	FFS::Storage::save_file(inode_table_id, blob);
+	// DANGEROUS: Assuming only one blob for inode table, _should_ be fine!
+	FFS::Storage::save_file(inode_table_id, blobs->front());
 }
