@@ -37,6 +37,14 @@ public:
 	const char* what() const noexcept;
 };
 
+class FileAlreadyExists: public StorageException {
+private:
+	std::string name;
+public:
+	FileAlreadyExists(std::string file_name);
+	const char* what() const noexcept;
+};
+
 class NoFileWithInode: public StorageException {
 private:
 	FFS::inode_id inode;

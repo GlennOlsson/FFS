@@ -19,6 +19,22 @@ const char* FFS::NoFileWithName::what() const noexcept {
     return c_str;
 }
 
+FFS::FileAlreadyExists::FileAlreadyExists(std::string name) {
+    this->name = name;
+}
+
+const char* FFS::FileAlreadyExists::what() const noexcept {
+    std::stringstream ss;
+    ss << "There already exists a file or directory named " << this->name << ", cannot overwrite";
+
+    std::string str = ss.str();
+
+	char* c_str = new char[str.size()];
+	strcpy(c_str, str.c_str());
+
+    return c_str;
+}
+
 FFS::NoFileWithInode::NoFileWithInode(FFS::inode_id i) : inode(i) {};
 
 const char* FFS::NoFileWithInode::what() const noexcept {

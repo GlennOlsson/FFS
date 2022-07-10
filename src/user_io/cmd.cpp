@@ -32,21 +32,40 @@ void save() {
 		cin >> save_path;
 
 		ifstream i_file(src_path);
-		FFS::FS::create_file(save_path, i_file);
-
-		cout << "Saved file" << endl;
-
-        fclose(file);
+		try {
+			FFS::FS::create_file(save_path, i_file);
+			cout << "Saved file" << endl;
+			fclose(file);
+		} catch(FFS::FileAlreadyExists) {
+			cout << "Cannot overwrite" << endl;
+		}
     } else {
         cout << "No file at " << src_path << endl;
     }
 }
 
+void create_dir() {
+	string src_path;
+	cout << "Enter path to create: ";
+	cin >> src_path;
+
+	try {
+		FFS::FS::create_dir(src_path);
+		cout << "Created directory" << endl;
+	} catch(FFS::FileAlreadyExists) {
+		cout << "Cannot overwrite" << endl;
+	}
+}
+
 void print_dir(FFS::Directory* dir) {
+	auto table = FFS::State::get_inode_table();
 	auto dir_content = dir->entries;
 	cout << "Content: " << endl;
 	for(auto item: *dir_content) {
-		cout << "\t" << item.first << " (inode " << item.second << ")" << endl;
+		auto name = item.first;
+		auto inode = item.second;
+		auto is_dir = table->entry(inode)->is_dir;
+		cout << "\t" << name << (is_dir ? "/" : "") << " (inode " << inode << ")" << endl;
 	}
 }
 
@@ -130,6 +149,8 @@ void remove_file() {
 void parse_input(string& cmd) {
 	if(cmd == "save")
 		save();
+	else if(cmd == "mkdir")
+		create_dir();
 	else if(cmd == "read")
 		read();
 	else if(cmd == "table")

@@ -90,6 +90,13 @@ void verify_file_in(struct Traverser* tr) {
     }
 }
 
+// Check that file is not in the parent directory of a traverser object. Throws BadFFSPath if not in
+void verify_not_in(struct Traverser* tr) {
+    if(tr->dir->entries->contains(tr->filename)) {
+        throw FFS::FileAlreadyExists(tr->filename);
+    }
+}
+
 FFS::Directory* FFS::FS::read_dir(std::string path) {
     auto traverser = traverse_path(path);
 	// special case for root dir, /
@@ -122,6 +129,7 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
 
 void FFS::FS::create_dir(std::string path) {
 	auto traverser = traverse_path(path);
+	verify_not_in(traverser);
 
 	auto dir_name = traverser->filename;
     auto parent_dir = traverser->dir;
@@ -135,6 +143,7 @@ void FFS::FS::create_dir(std::string path) {
 
 void FFS::FS::create_file(std::string path, std::istream& stream) {
 	auto traverser = traverse_path(path);
+	verify_not_in(traverser);
 
 	auto filename = traverser->filename;
     auto parent_dir = traverser->dir;
