@@ -4,6 +4,7 @@
 #define private public
 
 #include "../src/filesystem/directory.h"
+#include "../src/filesystem/storage.h"
 #include "../src/helpers/functions.h"
 #include "../src/helpers/constants.h"
 #include "../src/filesystem/file_coder.h"
@@ -42,16 +43,16 @@ FFS::Directory* create_directory() {
 		entries->insert({name, rand_inode_id});
 	}
 
-	return new FFS::Directory(entries, -1);
+	return new FFS::Directory(entries);
 }
 
 TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]") {
 	FFS::Directory* directory = create_directory();
 
 
-	Magick::Blob* b = directory->blob();
+	auto blobs = FFS::Storage::blobs(*directory);
 
-	FFS::Directory* desterilized_dir = FFS::Directory::from_blob(b);
+	FFS::Directory* desterilized_dir = FFS::Storage::dir_from_blobs(blobs);
 
 	bool dirs_eq = *directory == *desterilized_dir;
 
@@ -91,9 +92,9 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 	stream.seekg(0);
 
 	try { // If doesn't fail, make sure they are unequal
-		Magick::Blob* blob = FFS::create_image(cp_stream, total_bytes);
+		auto blobs = FFS::encode(cp_stream);
 		
-		FFS::Directory* cp_dir = FFS::Directory::from_blob(blob);
+		FFS::Directory* cp_dir = FFS::Storage::dir_from_blobs(blobs);
 		bool dirs_eq = *cp_dir == *dir;
 
 		REQUIRE_FALSE(dirs_eq);

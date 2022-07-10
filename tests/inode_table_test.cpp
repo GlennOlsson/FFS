@@ -4,6 +4,7 @@
 #define private public
 
 #include "../src/filesystem/inode_table.h"
+#include "../src/filesystem/storage.h"
 
 #include "../src/helpers/functions.h"
 
@@ -59,9 +60,9 @@ TEST_CASE("Sterlizing and desterlizing inode table creates same table", "[inode_
 
 	std::string inode_table_output = "out.nosync/inode_table.png";
 
-	Magick::Blob* b = table->blob();
+	auto blobs = FFS::Storage::blobs(*table);
 
-	FFS::InodeTable* desterilized_table = FFS::InodeTable::from_blob(b);
+	FFS::InodeTable* desterilized_table = FFS::Storage::itable_from_blobs(blobs);
 
 	bool tables_eq = *table == *desterilized_table;
 

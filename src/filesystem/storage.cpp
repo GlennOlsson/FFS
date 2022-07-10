@@ -47,13 +47,11 @@ FFS::Directory* FFS::Storage::dir_from_blobs(std::vector<Magick::Blob*>* blobs) 
 	return FFS::Directory::desterilize(stream);
 }
 
-FFS::InodeTable* FFS::Storage::itable_from_blob(Magick::Blob* blob) {
+FFS::InodeTable* FFS::Storage::itable_from_blobs(std::vector<Magick::Blob*>* blobs) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
-	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
-	v->push_back(blob);
-	FFS::decode(v, stream);
+	FFS::decode(blobs, stream);
 
 	return FFS::InodeTable::desterilize(stream);
 }

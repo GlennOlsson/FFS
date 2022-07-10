@@ -21,7 +21,7 @@ namespace FFS::Storage {
 	std::vector<Magick::Blob*>* blobs(InodeTable&);
 
 	Directory* dir_from_blobs(std::vector<Magick::Blob*>* blob);
-	InodeTable* itable_from_blob(Magick::Blob* blob);
+	InodeTable* itable_from_blobs(std::vector<Magick::Blob*>* blobs);
 
 	FFS::inode_id upload(Directory&);
 	void update(Directory&, inode_id);

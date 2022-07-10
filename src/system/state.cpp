@@ -11,8 +11,9 @@ FFS::InodeTable* FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {
 		// try to load from storage, else create new
 		try {
-			auto blob = FFS::Storage::get_file(inode_table_id);
-			State::inode_table = FFS::Storage::itable_from_blob(blob);
+			std::vector<post_id> posts = {inode_table_id};
+			auto blobs = FFS::Storage::get_file(&posts);
+			State::inode_table = FFS::Storage::itable_from_blobs(blobs);
 		} catch(std::exception& e) {
 			State::inode_table = new InodeTable();
 			save_table();

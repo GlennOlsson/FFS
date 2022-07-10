@@ -117,7 +117,7 @@ std::vector<Magick::Blob*>* FFS::encode(std::istream& file_stream) {
 	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>();
 
 	while(length > 0) {
-		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE, (int) length);
+		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - HEADER_SIZE, (int) length);
 
 		Magick::Blob* blob = create_image(file_stream, out_file_size);
 		blobs->push_back(blob);

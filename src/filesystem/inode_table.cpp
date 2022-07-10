@@ -89,8 +89,6 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 // Inode Table...
 
 FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
-	std::cout << "init inode table" << std::endl;
-
 	this->entries = entries;
 }
 

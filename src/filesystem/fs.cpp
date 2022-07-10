@@ -12,6 +12,7 @@
 #include <sstream>
 #include <ostream>
 #include <vector>
+#include <iostream>
 
 // Expected in the form 
 //  	foo/bar/fizz[ext]
@@ -42,7 +43,6 @@ std::vector<std::string> path_parts(std::string path) {
 
 	return v;
 }
-
 struct Traverser {
 	FFS::Directory* dir;
 	FFS::inode_id dir_inode;
@@ -69,7 +69,7 @@ struct Traverser* traverse_path(std::string path) {
 	// Root dir (/)
 	FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
 
-	FFS::inode_id inode_id = FFS_ROOT_INODE;;
+	FFS::inode_id inode_id = FFS_ROOT_INODE;
 	for(std::string dir_name: dirs) {
         inode_id = dir->get_file(dir_name);
         dir_entry = table->entry(inode_id);
@@ -92,6 +92,9 @@ void verify_file_in(struct Traverser* tr) {
 
 FFS::Directory* FFS::FS::read_dir(std::string path) {
     auto traverser = traverse_path(path);
+	// special case for root dir, /
+	if(traverser->filename == "")
+		return traverser->dir;
     verify_file_in(traverser);
 
     auto table = FFS::State::get_inode_table();
@@ -103,7 +106,7 @@ FFS::Directory* FFS::FS::read_dir(std::string path) {
     return FFS::Storage::dir_from_blobs(blobs);
 }
 
-std::istream* FFS::FS::read_file(std::string path) {
+void FFS::FS::read_file(std::string path, std::ostream& stream) {
 	auto traverser = traverse_path(path);
     verify_file_in(traverser);
 
@@ -113,18 +116,12 @@ std::istream* FFS::FS::read_file(std::string path) {
 
 	auto inode_entry = table->entry(dir->get_file(filename));
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
-	
-	std::stringbuf* buf = new std::stringbuf();;
-	std::basic_iostream<char>* stream = new std::basic_iostream<char>(buf);
 
-	FFS::decode(blobs, *stream);
-
-	return stream;
+	FFS::decode(blobs, stream);
 }
 
 void FFS::FS::create_dir(std::string path) {
 	auto traverser = traverse_path(path);
-    verify_file_in(traverser);
 
 	auto dir_name = traverser->filename;
     auto parent_dir = traverser->dir;
@@ -136,15 +133,14 @@ void FFS::FS::create_dir(std::string path) {
 	FFS::Storage::update(*parent_dir, parent_inode);
 }
 
-void FFS::FS::create_file(std::string path, std::istream* stream) {
+void FFS::FS::create_file(std::string path, std::istream& stream) {
 	auto traverser = traverse_path(path);
-    verify_file_in(traverser);
 
 	auto filename = traverser->filename;
     auto parent_dir = traverser->dir;
 	auto parent_inode = traverser->dir_inode;
 
-	auto blobs = FFS::encode(*stream);
+	auto blobs = FFS::encode(stream);
 
 	// Adds it to inode table
 	auto inode_id = FFS::Storage::upload_and_save_file(blobs);
@@ -169,4 +165,28 @@ void FFS::FS::remove(std::string path) {
 	
 	auto table = FFS::State::get_inode_table();
 	table->remove_entry(inode);
+}
+
+bool FFS::FS::exists(std::string path) {
+	try {
+		auto traverser = traverse_path(path);
+		return traverser->dir->entries->count(traverser->filename) > 0;
+	} catch(FFS::BadFFSPath) {
+		return false;
+	}
+}
+
+bool FFS::FS::is_dir(std::string path) {
+	auto traverser = traverse_path(path);
+	verify_file_in(traverser);
+
+	auto filename = traverser->filename;
+    auto parent_dir = traverser->dir;
+
+	auto inode = parent_dir->get_file(filename);
+
+	auto table = FFS::State::get_inode_table();
+	auto entry = table->entry(inode);
+
+	return entry->is_dir;
 }
