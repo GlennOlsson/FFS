@@ -37,6 +37,10 @@ FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = fals
 	this->post_blocks->push_back(post);
 }
 
+FFS::InodeEntry::~InodeEntry() {
+	delete this->post_blocks;
+}
+
 uint32_t FFS::InodeEntry::size() {
 	uint32_t value = 0;
 	value += sizeof(uint32_t); // length
@@ -177,6 +181,12 @@ FFS::InodeEntry* FFS::InodeTable::entry(const FFS::inode_id& id) {
 		return this->entries->at(id);
 	
 	throw FFS::NoFileWithInode(id);
+}
+
+void FFS::InodeTable::remove_entry(FFS::inode_id id) {
+	auto entry = this->entries->at(id);
+	delete entry;
+	entries->erase(id);
 }
 
 bool FFS::InodeTable::operator==(const FFS::InodeTable& rhs) const {

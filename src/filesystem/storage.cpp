@@ -60,10 +60,7 @@ FFS::InodeTable* FFS::Storage::itable_from_blob(Magick::Blob* blob) {
 
 // Upload new directory and save to inode table
 FFS::inode_id FFS::Storage::upload(FFS::Directory& dir) {
-	auto post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(dir));
-	auto table = FFS::State::get_inode_table();
-
-	return table->new_file(post_ids, dir.size(), true);
+	return FFS::Storage::upload_and_save_file(FFS::Storage::blobs(dir));
 }
 
 // Update existing directory with new blocks
@@ -93,6 +90,22 @@ FFS::post_id _upload_file(Magick::Blob* blob) {
 	
 	return id;
 }
+
+FFS::inode_id FFS::Storage::upload_and_save_file(std::vector<Magick::Blob*>* blobs) {
+	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();
+
+	size_t total_length = 0;
+	for(Magick::Blob* blob: *blobs) {
+		total_length += blob->length();
+		FFS::post_id id = _upload_file(blob);
+		posts->push_back(id);
+	}
+
+	auto table = FFS::State::get_inode_table();
+
+	return table->new_file(posts, total_length, false);
+}
+
 
 std::vector<FFS::post_id>* FFS::Storage::upload_file(std::vector<Magick::Blob*>* blobs) {
 	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();

@@ -104,6 +104,15 @@ FFS::inode_id FFS::Directory::get_file(std::string name) {
 	throw NoFileWithName(name);
 }
 
+FFS::inode_id FFS::Directory::remove_entry(std::string name) {
+	if(this->entries->count(name) == 0)
+		throw FFS::NoFileWithName(name);
+		
+	FFS::inode_id inode = this->entries->at(name);
+	this->entries->erase(name);
+	return inode;
+}
+
 bool FFS::Directory::operator==(const FFS::Directory& rhs) const {
 	// Compare size of tables (maps), and compare content of maps
 	return this->entries->size() == rhs.entries->size() &&

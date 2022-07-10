@@ -51,6 +51,8 @@ public:
 	void add_entry(std::string name, inode_id id);
 	// Get a file with specified name
 	inode_id get_file(std::string name);
+	//Remove entry from directory and returns its inode. Throws NoFileWithName if file does not exist
+	inode_id remove_entry(std::string name);
 
 	/**
 	 * @brief Compare equality of two directories

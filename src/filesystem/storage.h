@@ -27,7 +27,13 @@ namespace FFS::Storage {
 	void update(Directory&, inode_id);
 
 	void save_file(post_id id, Magick::Blob* blob);
-	std::vector<post_id>* upload_file(std::vector<Magick::Blob*>* blobs);
+
+	// Upload file and add to inode table. Return inode id in table
+	FFS::inode_id upload_and_save_file(std::vector<Magick::Blob*>* blobs);
+
+	// Upload blobs but don't save to the inode table
+	std::vector<FFS::post_id>* upload_file(std::vector<Magick::Blob*>* blobs);
+
 	Magick::Blob* get_file(post_id id);
 	std::vector<Magick::Blob*>* get_file(std::vector<post_id>* ids);
 };

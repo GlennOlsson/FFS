@@ -146,7 +146,27 @@ void FFS::FS::create_file(std::string path, std::istream* stream) {
 
 	auto blobs = FFS::encode(*stream);
 
-	// auto post_ids = FFS::Storage::upload_file(blobs);
-	// parent_dir->add_entry(dir_name, inode);
-	// FFS::Storage::update(*parent_dir, parent_inode);
+	// Adds it to inode table
+	auto inode_id = FFS::Storage::upload_and_save_file(blobs);
+
+	parent_dir->add_entry(filename, inode_id);
+
+	// Save new content of parent dir
+	FFS::Storage::update(*parent_dir, parent_inode);
+}
+
+void FFS::FS::remove(std::string path) {
+	auto traverser = traverse_path(path);
+    verify_file_in(traverser);
+
+	auto filename = traverser->filename;
+    auto parent_dir = traverser->dir;
+	auto parent_inode = traverser->dir_inode;
+
+	auto inode = parent_dir->remove_entry(filename);
+
+	FFS::Storage::update(*parent_dir, parent_inode);
+	
+	auto table = FFS::State::get_inode_table();
+	table->remove_entry(inode);
 }
