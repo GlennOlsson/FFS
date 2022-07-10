@@ -2,12 +2,14 @@
 
 #include "directory.h"
 #include "storage.h"
+#include "file_coder.h"
 
 #include "../system/state.h"
 #include "../helpers/constants.h"
 #include "../exceptions/exceptions.h"
 
 #include <string>
+#include <sstream>
 #include <ostream>
 #include <vector>
 
@@ -99,4 +101,52 @@ FFS::Directory* FFS::FS::read_dir(std::string path) {
     auto inode_entry = table->entry(dir->get_file(filename));
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
     return FFS::Storage::dir_from_blobs(blobs);
+}
+
+std::istream* FFS::FS::read_file(std::string path) {
+	auto traverser = traverse_path(path);
+    verify_file_in(traverser);
+
+	auto table = FFS::State::get_inode_table();
+	auto filename = traverser->filename;
+    auto dir = traverser->dir;
+
+	auto inode_entry = table->entry(dir->get_file(filename));
+    auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+	
+	std::stringbuf* buf = new std::stringbuf();;
+	std::basic_iostream<char>* stream = new std::basic_iostream<char>(buf);
+
+	FFS::decode(blobs, *stream);
+
+	return stream;
+}
+
+void FFS::FS::create_dir(std::string path) {
+	auto traverser = traverse_path(path);
+    verify_file_in(traverser);
+
+	auto dir_name = traverser->filename;
+    auto parent_dir = traverser->dir;
+	auto parent_inode = traverser->dir_inode;
+
+	auto dir = new Directory();
+	auto inode = FFS::Storage::upload(*dir);
+	parent_dir->add_entry(dir_name, inode);
+	FFS::Storage::update(*parent_dir, parent_inode);
+}
+
+void FFS::FS::create_file(std::string path, std::istream* stream) {
+	auto traverser = traverse_path(path);
+    verify_file_in(traverser);
+
+	auto filename = traverser->filename;
+    auto parent_dir = traverser->dir;
+	auto parent_inode = traverser->dir_inode;
+
+	auto blobs = FFS::encode(*stream);
+
+	auto post_ids = FFS::Storage::upload_file(blobs);
+	parent_dir->add_entry(dir_name, inode);
+	FFS::Storage::update(*parent_dir, parent_inode);
 }

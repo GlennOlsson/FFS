@@ -26,7 +26,7 @@ using namespace std;
 // or
 //		/for/bar/fizz[ext]
 // TODO: Test
-vector<string> path_parts(string path) {
+vector<string> _path_parts(string path) {
 	vector<string> v;
 	size_t prev_pos = 0;
 	size_t pos = path.find("/");
@@ -65,7 +65,7 @@ struct Traverser {
 // No check is made if the file exists in the specified path
 struct Traverser* traverse_path(string path, bool create_on_nonexistant) {
 
-	vector<string> dirs = path_parts(path);
+	vector<string> dirs = _path_parts(path);
 	string filename = dirs.back();
 	dirs.pop_back(); // Removes last element == filename
 
