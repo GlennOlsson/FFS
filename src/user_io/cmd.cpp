@@ -83,9 +83,8 @@ void read(ostream& stream) {
 	if(FFS::FS::is_dir(ffs_path)) {
 		auto dir = FFS::FS::read_dir(ffs_path);
 		print_dir(dir, stream);
-	} else {
+	} else
 		FFS::FS::read_file(ffs_path, stream);
-	}
 }
 
 void readf() {

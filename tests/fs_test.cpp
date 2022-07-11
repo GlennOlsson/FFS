@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include "../src/filesystem/fs.h"
+#include "../src/filesystem/directory.h"
 
 #include "../src/helpers/constants.h"
 
@@ -124,6 +125,34 @@ TEST_CASE("Can create file and content is the same", "[fs]") {
     assert_file_is_same(TEST_FILE_TXT, TEST_PATH_TXT);
     assert_file_is_same(TEST_FILE_PDF, TEST_PATH_PDF);
     // assert_file_is_same(TEST_FILE_MOV, TEST_PATH_MOV);
+}
+
+TEST_CASE("Reading dirs gives expected output", "[fs]") {
+    init_fs();
+    create_files();
+
+    // Use one pointer for all dirs
+    FFS::Directory* dir = FFS::FS::read_dir("/");
+    auto content = dir->entries;
+    REQUIRE(content->size() == 2);
+    REQUIRE(content->count("foo") == 1);
+    REQUIRE(content->count("baz") == 1);
+
+    dir = FFS::FS::read_dir(TEST_PATH_DIR_LEVEL_1);
+    content = dir->entries;
+    REQUIRE(content->size() == 2);
+    REQUIRE(content->count("bar") == 1);
+    REQUIRE(content->count("fizz.txt") == 1);
+
+    dir = FFS::FS::read_dir(TEST_PATH_DIR_LEVEL_2);
+    content = dir->entries;
+    REQUIRE(content->size() == 1);
+    REQUIRE(content->count("buzz.pdf") == 1);
+    // REQUIRE(content->count("qux.mov") == 1);
+
+    dir = FFS::FS::read_dir(TEST_PATH_EMPTY_DIR);
+    content = dir->entries;
+    REQUIRE(content->size() == 0);
 }
 
 TEST_CASE("Assert exists is false for non-existing files", "[fs]") {

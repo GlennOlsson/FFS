@@ -52,6 +52,16 @@ struct Traverser {
     std::string full_path;
 };
 
+FFS::Directory* get_root_dir() {
+	FFS::InodeTable* table = FFS::State::get_inode_table();
+	// Root dir entry
+	FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
+	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
+
+	FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
+	return dir;
+}
+
 // traverse a tree of directories, returning a structure containing the parent directory and its inode id, along
 // with the filename (could be a directory name too).
 //
@@ -61,15 +71,12 @@ struct Traverser* traverse_path(std::string path) {
 	std::string filename = dirs.back();
 	dirs.pop_back(); // Removes last element == filename
 
+	// Start with dir as root dir
+	FFS::Directory* dir = get_root_dir();
+
 	FFS::InodeTable* table = FFS::State::get_inode_table();
-
-	// Root dir entry
-	FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
-	// Assumes directory is only 1 post
-	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
-	// Root dir (/)
-	FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
-
+	std::vector<Magick::Blob*>* blobs;
+	FFS::InodeEntry* dir_entry;
 	FFS::inode_id inode_id = FFS_ROOT_INODE;
 	for(std::string dir_name: dirs) {
         inode_id = dir->get_file(dir_name);
@@ -105,12 +112,13 @@ void remove_trailing_slash(std::string& s) {
 }
 
 FFS::Directory* FFS::FS::read_dir(std::string path) {
-	remove_trailing_slash(path);
-	
-    auto traverser = traverse_path(path);
 	// special case for root dir, /
-	if(traverser->filename == "")
-		return traverser->dir;
+	if(path == "/")
+		return get_root_dir();
+	remove_trailing_slash(path);
+    auto traverser = traverse_path(path);
+
+	
     verify_file_in(traverser);
 
     auto table = FFS::State::get_inode_table();
@@ -194,6 +202,9 @@ void FFS::FS::remove(std::string path) {
 }
 
 bool FFS::FS::exists(std::string path) {
+	// Root always exists
+	if(path == "/")
+		return true;
 	remove_trailing_slash(path);
 	
 	try {
@@ -207,6 +218,10 @@ bool FFS::FS::exists(std::string path) {
 }
 
 bool FFS::FS::is_dir(std::string path) {
+	// Root is always a dir
+	if(path == "/")
+		return true;
+
 	remove_trailing_slash(path);
 	
 	auto traverser = traverse_path(path);
