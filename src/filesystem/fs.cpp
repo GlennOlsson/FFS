@@ -201,6 +201,8 @@ bool FFS::FS::exists(std::string path) {
 		return traverser->dir->entries->count(traverser->filename) > 0;
 	} catch(FFS::BadFFSPath) {
 		return false;
+	} catch(FFS::NoFileWithName) { // Thrown if parent dir does not exist
+		return false;
 	}
 }
 

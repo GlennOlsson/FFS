@@ -40,9 +40,8 @@
 
 // Remove all previous content in fs and re-create the root directory (empty dir)
 void clear_fs() {
-    uint removed_files = std::filesystem::remove_all(TEST_PATH_ROOT);
-    std::cout << "Removed " << removed_files << " files" << std::endl;
-    std::cout << (std::filesystem::create_directory(TEST_PATH_ROOT) ? "Created dir again" : "Could not create dir") << std::endl;
+    std::filesystem::remove_all(TEST_PATH_ROOT);
+    std::filesystem::create_directory(TEST_PATH_ROOT);
 }
 
 // Setup fs with files and directories created. Does not create files
@@ -132,7 +131,6 @@ TEST_CASE("Assert exists is false for non-existing files", "[fs]") {
     // Only create dirs, not files
 
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_TXT));
-    init_fs();
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_PDF));
     // REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_MOV));
 }
@@ -153,7 +151,6 @@ TEST_CASE("Can remove directory and created file, but nothing else is removed", 
 
     // Assert what is not removed is not removed
     REQUIRE(FFS::FS::exists(TEST_PATH_DIR_LEVEL_1));
-    REQUIRE(FFS::FS::exists(TEST_PATH_TXT));
     REQUIRE(FFS::FS::exists(TEST_PATH_EMPTY_DIR));
 }
 
@@ -186,4 +183,17 @@ TEST_CASE("Creating files already existing throws", "[fs]") {
         FFS::FS::create_file(TEST_PATH_DIR_LEVEL_1, stream);
         FAIL("Did not throw when creating file on existing dir location");
     } catch(FFS::FileAlreadyExists) {}
+}
+
+TEST_CASE("Dirs and files are marked as such", "[fs]") {
+    init_fs();
+    create_files();
+
+    REQUIRE(FFS::FS::is_dir(TEST_PATH_DIR_LEVEL_1));
+    REQUIRE(FFS::FS::is_dir(TEST_PATH_DIR_LEVEL_2));
+    REQUIRE(FFS::FS::is_dir(TEST_PATH_EMPTY_DIR));
+
+    REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_TXT));
+    REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_PDF));
+    // REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_MOV));
 }
