@@ -80,5 +80,6 @@
         "utility": "cpp",
         "filesystem": "cpp",
         "hash_map": "cpp"
-    }
+    },
+    "editor.comments.insertSpace": false
 }
