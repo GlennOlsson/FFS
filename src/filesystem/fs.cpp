@@ -6,6 +6,7 @@
 
 #include "../system/state.h"
 #include "../helpers/constants.h"
+#include "../helpers/functions.h"
 #include "../exceptions/exceptions.h"
 
 #include <string>
@@ -97,7 +98,15 @@ void verify_not_in(struct Traverser* tr) {
     }
 }
 
+// Remove the trailing slash (eg. /foo/bar/ becomes /foo/bar) if it exists 
+void remove_trailing_slash(std::string& s) {
+	if(s.back() == '/')
+		s.pop_back();
+}
+
 FFS::Directory* FFS::FS::read_dir(std::string path) {
+	remove_trailing_slash(path);
+	
     auto traverser = traverse_path(path);
 	// special case for root dir, /
 	if(traverser->filename == "")
@@ -114,6 +123,8 @@ FFS::Directory* FFS::FS::read_dir(std::string path) {
 }
 
 void FFS::FS::read_file(std::string path, std::ostream& stream) {
+	remove_trailing_slash(path);
+
 	auto traverser = traverse_path(path);
     verify_file_in(traverser);
 
@@ -128,10 +139,8 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
 }
 
 void FFS::FS::create_dir(std::string path) {
-	// eg. foo/, just creating this dir, confusing for traverser
-	if(path.back() == '/')
-		path.pop_back();
-
+	remove_trailing_slash(path);
+	
 	auto traverser = traverse_path(path);
 	verify_not_in(traverser);
 
@@ -146,6 +155,8 @@ void FFS::FS::create_dir(std::string path) {
 }
 
 void FFS::FS::create_file(std::string path, std::istream& stream) {
+	remove_trailing_slash(path);
+	
 	auto traverser = traverse_path(path);
 	verify_not_in(traverser);
 
@@ -156,7 +167,7 @@ void FFS::FS::create_file(std::string path, std::istream& stream) {
 	auto blobs = FFS::encode(stream);
 
 	// Adds it to inode table
-	auto inode_id = FFS::Storage::upload_and_save_file(blobs);
+	auto inode_id = FFS::Storage::upload_and_save_file(blobs, FFS::stream_size(stream));
 
 	parent_dir->add_entry(filename, inode_id);
 
@@ -165,6 +176,8 @@ void FFS::FS::create_file(std::string path, std::istream& stream) {
 }
 
 void FFS::FS::remove(std::string path) {
+	remove_trailing_slash(path);
+	
 	auto traverser = traverse_path(path);
     verify_file_in(traverser);
 
@@ -181,6 +194,8 @@ void FFS::FS::remove(std::string path) {
 }
 
 bool FFS::FS::exists(std::string path) {
+	remove_trailing_slash(path);
+	
 	try {
 		auto traverser = traverse_path(path);
 		return traverser->dir->entries->count(traverser->filename) > 0;
@@ -190,6 +205,8 @@ bool FFS::FS::exists(std::string path) {
 }
 
 bool FFS::FS::is_dir(std::string path) {
+	remove_trailing_slash(path);
+	
 	auto traverser = traverse_path(path);
 	verify_file_in(traverser);
 

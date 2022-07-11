@@ -101,7 +101,7 @@ FFS::inode_id FFS::Directory::get_file(std::string name) {
 	if(this->entries->contains(name))
 		return this->entries->at(name);
 
-	throw NoFileWithName(name);
+	throw FFS::NoFileWithName(name);
 }
 
 FFS::inode_id FFS::Directory::remove_entry(std::string name) {

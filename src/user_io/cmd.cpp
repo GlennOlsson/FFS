@@ -57,20 +57,20 @@ void create_dir() {
 	}
 }
 
-void print_dir(FFS::Directory* dir) {
+void print_dir(FFS::Directory* dir, ostream& stream) {
 	auto table = FFS::State::get_inode_table();
 	auto dir_content = dir->entries;
-	cout << "Content: " << endl;
+	stream << "Content: " << endl;
 	for(auto item: *dir_content) {
 		auto name = item.first;
 		auto inode = item.second;
 		auto is_dir = table->entry(inode)->is_dir;
-		cout << "\t" << name << (is_dir ? "/" : "") << " (inode " << inode << ")" << endl;
+		stream << "\t" << name << (is_dir ? "/" : "") << " (inode " << inode << ")" << endl;
 	}
 }
 
 // Read file from FFS to stout
-void read() {
+void read(ostream& stream) {
 	string ffs_path;
 	cout << "Enter FFS path: ";
 	cin >> ffs_path;
@@ -82,10 +82,19 @@ void read() {
 
 	if(FFS::FS::is_dir(ffs_path)) {
 		auto dir = FFS::FS::read_dir(ffs_path);
-		print_dir(dir);
+		print_dir(dir, stream);
 	} else {
-		FFS::FS::read_file(ffs_path, cout);
+		FFS::FS::read_file(ffs_path, stream);
 	}
+}
+
+void readf() {
+	string output;
+	cout << "Enter output" << endl;
+	cin >> output;
+
+	ofstream stream(output);
+	read(stream);
 }
 
 void print_table() {
@@ -113,7 +122,7 @@ void print_table() {
 
 void print_root_dir() {
 	auto dir = FFS::FS::read_dir("/");
-	print_dir(dir);
+	print_dir(dir, cout);
 }
 
 void print_inode_content() {
@@ -131,7 +140,7 @@ void print_inode_content() {
 	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 	if(inode_entry->is_dir) {
 		auto dir = FFS::Storage::dir_from_blobs(blobs);
-		print_dir(dir);
+		print_dir(dir, cout);
 	} else {
 		FFS::decode(blobs, cout);
 	}
@@ -146,13 +155,27 @@ void remove_file() {
 	FFS::FS::remove(path);
 }
 
+void exists() {
+	string path;
+	cout << "Enter path to check: ";
+	cin >> path;
+	
+	if(FFS::FS::exists(path)) {
+		cout << "Path exists, is a " << (FFS::FS::is_dir(path) ? "dir" : "file") << endl;
+	} else {
+		cout << "Path does not exist" << endl;
+	}
+}
+
 void parse_input(string& cmd) {
 	if(cmd == "save")
 		save();
 	else if(cmd == "mkdir")
 		create_dir();
 	else if(cmd == "read")
-		read();
+		read(cout);
+	else if(cmd == "readf")
+		readf();
 	else if(cmd == "table")
 		print_table();
 	else if(cmd == "ls")
@@ -161,6 +184,8 @@ void parse_input(string& cmd) {
 		print_inode_content();
 	else if(cmd == "rm")
 		remove_file();
+	else if(cmd == "exists")
+		exists();
 	else {
 		cout << cmd << " does not match any commands" << endl;
 	}

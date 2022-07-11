@@ -73,3 +73,13 @@ void FFS::read_l(std::istream& stream, uint64_t& l) {
 	l <<= 4 * 8;
 	l |= (i2 & 0xFFFFFFFF);
 }
+
+size_t FFS::stream_size(std::istream& stream) {
+	auto curr_pos = stream.tellg();
+	stream.seekg(0, stream.end);
+	// must be int so it can go under 0
+	size_t length = stream.tellg(); // Tells current location of pointer, i.e. how long the file is
+	stream.seekg(curr_pos);
+	
+	return length;
+}

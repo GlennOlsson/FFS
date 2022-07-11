@@ -37,4 +37,7 @@ namespace FFS {
 	void read_c(std::istream& stream, uint8_t& c);
 	void read_i(std::istream& stream, uint32_t& i);
 	void read_l(std::istream& stream, uint64_t& l);
+
+	// Get the number of characters in a stream
+	size_t stream_size(std::istream&);
 }
