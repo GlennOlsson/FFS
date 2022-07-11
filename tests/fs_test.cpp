@@ -19,8 +19,8 @@
     /
         foo/
             fizz.txt
+            buzz.pdf
             bar/
-                buzz.pdf
                 qux.mov
         baz/
 
@@ -29,8 +29,8 @@
 
 #define TEST_PATH_DIR_LEVEL_1 "/foo/"
 #define TEST_PATH_TXT "/foo/fizz.txt"
+#define TEST_PATH_PDF "/foo/buzz.pdf"
 #define TEST_PATH_DIR_LEVEL_2 "/foo/bar/"
-#define TEST_PATH_PDF "/foo/bar/buzz.pdf"
 #define TEST_PATH_MOV "/foo/bar/qux.mov"
 #define TEST_PATH_EMPTY_DIR "/baz/"
 
@@ -68,9 +68,9 @@ void create_files() {
     FFS::FS::create_file(TEST_PATH_PDF, *stream);
     delete stream;
 
-    // stream = new std::ifstream(TEST_FILE_MOV);
-    // FFS::FS::create_file(TEST_PATH_MOV, *stream);
-    // delete stream;
+    stream = new std::ifstream(TEST_FILE_MOV);
+    FFS::FS::create_file(TEST_PATH_MOV, *stream);
+    delete stream;
 }
 
 bool streams_eq(std::basic_istream<char>& a, std::basic_istream<char>& b) {
@@ -120,11 +120,11 @@ TEST_CASE("Can create file and content is the same", "[fs]") {
 
     REQUIRE(FFS::FS::exists(TEST_PATH_TXT));
     REQUIRE(FFS::FS::exists(TEST_PATH_PDF));
-    // REQUIRE(FFS::FS::exists(TEST_PATH_MOV));
+    REQUIRE(FFS::FS::exists(TEST_PATH_MOV));
 
     assert_file_is_same(TEST_FILE_TXT, TEST_PATH_TXT);
     assert_file_is_same(TEST_FILE_PDF, TEST_PATH_PDF);
-    // assert_file_is_same(TEST_FILE_MOV, TEST_PATH_MOV);
+    assert_file_is_same(TEST_FILE_MOV, TEST_PATH_MOV);
 }
 
 TEST_CASE("Reading dirs gives expected output", "[fs]") {
@@ -140,15 +140,15 @@ TEST_CASE("Reading dirs gives expected output", "[fs]") {
 
     dir = FFS::FS::read_dir(TEST_PATH_DIR_LEVEL_1);
     content = dir->entries;
-    REQUIRE(content->size() == 2);
+    REQUIRE(content->size() == 3);
     REQUIRE(content->count("bar") == 1);
     REQUIRE(content->count("fizz.txt") == 1);
+    REQUIRE(content->count("buzz.pdf") == 1);
 
     dir = FFS::FS::read_dir(TEST_PATH_DIR_LEVEL_2);
     content = dir->entries;
     REQUIRE(content->size() == 1);
-    REQUIRE(content->count("buzz.pdf") == 1);
-    // REQUIRE(content->count("qux.mov") == 1);
+    REQUIRE(content->count("qux.mov") == 1);
 
     dir = FFS::FS::read_dir(TEST_PATH_EMPTY_DIR);
     content = dir->entries;
@@ -161,7 +161,7 @@ TEST_CASE("Assert exists is false for non-existing files", "[fs]") {
 
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_TXT));
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_PDF));
-    // REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_MOV));
+    REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_MOV));
 }
 
 TEST_CASE("Can remove directory and created file, but nothing else is removed", "[fs]") {
@@ -175,15 +175,15 @@ TEST_CASE("Can remove directory and created file, but nothing else is removed", 
     // Assert what is removed is removed
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_TXT));
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_DIR_LEVEL_2));
-    REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_PDF));
-    // REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_MOV));
+    REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_MOV));
 
     // Assert what is not removed is not removed
     REQUIRE(FFS::FS::exists(TEST_PATH_DIR_LEVEL_1));
+    REQUIRE(FFS::FS::exists(TEST_PATH_PDF));
     REQUIRE(FFS::FS::exists(TEST_PATH_EMPTY_DIR));
 }
 
-TEST_CASE("Creating files already existing throws", "[fs]") {
+TEST_CASE("Creating file or dir already existing throws", "[fs]") {
     init_fs();
     create_files();
 
@@ -224,5 +224,5 @@ TEST_CASE("Dirs and files are marked as such", "[fs]") {
 
     REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_TXT));
     REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_PDF));
-    // REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_MOV));
+    REQUIRE_FALSE(FFS::FS::is_dir(TEST_PATH_MOV));
 }
