@@ -2,6 +2,7 @@
 #define FFS_FS_H
 
 #include "directory.h"
+#include "inode_table.h"
 
 #include <string>
 #include <istream>
@@ -11,6 +12,9 @@ namespace FFS::FS {
     FFS::Directory* read_dir(std::string);
     // Writes to the stream with the content of the file at path. Throws NoFileWithName if path does not exist
     void read_file(std::string, std::ostream&);
+
+    // Get the inode entry of a file or directory
+    InodeEntry* entry(std::string);
 
     // Create an empty directory on path. Throws NoFileWithName if path up until directory does not exist
     void create_dir(std::string);

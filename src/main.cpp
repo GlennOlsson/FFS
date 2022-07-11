@@ -1,5 +1,6 @@
 #include "filesystem/file_coder.h"
 #include "filesystem/inode_table.h"
+#include "filesystem/fuse.h"
 
 #include "helpers/constants.h"
 #include "helpers/functions.h"
@@ -17,7 +18,7 @@ using std::cerr;
 using std::endl;
 
 
-int encode_main(int argc, char const *argv[]){
+int encode_main(int argc, char *argv[]){
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
@@ -41,7 +42,7 @@ int encode_main(int argc, char const *argv[]){
 	return 0;
 }
 
-int decode_main(int argc, char const *argv[]){
+int decode_main(int argc, char *argv[]){
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
@@ -73,11 +74,11 @@ int decode_main(int argc, char const *argv[]){
 	return 0;
 }
 
-void fs_interact(int argc, char const *argv[]){
+void fs_interact(int argc, char *argv[]){
 	interact();
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
 
 	if(argc < 2) {
 		cerr << "Need to supply argument" << endl;
@@ -92,6 +93,8 @@ int main(int argc, char const *argv[]) {
 		decode_main(argc - 1, ++argv);
 	} else if(argument == "fs") {
 		fs_interact(argc - 1, ++argv);
+	} else if(argument == "fuse") {
+		return FFS::FUSE::start(argc, argv);
 	} else {
 		cerr << "Argument not covered: " << argv[1] << endl;
 		return 1;

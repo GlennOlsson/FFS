@@ -1,0 +1,5 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory `/Users/glenn/Documents/KTH/CalPoly/Thesis/src'
+make: `out.nosync' is up to date.
+make: Leaving directory `/Users/glenn/Documents/KTH/CalPoly/Thesis/src'
+ 

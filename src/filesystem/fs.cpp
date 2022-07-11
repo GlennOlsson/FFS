@@ -3,6 +3,7 @@
 #include "directory.h"
 #include "storage.h"
 #include "file_coder.h"
+#include "inode_table.h"
 
 #include "../system/state.h"
 #include "../helpers/constants.h"
@@ -115,35 +116,37 @@ FFS::Directory* FFS::FS::read_dir(std::string path) {
 	// special case for root dir, /
 	if(path == "/")
 		return get_root_dir();
-	remove_trailing_slash(path);
-    auto traverser = traverse_path(path);
-
 	
-    verify_file_in(traverser);
+	remove_trailing_slash(path);
 
-    auto table = FFS::State::get_inode_table();
-    auto filename = traverser->filename;
-    auto dir = traverser->dir;
-
-    auto inode_entry = table->entry(dir->get_file(filename));
+    auto inode_entry = entry(path);
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
     return FFS::Storage::dir_from_blobs(blobs);
 }
 
 void FFS::FS::read_file(std::string path, std::ostream& stream) {
+	auto inode_entry = entry(path);
+    auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+
+	FFS::decode(blobs, stream);
+}
+
+FFS::InodeEntry* FFS::FS::entry(std::string path) {
+	auto table = FFS::State::get_inode_table();
+
+	if(path == "/")
+		return table->entry(FFS_ROOT_INODE);
+
 	remove_trailing_slash(path);
 
 	auto traverser = traverse_path(path);
     verify_file_in(traverser);
 
-	auto table = FFS::State::get_inode_table();
 	auto filename = traverser->filename;
     auto dir = traverser->dir;
 
 	auto inode_entry = table->entry(dir->get_file(filename));
-    auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
-
-	FFS::decode(blobs, stream);
+	return inode_entry;
 }
 
 void FFS::FS::create_dir(std::string path) {
