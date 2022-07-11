@@ -12,7 +12,8 @@ private:
 public:
 	// Check if has a inode table, else fetch from social media
 	static InodeTable* get_inode_table();
-
+	// Remove current inode table from memory, requires re-fetch next time
+	static void clear_inode_table();
 	static void save_table();
 };
 }

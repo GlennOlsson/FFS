@@ -107,10 +107,10 @@ Magick::Blob* FFS::create_image(std::istream& input_stream, uint32_t length) {
 
 std::vector<Magick::Blob*>* FFS::encode(std::istream& file_stream) {
 	// length of file:
-	file_stream.seekg (0, file_stream.end);
+	file_stream.seekg(0, file_stream.end);
 	// must be int so it can go under 0
 	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
-	file_stream.seekg (0, file_stream.beg);
+	file_stream.seekg(0, file_stream.beg);
 
 	uint32_t out_file_index = 0;
 

@@ -23,6 +23,10 @@ FFS::InodeTable* FFS::State::get_inode_table() {
 	return State::inode_table;
 }
 
+void FFS::State::clear_inode_table() {
+	delete FFS::State::inode_table;
+	FFS::State::inode_table = nullptr;
+}
 
 void FFS::State::save_table() {
 	FFS::InodeTable* table = get_inode_table();

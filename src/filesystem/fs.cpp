@@ -128,6 +128,10 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
 }
 
 void FFS::FS::create_dir(std::string path) {
+	// eg. foo/, just creating this dir, confusing for traverser
+	if(path.back() == '/')
+		path.pop_back();
+
 	auto traverser = traverse_path(path);
 	verify_not_in(traverser);
 
