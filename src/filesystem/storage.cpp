@@ -21,10 +21,15 @@ std::string path_of(FFS::post_id id) {
 
 
 std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::blobs(FFS::Directory& dir) {
+	std::cout << "getting blobs for dir " << std::endl;
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
+	std::cout << "created stream " << std::endl;
+
 	dir.serialize(stream);
+
+	std::cout << "serilized " << std::endl;
 
 	return FFS::encode(stream);
 }
@@ -57,8 +62,8 @@ std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blobs(std::shared_ptr
 }
 
 // Upload new directory and save to inode table
-FFS::inode_id FFS::Storage::upload(FFS::Directory& dir) {
-	return FFS::Storage::upload_and_save_file(FFS::Storage::blobs(dir), dir.size(), true);
+FFS::inode_id FFS::Storage::upload(std::shared_ptr<Directory> dir) {
+	return FFS::Storage::upload_and_save_file(FFS::Storage::blobs(*dir), dir->size(), true);
 }
 
 // Update existing directory with new blocks
@@ -82,20 +87,24 @@ void FFS::Storage::save_file(FFS::post_id id, std::shared_ptr<Magick::Blob> blob
 FFS::post_id _upload_file(std::shared_ptr<Magick::Blob> blob) {
 	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
 	FFS::post_id id = FFS::random_long();
+	std::cout << "SAving blob " << std::endl;
 	FFS::Storage::save_file(id, blob);
-	
+	std::cout << "saved blob " << std::endl;
 	return id;
 }
 
 FFS::inode_id FFS::Storage::upload_and_save_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, size_t size, bool is_dir) {
 	auto posts = std::make_shared<std::vector<FFS::post_id>>();
-
+	std::cout << "iterating trough " << blobs->size() << "blobs and uploading" << std::endl;
 	for(auto blob: *blobs) {
 		FFS::post_id id = _upload_file(blob);
 		posts->push_back(id);
 	}
+	std::cout << "uploaded all blobs " << std::endl;
 
+	std::cout << "getting inode table" << std::endl;
 	auto table = FFS::State::get_inode_table();
+	std::cout << "got inode table" << std::endl;
 
 	return table->new_file(posts, size, is_dir);
 }

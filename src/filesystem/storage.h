@@ -23,7 +23,7 @@ namespace FFS::Storage {
 	std::shared_ptr<Directory> dir_from_blobs(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blob);
 	std::shared_ptr<InodeTable> itable_from_blobs(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs);
 
-	FFS::inode_id upload(Directory&);
+	FFS::inode_id upload(std::shared_ptr<Directory>);
 	void update(Directory&, inode_id);
 
 	void save_file(post_id id, std::shared_ptr<Magick::Blob> blob);

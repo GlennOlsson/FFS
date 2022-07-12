@@ -28,6 +28,7 @@ uint8_t FFS::random_byte() { return ((uint32_t)random_int()) % 255; }
 
 void FFS::write_c(std::ostream& stream, uint8_t c) { stream.put(c); }
 void FFS::write_i(std::ostream& stream, uint32_t i) {
+	std::cout << "writing i " << i << std::endl;
 	stream.put((i >> (3 * 8)) & 0xFF);
 	stream.put((i >> (2 * 8)) & 0xFF);
 	stream.put((i >> (1 * 8)) & 0xFF);

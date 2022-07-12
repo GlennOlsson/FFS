@@ -12,7 +12,7 @@ files := src/**/*.cpp
 test_files := $(test_dir)/*.cpp
 test_main := $(out_dir)/main_test.out
 
-fuse_mount_point = fuse
+fuse_mount_point = ffs
 
 $(out_dir):
 	@mkdir $(out_dir)
@@ -21,13 +21,13 @@ all: | $(out_dir)
 	@$(CC) $(compile_flags) $(magick_flags) $(fuse_flags) src/main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out 
 
 fuse: clean_fuse all
-	./$(out_dir)/main.out $(fuse_mount_point) -f
+	./$(out_dir)/main.out fuse $(fuse_mount_point) -f
 
 main_test: | $(out_dir)
 	@$(CC) $(compile_flags) -c $(test_dir)/main/main_test.cpp -o $(test_main)
 
 all_tests: all | $(out_dir)
-	@$(CC) $(compile_flags) $(magick_flags) $(test_main) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/test.out 
+	@$(CC) $(compile_flags) $(magick_flags) $(fuse_flags) $(test_main) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/test.out 
 	$(out_dir)/test.out
 
 clean: | $(out_dir)

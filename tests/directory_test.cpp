@@ -21,11 +21,11 @@
 
 std::shared_ptr<FFS::Directory> create_directory() {
 
-	auto entries = new std::map<std::string, uint32_t>;
+	auto entries = std::make_shared<std::map<std::string, FFS::inode_id>>();
 
 	// 10 files
 	for(uint32_t i = 0; i < 10; i++) {
-		uint32_t rand_inode_id = FFS::random_int();
+		FFS::inode_id rand_inode_id = FFS::random_int();
 
 		uint8_t rand_name_length = FFS::random_byte();
 		std::stringstream name_stream;

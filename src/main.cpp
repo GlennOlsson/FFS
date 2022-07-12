@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 	} else if(argument == "fs") {
 		fs_interact(argc - 1, ++argv);
 	} else if(argument == "fuse") {
-		return FFS::FUSE::start(argc, argv);
+		return FFS::FUSE::start(argc - 1, argv + 1);
 	} else {
 		cerr << "Argument not covered: " << argv[1] << endl;
 		return 1;

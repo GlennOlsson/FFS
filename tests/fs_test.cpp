@@ -41,8 +41,10 @@
 
 // Remove all previous content in fs and re-create the root directory (empty dir)
 void clear_fs() {
+    std::cout << "clearing fs" << std::endl;
     std::filesystem::remove_all(TEST_PATH_ROOT);
     std::filesystem::create_directory(TEST_PATH_ROOT);
+    std::cout << "cleared fs" << std::endl;
 }
 
 // Setup fs with files and directories created. Does not create files
@@ -52,9 +54,13 @@ void init_fs() {
     // Clear previous inode table from memory
     FFS::State::clear_inode_table();
 
+    std::cout << "creating dirs" << std::endl;
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_1);
+    std::cout << "created dir1" << std::endl;
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_2);
+    std::cout << "created dir2" << std::endl;
     FFS::FS::create_dir(TEST_PATH_EMPTY_DIR);
+    std::cout << "created all dirs" << std::endl;
 }
 
 // Create files used in fs
@@ -94,19 +100,29 @@ void assert_file_is_same(std::string real_path, std::string ffs_path) {
 
 TEST_CASE("Make sure created dirs exists and are empty", "[fs]") {
     // Dirs are empty as files are not created yet, done in test case
+    std::cout << "init" << std::endl;
     init_fs();
     try {
+        std::cout << "exits1" << std::endl;
         REQUIRE(FFS::FS::exists(TEST_PATH_DIR_LEVEL_1));
+        std::cout << "read_dir1" << std::endl;
         auto dir_level_1 = FFS::FS::read_dir(TEST_PATH_DIR_LEVEL_1);
+        std::cout << "size_1" << std::endl;
         REQUIRE(dir_level_1->entries->size() == 1); // contains the bar/ dir
 
         REQUIRE(FFS::FS::exists(TEST_PATH_DIR_LEVEL_2));
+        std::cout << "exits2" << std::endl;
         auto dir_level_2 = FFS::FS::read_dir(TEST_PATH_DIR_LEVEL_2);
+        std::cout << "read_dir2" << std::endl;
         REQUIRE(dir_level_2->entries->size() == 0);
+        std::cout << "size_2" << std::endl;
 
         REQUIRE(FFS::FS::exists(TEST_PATH_EMPTY_DIR));
+        std::cout << "exits3" << std::endl;
         auto dir_empty = FFS::FS::read_dir(TEST_PATH_EMPTY_DIR);
+        std::cout << "read_dir3" << std::endl;
         REQUIRE(dir_empty->entries->size() == 0);
+        std::cout << "size_3" << std::endl;
     } catch (FFS::NoFileWithName& e) {
         std::cout << e.what() << std::endl;
         FAIL("No file with name");
