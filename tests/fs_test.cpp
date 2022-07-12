@@ -132,7 +132,7 @@ TEST_CASE("Reading dirs gives expected output", "[fs]") {
     create_files();
 
     // Use one pointer for all dirs
-    FFS::Directory* dir = FFS::FS::read_dir("/");
+    auto dir = FFS::FS::read_dir("/");
     auto content = dir->entries;
     REQUIRE(content->size() == 2);
     REQUIRE(content->count("foo") == 1);

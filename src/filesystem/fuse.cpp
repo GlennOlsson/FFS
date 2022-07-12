@@ -25,10 +25,10 @@ static int ffs_getattr(const char* path, struct stat* stat_struct) {
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
 
-	FFS::InodeEntry* entry = FFS::FS::entry(path);
+	auto entry = FFS::FS::entry(path);
 	if(entry->is_dir) {
 		auto blobs = FFS::Storage::get_file(entry->post_blocks);
-		FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
+		auto dir = FFS::Storage::dir_from_blobs(blobs);
 
 		stat_struct->st_mode = S_IFDIR | 0755;
 		stat_struct->st_nlink = 2 + dir->entries->size(); // ., .. and all entries
@@ -42,7 +42,7 @@ static int ffs_getattr(const char* path, struct stat* stat_struct) {
 }
 
 static int ffs_readdir(const char* path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
-	FFS::Directory* dir = FFS::FS::read_dir(path);
+	auto dir = FFS::FS::read_dir(path);
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
 	for(auto entry: *dir->entries) {

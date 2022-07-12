@@ -17,6 +17,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <memory.h>
 
 using namespace std;
 
@@ -57,7 +58,7 @@ void create_dir() {
 	}
 }
 
-void print_dir(FFS::Directory* dir, ostream& stream) {
+void print_dir(std::shared_ptr<FFS::Directory> dir, ostream& stream) {
 	auto table = FFS::State::get_inode_table();
 	auto dir_content = dir->entries;
 	stream << "Content: " << endl;

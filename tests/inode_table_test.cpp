@@ -14,9 +14,9 @@
 
 #include <iostream>
 
-FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr) {
+std::shared_ptr<FFS::InodeTable> create_table(std::shared_ptr<std::map<uint32_t, std::shared_ptr<FFS::InodeEntry>>> m = nullptr) {
 	if(m == nullptr)
-		m = new std::map<uint32_t, FFS::InodeEntry*>();
+		m = std::make_shared<std::map<uint32_t, std::shared_ptr<FFS::InodeEntry>>>();
 
 	// 10 files
 	for(uint32_t i = 0; i < 10; i++) {
@@ -36,19 +36,19 @@ FFS::InodeTable* create_table(std::map<uint32_t, FFS::InodeEntry*>* m = nullptr)
 
 		uint8_t is_dir = FFS::random_byte() % 2; // will be either 0 or 1
 
-		FFS::InodeEntry* entry = new FFS::InodeEntry(rand_length, rand_blocks, is_dir);
+		auto entry = std::make_shared<FFS::InodeEntry>(rand_length, rand_blocks, is_dir);
 
 		m->insert_or_assign(rand_inode_id, entry);
 	}
 
-	FFS::InodeTable* table = new FFS::InodeTable(m);
+	auto table = std::make_shared<FFS::InodeTable>(m);
 	return table;
 }
 
 TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
-	std::map<uint32_t, FFS::InodeEntry*>* m = new std::map<uint32_t, FFS::InodeEntry*>();
+	auto m = std::make_shared<std::map<uint32_t, std::shared_ptr<FFS::InodeEntry>>>();
 
-	FFS::InodeTable* table = create_table(m);
+	auto table = create_table(m);
 
 	bool maps_eq = *m == *table->entries;
 
@@ -56,13 +56,13 @@ TEST_CASE("Can construct inode table with equal maps", "[inode_table]") {
 }
 
 TEST_CASE("Sterlizing and desterlizing inode table creates same table", "[inode_table]") {
-	FFS::InodeTable* table = create_table();
+	auto table = create_table();
 
 	std::string inode_table_output = "out.nosync/inode_table.png";
 
 	auto blobs = FFS::Storage::blobs(*table);
 
-	FFS::InodeTable* deserialized_table = FFS::Storage::itable_from_blobs(blobs);
+	auto deserialized_table = FFS::Storage::itable_from_blobs(blobs);
 
 	bool tables_eq = *table == *deserialized_table;
 

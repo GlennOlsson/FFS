@@ -33,7 +33,7 @@ FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id
 FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = false) {
 	this->length = length;
 	this->is_dir = is_dir;
-	this->post_blocks = std::make_unique<std::vector<post_id>>();
+	this->post_blocks = std::make_shared<std::vector<post_id>>();
 	this->post_blocks->push_back(post);
 }
 
@@ -68,14 +68,14 @@ std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stre
 	FFS::read_c(stream, is_dir);
 	FFS::read_i(stream, block_count);
 
-	auto blocks = std::make_unique<std::vector<post_id>>();
+	auto blocks = std::make_shared<std::vector<post_id>>();
 	while (block_count-- > 0) {
 		post_id l;
 		FFS::read_l(stream, l);
 
 		blocks->push_back(l);
 	}
-
+	
 	return std::make_shared<InodeEntry>(length, blocks, is_dir);
 }
 
@@ -94,15 +94,15 @@ FFS::InodeTable::InodeTable(std::shared_ptr<std::map<uint32_t, std::shared_ptr<F
 
 // Creates empty inode table with only a root directory
 FFS::InodeTable::InodeTable() {
-	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> empty_entries = std::make_unique<std::map<inode_id, std::shared_ptr<InodeEntry>>>();
+	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> empty_entries = std::make_shared<std::map<inode_id, std::shared_ptr<InodeEntry>>>();
 
-	auto root_dir = std::make_unique<FFS::Directory>();
+	auto root_dir = std::make_shared<FFS::Directory>();
 	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs = FFS::Storage::blobs(*root_dir);
 
 	std::shared_ptr<std::vector<post_id>> ids = FFS::Storage::upload_file(blobs);
 	uint32_t dir_bytes = root_dir->size();
 
-	auto entry = std::make_unique<InodeEntry>(dir_bytes, ids, true);
+	auto entry = std::make_shared<InodeEntry>(dir_bytes, ids, true);
 	// Root dir should specific inode id
 	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
 

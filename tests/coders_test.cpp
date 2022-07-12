@@ -44,7 +44,7 @@ TEST_CASE("Encode and decode plain text", "[coders]") {
 	std::string s = "Hello my name is glenn";
 	save_to_file(s, INPUT_FILE_PATH);
 
-	std::vector<Magick::Blob*>* out_blobs = FFS::encode(INPUT_FILE_PATH);
+	auto out_blobs = FFS::encode(INPUT_FILE_PATH);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
@@ -59,7 +59,7 @@ TEST_CASE("Encode and decode special character text", "[coders]") {
 	std::string s = "Bagare Bengtson bakom berget bakar bara brända bullar 🥵🍪⏲🧑‍🍳";
 	save_to_file(s, INPUT_FILE_PATH);
 
-	std::vector<Magick::Blob*>* out_blobs = FFS::encode(INPUT_FILE_PATH);
+	auto out_blobs = FFS::encode(INPUT_FILE_PATH);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
@@ -73,7 +73,7 @@ TEST_CASE("Encode and decode a pdf file", "[coders]") {
 	
 	std::string pdf_path = "tests/assets.nosync/pdf.pdf";
 
-	std::vector<Magick::Blob*>* out_blobs = FFS::encode(pdf_path);
+	auto out_blobs = FFS::encode(pdf_path);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
@@ -87,7 +87,7 @@ TEST_CASE("Encode and decode a image file", "[coders]") {
 	
 	std::string image_path = "tests/assets.nosync/image.png";
 
-	std::vector<Magick::Blob*>* out_blobs = FFS::encode(image_path);
+	auto out_blobs = FFS::encode(image_path);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
@@ -101,7 +101,7 @@ TEST_CASE("Encode and decode a big movie that requires multiple splitted files",
 	
 	std::string movie_path = "tests/assets.nosync/movie.mp4";
 
-	std::vector<Magick::Blob*>* out_blobs = FFS::encode(movie_path);
+	auto out_blobs = FFS::encode(movie_path);
 	
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
@@ -117,13 +117,13 @@ TEST_CASE("Ensure decoder throws when image is not FFS image", "[coders]") {
 
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>();
+	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 
-	Magick::Blob blob;
+	auto blob = std::make_shared<Magick::Blob>();
 	Magick::Image img(image_path);
-	img.write(&blob);
+	img.write(blob.get());
 
-	blobs->push_back(&blob);
+	blobs->push_back(blob);
 
 	try {
 		FFS::decode(blobs, out_stream);

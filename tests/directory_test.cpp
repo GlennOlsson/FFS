@@ -19,7 +19,7 @@
 
 #define DIR_OUTPUT "out.nosync/directory.png"
 
-FFS::Directory* create_directory() {
+std::shared_ptr<FFS::Directory> create_directory() {
 
 	auto entries = new std::map<std::string, uint32_t>;
 
@@ -43,16 +43,16 @@ FFS::Directory* create_directory() {
 		entries->insert({name, rand_inode_id});
 	}
 
-	return new FFS::Directory(entries);
+	return std::make_shared<FFS::Directory>(entries);
 }
 
 TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]") {
-	FFS::Directory* directory = create_directory();
+	auto directory = create_directory();
 
 
 	auto blobs = FFS::Storage::blobs(*directory);
 
-	FFS::Directory* deserialized_dir = FFS::Storage::dir_from_blobs(blobs);
+	auto deserialized_dir = FFS::Storage::dir_from_blobs(blobs);
 
 	bool dirs_eq = *directory == *deserialized_dir;
 
@@ -62,7 +62,7 @@ TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]
 // Copies stream, flips byte at _at_ and creates FFS image of directory
 // If it does not throw when creating image, check that directory and modified-directory are unequal
 // If it does throw, make sure it is a FFS File exception
-void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
+void test_flip_byte_and_create(uint32_t at, std::shared_ptr<FFS::Directory> dir) {
 	uint32_t total_bytes = dir->size();
 	assert(total_bytes > at);
 	
@@ -94,7 +94,7 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 	try { // If doesn't fail, make sure they are unequal
 		auto blobs = FFS::encode(cp_stream);
 		
-		FFS::Directory* cp_dir = FFS::Storage::dir_from_blobs(blobs);
+		auto cp_dir = FFS::Storage::dir_from_blobs(blobs);
 		bool dirs_eq = *cp_dir == *dir;
 
 		REQUIRE_FALSE(dirs_eq);
@@ -108,7 +108,7 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 }
 
 TEST_CASE("Manipulated middle of sterlizied data leads to exception or unequal dir", "[directory]") {
-	FFS::Directory* directory = create_directory();
+	auto directory = create_directory();
 	
 	uint32_t total_bytes = directory->size();
 
@@ -118,13 +118,13 @@ TEST_CASE("Manipulated middle of sterlizied data leads to exception or unequal d
 }
 
 TEST_CASE("Manipulated start of sterlizied data leads to exception or unequal dir", "[directory]") {
-	FFS::Directory* directory = create_directory();
+	auto directory = create_directory();
 	
 	test_flip_byte_and_create(0, directory);
 }
 
 TEST_CASE("Manipulated end of sterlizied data leads to exception or unequal dir", "[directory]") {
-	FFS::Directory* directory = create_directory();
+	auto directory = create_directory();
 	uint32_t total_bytes = directory->size();
 	
 	test_flip_byte_and_create(total_bytes - 1, directory);

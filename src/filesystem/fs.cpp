@@ -68,7 +68,7 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 // with the filename (could be a directory name too).
 //
 // No check is made if the file exists in the specified path
-std::shared_ptr<struct Traverser> traverse_path(std::string path) {
+std::shared_ptr<Traverser> traverse_path(std::string path) {
 	std::vector<std::string> dirs = path_parts(path);
 	std::string filename = dirs.back();
 	dirs.pop_back(); // Removes last element == filename
@@ -78,7 +78,8 @@ std::shared_ptr<struct Traverser> traverse_path(std::string path) {
 
 	auto table = FFS::State::get_inode_table();
 	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
-	auto dir_entry = std::make_shared<FFS::InodeEntry>();
+	std::shared_ptr<FFS::InodeEntry> dir_entry = nullptr;
+
 	FFS::inode_id inode_id = FFS_ROOT_INODE;
 	for(std::string dir_name: dirs) {
         inode_id = dir->get_file(dir_name);
@@ -90,18 +91,18 @@ std::shared_ptr<struct Traverser> traverse_path(std::string path) {
         dir = FFS::Storage::dir_from_blobs(blobs);
 	}
 
-	return std::make_shared<struct Traverser>(dir, inode_id, filename, path);
+	return std::make_shared<Traverser>(Traverser({dir, inode_id, filename, path}));
 }
 
 // Check if file is in the parent directory of a traverser object. Throws BadFFSPath if not in
-void verify_file_in(std::shared_ptr<struct Traverser> tr) {
+void verify_file_in(std::shared_ptr<Traverser> tr) {
     if(!tr->dir->entries->contains(tr->filename)) {
         throw FFS::BadFFSPath(tr->full_path, tr->filename);
     }
 }
 
 // Check that file is not in the parent directory of a traverser object. Throws BadFFSPath if not in
-void verify_not_in(std::shared_ptr<struct Traverser> tr) {
+void verify_not_in(std::shared_ptr<Traverser> tr) {
     if(tr->dir->entries->contains(tr->filename)) {
         throw FFS::FileAlreadyExists(tr->filename);
     }
