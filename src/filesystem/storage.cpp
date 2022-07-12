@@ -20,7 +20,7 @@ std::string path_of(FFS::post_id id) {
 }
 
 
-std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::Directory& dir) {
+std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::blobs(FFS::Directory& dir) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -29,7 +29,7 @@ std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::Directory& dir) {
 	return FFS::encode(stream);
 }
 
-std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::InodeTable& table) {
+std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::blobs(FFS::InodeTable& table) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -38,7 +38,7 @@ std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::InodeTable& table) {
 	return FFS::encode(stream);
 }
 
-FFS::Directory* FFS::Storage::dir_from_blobs(std::vector<Magick::Blob*>* blobs) {
+std::shared_ptr<FFS::Directory> FFS::Storage::dir_from_blobs(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -47,7 +47,7 @@ FFS::Directory* FFS::Storage::dir_from_blobs(std::vector<Magick::Blob*>* blobs) 
 	return FFS::Directory::deserialize(stream);
 }
 
-FFS::InodeTable* FFS::Storage::itable_from_blobs(std::vector<Magick::Blob*>* blobs) {
+std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blobs(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
@@ -67,21 +67,19 @@ void FFS::Storage::update(FFS::Directory& dir, FFS::inode_id inode_id) {
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
 
-	// Free old list
-	delete inode_entry->post_blocks;
 	inode_entry->post_blocks = new_post_ids;
 
 	FFS::State::save_table();
 }
 
-void FFS::Storage::save_file(FFS::post_id id, Magick::Blob* blob) { 
+void FFS::Storage::save_file(FFS::post_id id, std::shared_ptr<Magick::Blob> blob) { 
 	std::string path = path_of(id);
 
 	Magick::Image img(*blob);
 	img.write(path);
 }
 
-FFS::post_id _upload_file(Magick::Blob* blob) {
+FFS::post_id _upload_file(std::shared_ptr<Magick::Blob> blob) {
 	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
 	FFS::post_id id = FFS::random_long();
 	FFS::Storage::save_file(id, blob);
@@ -89,10 +87,10 @@ FFS::post_id _upload_file(Magick::Blob* blob) {
 	return id;
 }
 
-FFS::inode_id FFS::Storage::upload_and_save_file(std::vector<Magick::Blob*>* blobs, size_t size, bool is_dir) {
-	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();
+FFS::inode_id FFS::Storage::upload_and_save_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, size_t size, bool is_dir) {
+	auto posts = std::make_shared<std::vector<FFS::post_id>>();
 
-	for(Magick::Blob* blob: *blobs) {
+	for(auto blob: *blobs) {
 		FFS::post_id id = _upload_file(blob);
 		posts->push_back(id);
 	}
@@ -103,10 +101,10 @@ FFS::inode_id FFS::Storage::upload_and_save_file(std::vector<Magick::Blob*>* blo
 }
 
 
-std::vector<FFS::post_id>* FFS::Storage::upload_file(std::vector<Magick::Blob*>* blobs) {
-	std::vector<FFS::post_id>* posts = new std::vector<FFS::post_id>();
+std::shared_ptr<std::vector<FFS::post_id>> FFS::Storage::upload_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
+	auto posts = std::make_shared<std::vector<FFS::post_id>>();
 
-	for(Magick::Blob* blob: *blobs) {
+	for(auto blob: *blobs) {
 		FFS::post_id id = _upload_file(blob);
 		posts->push_back(id);
 	}
@@ -114,19 +112,19 @@ std::vector<FFS::post_id>* FFS::Storage::upload_file(std::vector<Magick::Blob*>*
 	return posts;
 }
 
-Magick::Blob* FFS::Storage::get_file(FFS::post_id id) {
+std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 	std::string path = path_of(id);
 	Magick::Image img(path);
 
-	Magick::Blob* blob = new Magick::Blob();
-	img.write(blob);
+	auto blob = std::make_shared<Magick::Blob>();
+	img.write(blob.get());
 
 	return blob;
 }
 
-std::vector<Magick::Blob*>* FFS::Storage::get_file(std::vector<FFS::post_id>* ids) {
+std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_file(std::shared_ptr<std::vector<FFS::post_id>> ids) {
 	// TODO: Cache and check cache?
-	std::vector<Magick::Blob*>* v = new std::vector<Magick::Blob*>();
+	auto v = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 	for(auto id: *ids) {
 		v->push_back(get_file(id));
 	}
