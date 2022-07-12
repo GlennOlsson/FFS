@@ -7,6 +7,10 @@ FFS::NoFileWithName::NoFileWithName(std::string name) :
     FFS::StorageException("There is no file named " + name)
 {}
 
+FFS::NoPathWithName::NoPathWithName(std::string name) :
+    FFS::StorageException("There is no path named " + name)
+{}
+
 FFS::FileAlreadyExists::FileAlreadyExists(std::string name) :
     FFS::StorageException("There already exists a file or directory named " + name + ", cannot overwrite")
 {}

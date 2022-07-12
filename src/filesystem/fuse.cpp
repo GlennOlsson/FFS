@@ -74,7 +74,6 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 }
 
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {	
-	std::cerr << "Writing to path " << std::string(path) << " from offset " << offset << ": " << std::string(buf) << std::endl;
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
 	
@@ -160,14 +159,46 @@ static int ffs_rmdir(const char * path) {
 	return 0;
 }
 
+static int ffs_rename(const char* from, const char* to_c) {
+	std::cerr << "Move from \"" << std::string(from) << "\"" <<std::endl;
+	std::cerr << "To \"" << std::string(to_c) << "\"" << std::endl;
 
-/*
- * Need:
- * write
- * mknod (or create)
- * mkdir
- */
-	
+	if(!FFS::FS::exists(from))
+		return -ENOENT;
+
+	std::string to(to_c);
+	auto filename_to = FFS::FS::filename(to);
+	// remove filename, and the / before
+
+	std::cerr << "filename to: \"" << filename_to << "\"" << std::endl;
+
+	// Remove /filename from to_path, as we need to make sure the path before exists
+	auto offset = to.rfind(filename_to);
+	std::cerr << "Offset in to path: " << offset << std::endl;
+	if(offset == std::string::npos || offset < 1)
+		throw FFS::NoPathWithName(to);
+	auto to_parent = to.substr(0, offset - 1);
+
+	std::cerr << "to_parent path: \"" << to_parent << "\"" << std::endl;
+
+	if(!FFS::FS::exists(to_parent))
+		return -ENOENT;
+
+
+	auto parent_from = FFS::FS::parent_entry(from);
+	auto filename_from = FFS::FS::filename(from);
+
+	auto inode = parent_from.second->remove_entry(filename_from);
+
+	auto parent_to = FFS::FS::parent_entry(to);
+	parent_to.second->add_entry(filename_to, inode);
+
+	FFS::Storage::update(*parent_from.second, parent_from.first);
+	FFS::Storage::update(*parent_to.second, parent_to.first);
+
+	return 0;
+}
+
 static struct fuse_operations ffs_operations = {
 	.getattr	= ffs_getattr,
 	.read		= ffs_read,   
@@ -177,6 +208,7 @@ static struct fuse_operations ffs_operations = {
 	.mkdir		= ffs_mkdir,
 	.unlink		= ffs_unlink,
 	.rmdir		= ffs_rmdir,
+	.rename		= ffs_rename,
 };
 
 int FFS::FUSE::start(int argc, char *argv[]) {

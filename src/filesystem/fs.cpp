@@ -47,8 +47,8 @@ std::vector<std::string> path_parts(std::string path) {
 	return v;
 }
 struct Traverser {
-	std::shared_ptr<FFS::Directory> dir;
-	FFS::inode_id dir_inode;
+	std::shared_ptr<FFS::Directory> parent_dir;
+	FFS::inode_id parent_inode;
 	std::string filename;
 
     std::string full_path;
@@ -96,14 +96,14 @@ std::shared_ptr<Traverser> traverse_path(std::string path) {
 
 // Check if file is in the parent directory of a traverser object. Throws BadFFSPath if not in
 void verify_file_in(std::shared_ptr<Traverser> tr) {
-    if(!tr->dir->entries->contains(tr->filename)) {
+    if(!tr->parent_dir->entries->contains(tr->filename)) {
         throw FFS::BadFFSPath(tr->full_path, tr->filename);
     }
 }
 
 // Check that file is not in the parent directory of a traverser object. Throws BadFFSPath if not in
 void verify_not_in(std::shared_ptr<Traverser> tr) {
-    if(tr->dir->entries->contains(tr->filename)) {
+    if(tr->parent_dir->entries->contains(tr->filename)) {
         throw FFS::FileAlreadyExists(tr->filename);
     }
 }
@@ -145,10 +145,41 @@ std::shared_ptr<FFS::InodeEntry> FFS::FS::entry(std::string path) {
     verify_file_in(traverser);
 
 	auto filename = traverser->filename;
-    auto dir = traverser->dir;
+    auto dir = traverser->parent_dir;
 
 	auto inode_entry = table->entry(dir->get_file(filename));
 	return inode_entry;
+}
+
+std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>> FFS::FS::parent_entry(std::string path) {
+	auto table = FFS::State::get_inode_table();
+
+	if(path == "/") {
+		auto blobs = FFS::Storage::get_file(table->entry(FFS_ROOT_INODE)->post_blocks);
+
+		return std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>(FFS_ROOT_INODE, FFS::Storage::dir_from_blobs(blobs));
+	}
+	
+	remove_trailing_slash(path);
+
+	auto traverser = traverse_path(path);
+	// Don't verify that it's in, doesn't have to (eg. ffs_rename)
+
+	return std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>(traverser->parent_inode, traverser->parent_dir);
+}
+
+std::string FFS::FS::filename(std::string path) {
+	if(path == "/")
+		return path;
+
+	remove_trailing_slash(path);
+
+	auto parts = path_parts(path);
+	// If there are no parts, i.e. not even a filename, the file does not exist (because it could only have been the root dir)
+	if(parts.size() == 0)
+		throw FFS::NoFileWithName(path);
+
+	return parts.back();
 }
 
 void FFS::FS::create_dir(std::string path) {
@@ -159,8 +190,8 @@ void FFS::FS::create_dir(std::string path) {
 
 
 	auto dir_name = traverser->filename;
-    auto parent_dir = traverser->dir;
-	auto parent_inode = traverser->dir_inode;
+    auto parent_dir = traverser->parent_dir;
+	auto parent_inode = traverser->parent_inode;
 
 	auto dir = std::make_shared<Directory>();
 	auto inode = FFS::Storage::upload(dir);
@@ -175,8 +206,8 @@ void FFS::FS::create_file(std::string path, std::istream& stream) {
 	verify_not_in(traverser);
 
 	auto filename = traverser->filename;
-    auto parent_dir = traverser->dir;
-	auto parent_inode = traverser->dir_inode;
+    auto parent_dir = traverser->parent_dir;
+	auto parent_inode = traverser->parent_inode;
 
 	auto blobs = FFS::encode(stream);
 
@@ -196,8 +227,8 @@ void FFS::FS::remove(std::string path) {
     verify_file_in(traverser);
 
 	auto filename = traverser->filename;
-    auto parent_dir = traverser->dir;
-	auto parent_inode = traverser->dir_inode;
+    auto parent_dir = traverser->parent_dir;
+	auto parent_inode = traverser->parent_inode;
 
 	auto inode = parent_dir->remove_entry(filename);
 
@@ -215,7 +246,7 @@ bool FFS::FS::exists(std::string path) {
 	
 	try {
 		auto traverser = traverse_path(path);
-		return traverser->dir->entries->count(traverser->filename) > 0;
+		return traverser->parent_dir->entries->count(traverser->filename) > 0;
 	} catch(FFS::BadFFSPath) {
 		return false;
 	} catch(FFS::NoFileWithName) { // Thrown if parent dir does not exist
@@ -234,7 +265,7 @@ bool FFS::FS::is_dir(std::string path) {
 	verify_file_in(traverser);
 
 	auto filename = traverser->filename;
-    auto parent_dir = traverser->dir;
+    auto parent_dir = traverser->parent_dir;
 
 	auto inode = parent_dir->get_file(filename);
 

@@ -37,6 +37,10 @@ public:
 	NoFileWithName(std::string file_name);
 };
 
+class NoPathWithName: public StorageException {
+public:
+	NoPathWithName(std::string path);
+};
 class FileAlreadyExists: public StorageException {
 public:
 	FileAlreadyExists(std::string file_name);

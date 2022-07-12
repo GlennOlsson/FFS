@@ -17,6 +17,12 @@ namespace FFS::FS {
     // Get the inode entry of a file or directory
     std::shared_ptr<InodeEntry> entry(std::string);
 
+    // Get the inode and directory entity of the parent directory of a file or directory
+    std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>> parent_entry(std::string);
+
+    // Get the filename of a path
+    std::string filename(std::string);
+
     // Create an empty directory on path. Throws NoFileWithName if path up until directory does not exist
     void create_dir(std::string);
     
