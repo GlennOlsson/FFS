@@ -15,12 +15,12 @@
 #include <sstream>
 #include <Magick++.h>
 
-FFS::Directory::Directory(std::map<std::string, FFS::inode_id>* entries) {
+FFS::Directory::Directory(std::shared_ptr<std::map<std::string, FFS::inode_id>> entries) {
 	this->entries = entries;
 }
 
 FFS::Directory::Directory() {
-	std::map<std::string, FFS::inode_id>* empty_entries = new std::map<std::string, FFS::inode_id>();
+	auto empty_entries = std::make_shared<std::map<std::string, FFS::inode_id>>();
 
 	this->entries = empty_entries;
 }
@@ -54,11 +54,11 @@ void FFS::Directory::serialize(std::ostream& stream) {
 		FFS::write_i(stream, entry.second);
 	}
 }
-FFS::Directory* FFS::Directory::deserialize(std::istream& stream) {
+std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream) {
 	uint32_t entries_count;
 	FFS::read_i(stream, entries_count);
 
-	auto entries = new std::map<std::string, uint32_t>;
+	auto entries = std::make_shared<std::map<std::string, uint32_t>>();
 
 	while(entries_count--) {
 		uint8_t name_count;
@@ -81,7 +81,7 @@ FFS::Directory* FFS::Directory::deserialize(std::istream& stream) {
 		entries->insert({name, inode_id});
 	}
 
-	return new FFS::Directory(entries);
+	return std::make_shared<FFS::Directory>(entries);
 }
 
 std::vector<std::string> FFS::Directory::content() {

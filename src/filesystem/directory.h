@@ -13,9 +13,9 @@ public:
 	/**
 	 * @brief Map of (filename, inode id) describing the content of the directory. The filename is limited to 255 characters
 	 */
-	std::map<std::string, inode_id>* entries;
+	std::shared_ptr<std::map<std::string, inode_id>> entries;
 
-	Directory(std::map<std::string, inode_id>* entries);
+	Directory(std::shared_ptr<std::map<std::string, inode_id>> entries);
 	Directory();
 	
 	/**
@@ -38,7 +38,7 @@ public:
 	 * @param stream the input stream for the FFS image
 	 * @return Directory the instanciated directory
 	 */
-	static Directory* deserialize(std::istream& stream);
+	static std::shared_ptr<Directory> deserialize(std::istream& stream);
 
 	/**
 	 * @brief Get the content of the directory
