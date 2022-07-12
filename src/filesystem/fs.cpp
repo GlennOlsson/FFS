@@ -152,32 +152,20 @@ std::shared_ptr<FFS::InodeEntry> FFS::FS::entry(std::string path) {
 }
 
 void FFS::FS::create_dir(std::string path) {
-    std::cout << "removing slash" << std::endl;
 	remove_trailing_slash(path);
 	
-
-    std::cout << "traversing" << std::endl;
 	auto traverser = traverse_path(path);
-
-    std::cout << "traversed" << std::endl;
 	verify_not_in(traverser);
 
-
-    std::cout << "verifies dirs" << std::endl;
 
 	auto dir_name = traverser->filename;
     auto parent_dir = traverser->dir;
 	auto parent_inode = traverser->dir_inode;
 
-	std::cout << "creating dir " << std::endl;
 	auto dir = std::make_shared<Directory>();
-	std::cout << "uploading dir, count " << dir.use_count() << std::endl;
 	auto inode = FFS::Storage::upload(dir);
-	std::cout << "adding to parent dir " << std::endl;
 	parent_dir->add_entry(dir_name, inode);
-	std::cout << "updating parent " << std::endl;
 	FFS::Storage::update(*parent_dir, parent_inode);
-	std::cout << "updated parent " << std::endl;
 }
 
 void FFS::FS::create_file(std::string path, std::istream& stream) {

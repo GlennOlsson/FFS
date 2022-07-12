@@ -23,8 +23,6 @@ FFS::Directory::Directory(std::shared_ptr<std::map<std::string, FFS::inode_id>> 
 FFS::Directory::Directory() {
 	auto empty_entries = std::make_shared<std::map<std::string, FFS::inode_id>>();
 
-	std::cout << "-- created empty dirs, checking size " << std::endl;
-	std::cout << "-- size:  " << empty_entries->size() << std::endl;
 	this->entries = empty_entries;
 }
 
@@ -40,34 +38,22 @@ uint32_t FFS::Directory::size() {
 	return size;
 }
 
-void FFS::Directory::serialize(std::ostream& stream) {
-	std::cout << "serializing " << std::endl;
-	std::cout << "this ptr:  " << this << std::endl;
-	std::cout << "this->entries:  " << this->entries.get() << std::endl;
-	std::cout << "this->count:  " << this->entries.use_count() << std::endl;
-	std::cout << "this-etnries-size:  " << this->entries->size() << std::endl;
-	
+void FFS::Directory::serialize(std::ostream& stream) {	
 	FFS::write_i(stream, this->entries->size());
-	std::cout << "wrote size " << std::endl;
 	for(auto entry: *this->entries) {
 		std::string name = entry.first;
 
 		uint8_t name_length = name.size();
-		std::cout << "writing name length " << std::endl;
 		FFS::write_c(stream, name_length);
 
-		std::cout << "writing name " << std::endl;
 		// Write string without \0
 		for(int i = 0; i < name_length; ++i) {
 			FFS::write_c(stream, name[i]);
 		}
 
-		std::cout << "write inode " << std::endl;
-
 		// Write inode id
 		FFS::write_i(stream, entry.second);
 	}
-	std::cout << "done " << std::endl;
 }
 std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream) {
 	uint32_t entries_count;
