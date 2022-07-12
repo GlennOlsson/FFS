@@ -2,4 +2,4 @@ out.nosync
 *.trace
 **/*.DS_Store
 *.out
-fuse
+ffs

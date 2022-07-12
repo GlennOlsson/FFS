@@ -78,5 +78,13 @@ static struct fuse_operations ffs_operations = {
 };
 
 int FFS::FUSE::start(int argc, char *argv[]) {
-	 return fuse_main(argc, argv, &ffs_operations, NULL);
+	std::cout << "+ ------------------------ +" << std::endl;
+	std::cout << "|                          |" << std::endl;
+	std::cout << "|  Welcome to FFS! You can |" << std::endl;
+	std::cout << "|  find the filesystem in  |" << std::endl;
+	std::cout << "|   WORKING_DIR/ffs or in  |" << std::endl;
+	std::cout << "|   the volumes directory  |" << std::endl;
+	std::cout << "|                          |" << std::endl;
+	std::cout << "+ ------------------------ +" << std::endl;
+	return fuse_main(argc, argv, &ffs_operations, NULL);
 }
