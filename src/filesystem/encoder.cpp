@@ -35,7 +35,7 @@ void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 	*(component_pointer++) = length & 0xFFFF;
 }
 
-Magick::Blob* FFS::create_image(std::istream& input_stream, uint32_t length) {
+std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint32_t length) {
 	assert(QuantumRange == 65535);
 
 	// Bytes required for header and file
@@ -99,13 +99,13 @@ Magick::Blob* FFS::create_image(std::istream& input_stream, uint32_t length) {
 
 	pixel_view.sync();
 
-	Magick::Blob* blob = new Magick::Blob();
-	image.write(blob);
+	std::shared_ptr<Magick::Blob> blob = std::make_shared<Magick::Blob>();
+	image.write(blob.get());
 	
 	return blob;
 }
 
-std::vector<Magick::Blob*>* FFS::encode(std::istream& file_stream) {
+std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::istream& file_stream) {
 	// length of file:
 	file_stream.seekg(0, file_stream.end);
 	// must be int so it can go under 0
@@ -114,12 +114,12 @@ std::vector<Magick::Blob*>* FFS::encode(std::istream& file_stream) {
 
 	uint32_t out_file_index = 0;
 
-	std::vector<Magick::Blob*>* blobs = new std::vector<Magick::Blob*>();
+	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 
 	while(length > 0) {
 		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - HEADER_SIZE, (int) length);
 
-		Magick::Blob* blob = create_image(file_stream, out_file_size);
+		std::shared_ptr<Magick::Blob> blob = create_image(file_stream, out_file_size);
 		blobs->push_back(blob);
 
 		length -= out_file_size;
@@ -129,12 +129,12 @@ std::vector<Magick::Blob*>* FFS::encode(std::istream& file_stream) {
 	return blobs;
 }
 
-std::vector<Magick::Blob*>* FFS::encode(std::string input_path) {
+std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::string input_path) {
 	std::ifstream file_stream(input_path, std::ifstream::binary);
 	if (!file_stream) {
 		std::cerr << "no file " << input_path << std::endl;
 
-		std::vector<Magick::Blob*>* empty_list = new std::vector<Magick::Blob*>();
+		auto empty_list = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 		return empty_list;
 	}
 
