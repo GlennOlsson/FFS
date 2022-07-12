@@ -11,6 +11,7 @@
 #include <fstream>
 #include <cstdarg>
 #include <vector>
+#include <memory>
 
 /**
  * @brief Assert header is "FFS" followed by length, and return length

@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <Magick++.h>
+#include <memory>
 
 namespace FFS {
 

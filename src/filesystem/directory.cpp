@@ -14,6 +14,7 @@
 #include <string>
 #include <sstream>
 #include <Magick++.h>
+#include <memory>
 
 FFS::Directory::Directory(std::shared_ptr<std::map<std::string, FFS::inode_id>> entries) {
 	this->entries = entries;

@@ -12,6 +12,7 @@
 #include <string>
 #include <Magick++.h>
 #include <sstream>
+#include <memory>
 
 using std::cout;
 using std::cerr;
@@ -27,10 +28,10 @@ int encode_main(int argc, char *argv[]){
 	} else {
 		filename = "out.nosync/input";
 	}
-	std::vector<Magick::Blob*>* blobs = FFS::encode(filename);
+	auto blobs = FFS::encode(filename);
 
 	int i = 0;
-	for(Magick::Blob* b: *blobs) {
+	for(auto b: *blobs) {
 		Magick::Image img(*b);
 
 		std::stringstream out_name;
@@ -46,22 +47,22 @@ int decode_main(int argc, char *argv[]){
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
-	std::vector<Magick::Blob*> input_list;
+	auto input_list = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 	if(argc > 1) {
 		for(int i = 1; i < argc; i++) {
 			Magick::Image img = Magick::Image(argv[i]);
-			Magick::Blob* blob = new Magick::Blob();
-			img.write(blob);
-			input_list.push_back(blob);
+			auto blob = std::make_shared<Magick::Blob>();
+			img.write(blob.get());
+			input_list->push_back(blob);
 		}
 	} else {
 		std::stringstream out_name;
 		out_name << "out.nosync/img0." << FFS_IMAGE_TYPE;
 
 		Magick::Image img = Magick::Image(out_name.str());	
-		Magick::Blob* blob = new Magick::Blob();
-		img.write(blob);
-		input_list.push_back(blob);
+		auto blob = std::make_shared<Magick::Blob>();
+		img.write(blob.get());
+		input_list->push_back(blob);
 	}
 
 	std::ofstream file_stream("out.nosync/output", std::ofstream::binary);
@@ -69,7 +70,8 @@ int decode_main(int argc, char *argv[]){
 		std::cerr << "Cannot output to file out.nosync/output" << std::endl;
 		return 1;
 	}
-	FFS::decode(&input_list, file_stream);
+
+	FFS::decode(input_list, file_stream);
 
 	return 0;
 }

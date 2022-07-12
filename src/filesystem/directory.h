@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 namespace FFS {
 class Directory {

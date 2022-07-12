@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cassert>
 #include <vector>
+#include <memory>
 
 // Bytes required for header
 #define HEADER_SIZE 16
