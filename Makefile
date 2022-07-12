@@ -20,8 +20,9 @@ $(out_dir):
 all: | $(out_dir)
 	@$(CC) $(compile_flags) $(magick_flags) $(fuse_flags) src/main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out 
 
+# Keep alive and disable multi-threading
 fuse: clean_fuse all
-	./$(out_dir)/main.out fuse $(fuse_mount_point) -f
+	./$(out_dir)/main.out fuse $(fuse_mount_point) -f -s
 
 main_test: | $(out_dir)
 	@$(CC) $(compile_flags) -c $(test_dir)/main/main_test.cpp -o $(test_main)

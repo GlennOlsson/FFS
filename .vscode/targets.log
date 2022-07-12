@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Tue Jul 12 15:30:26 2022
+# Make data base, printed on Tue Jul 12 16:35:04 2022
 
 # Variables
 
@@ -190,9 +190,9 @@ VSCODE_PID = 973
 
 # Directories
 
-# . (device 16777220, inode 8713104245): 13 files, no impossibilities.
+# . (device 16777220, inode 8713104245): 14 files, no impossibilities.
 
-# 13 files, no impossibilities in 1 directories.
+# 14 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -238,7 +238,7 @@ all: | out.nosync
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-12 15:30:21
+#  Last modified 2022-07-12 16:34:14
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -248,7 +248,7 @@ clean_fuse:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 37):
+#  commands to execute (from `Makefile', line 38):
 	-@umount $(fuse_mount_point)
 	-@rmdir $(fuse_mount_point)
 	
@@ -257,7 +257,7 @@ main_test: | out.nosync
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 27):
+#  commands to execute (from `Makefile', line 28):
 	@$(CC) $(compile_flags) -c $(test_dir)/main/main_test.cpp -o $(test_main)
 	
 
@@ -269,7 +269,7 @@ main_test: | out.nosync
 
 out.nosync:
 #  Implicit rule search has not been done.
-#  Last modified 2022-07-12 15:30:09
+#  Last modified 2022-07-12 16:26:11
 #  File has been updated.
 #  Successfully updated.
 #  commands to execute (from `Makefile', line 18):
@@ -280,7 +280,7 @@ clean: | out.nosync
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 34):
+#  commands to execute (from `Makefile', line 35):
 	@rm -f $(out_dir)/*.out
 	
 
@@ -288,7 +288,7 @@ all_tests: all | out.nosync
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 30):
+#  commands to execute (from `Makefile', line 31):
  
 	@$(CC) $(compile_flags) $(magick_flags) $(fuse_flags) $(test_main) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/test.out 
 	$(out_dir)/test.out
@@ -298,8 +298,8 @@ fuse: clean_fuse all
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  commands to execute (from `Makefile', line 24):
-	./$(out_dir)/main.out fuse $(fuse_mount_point) -f
+#  commands to execute (from `Makefile', line 25):
+	./$(out_dir)/main.out fuse $(fuse_mount_point) -f -s
 	
 
 # files hash-table stats:
@@ -315,6 +315,6 @@ fuse: clean_fuse all
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue Jul 12 15:30:26 2022
+# Finished Make data base on Tue Jul 12 16:35:04 2022
 
  

@@ -73,6 +73,7 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	return std::min((int) size, index);
 }
 
+// FIXME: Not working properly. How is it supposed to work?
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {	
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
@@ -91,6 +92,27 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	FFS::FS::create_file(path, new_stream);
 
 	return size;
+}
+
+int ffs_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
+	if(FFS::FS::exists(path))
+		return -EACCES;
+	
+	std::stringbuf buf;
+	std::istream empty_stream(&buf);
+
+	FFS::FS::create_file(path, empty_stream);
+
+	return 0;
+}
+
+int ffs_mkdir(const char* path, mode_t mode) {
+	if(FFS::FS::exists(path))
+		return -EACCES;
+	
+	FFS::FS::create_dir(path);
+
+	return 0;
 }
 
 static int ffs_unlink(const char * path) {
@@ -128,8 +150,6 @@ static int ffs_rmdir(const char * path) {
  * write
  * mknod (or create)
  * mkdir
- * unlink
- * rmdir
  */
 	
 static struct fuse_operations ffs_operations = {
@@ -137,6 +157,8 @@ static struct fuse_operations ffs_operations = {
 	.read		= ffs_read,   
 	.readdir	= ffs_readdir,
 	.write		= ffs_write,
+	.create		= ffs_create,
+	.mkdir		= ffs_mkdir,
 	.unlink		= ffs_unlink,
 	.rmdir		= ffs_rmdir,
 };

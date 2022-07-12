@@ -6,9 +6,15 @@
 #include <stdexcept>
 
 namespace FFS {
-class BadFFSFile: public std::runtime_error {
+
+class Exception: public std::runtime_error {
+protected:
+	Exception(std::string reason) : std::runtime_error(reason) {}
+};
+
+class BadFFSFile: public FFS::Exception {
 public:
-	BadFFSFile(std::string reason) : std::runtime_error(reason) {}
+	BadFFSFile(std::string reason) : Exception(reason) {}
 };
 
 class BadFFSHeader: public BadFFSFile {
@@ -21,9 +27,9 @@ public:
 	UnexpectedEOF(uint64_t eof_location);
 };
 
-class StorageException: public std::runtime_error {
+class StorageException: public FFS::Exception {
 public:
-	StorageException(std::string reason) : std::runtime_error(reason) {}
+	StorageException(std::string reason) : Exception(reason) {}
 };
 
 class NoFileWithName: public StorageException {
