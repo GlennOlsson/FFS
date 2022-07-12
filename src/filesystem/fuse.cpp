@@ -73,14 +73,30 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	return std::min((int) size, index);
 }
 
-// FIXME: Not working properly. How is it supposed to work?
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {	
+	std::cerr << "Writing to path " << std::string(path) << " from offset " << offset << ": " << std::string(buf) << std::endl;
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
+	
+	if(FFS::FS::is_dir(path))
+		return -EISDIR;
 
 	// Create stream for new file content
 	std::stringbuf new_string_buf;
 	std::basic_iostream new_stream(&new_string_buf);
+
+	// If offset > 0, read current file and add up until offset before
+	if(offset > 0) {
+		std::stringbuf curr_string_buf;
+		std::basic_iostream curr_stream(&curr_string_buf);
+
+		FFS::FS::read_file(path, curr_stream);
+		
+		int i = 0;
+		while(i++ < offset) {
+			new_stream.put(curr_stream.get());
+		}
+	}
 
 	// Add new content
 	size_t index = 0;
