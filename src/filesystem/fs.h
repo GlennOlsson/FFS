@@ -6,15 +6,16 @@
 
 #include <string>
 #include <istream>
+#include <memory>
 
 namespace FFS::FS {
     // Return the directory at path. Throws NoFileWithName if path does not exist
-    FFS::Directory* read_dir(std::string);
+    std::shared_ptr<FFS::Directory> read_dir(std::string);
     // Writes to the stream with the content of the file at path. Throws NoFileWithName if path does not exist
     void read_file(std::string, std::ostream&);
 
     // Get the inode entry of a file or directory
-    InodeEntry* entry(std::string);
+    std::shared_ptr<InodeEntry> entry(std::string);
 
     // Create an empty directory on path. Throws NoFileWithName if path up until directory does not exist
     void create_dir(std::string);

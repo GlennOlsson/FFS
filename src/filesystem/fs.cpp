@@ -15,6 +15,7 @@
 #include <ostream>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 // Expected in the form 
 //  	foo/bar/fizz[ext]
@@ -46,20 +47,20 @@ std::vector<std::string> path_parts(std::string path) {
 	return v;
 }
 struct Traverser {
-	FFS::Directory* dir;
+	std::shared_ptr<FFS::Directory> dir;
 	FFS::inode_id dir_inode;
 	std::string filename;
 
     std::string full_path;
 };
 
-FFS::Directory* get_root_dir() {
-	FFS::InodeTable* table = FFS::State::get_inode_table();
+std::shared_ptr<FFS::Directory> get_root_dir() {
+	auto table = FFS::State::get_inode_table();
 	// Root dir entry
-	FFS::InodeEntry* dir_entry = table->entry(FFS_ROOT_INODE);
+	auto dir_entry = table->entry(FFS_ROOT_INODE);
 	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
 
-	FFS::Directory* dir = FFS::Storage::dir_from_blobs(blobs);
+	auto dir = FFS::Storage::dir_from_blobs(blobs);
 	return dir;
 }
 
@@ -67,17 +68,17 @@ FFS::Directory* get_root_dir() {
 // with the filename (could be a directory name too).
 //
 // No check is made if the file exists in the specified path
-struct Traverser* traverse_path(std::string path) {
+std::shared_ptr<struct Traverser> traverse_path(std::string path) {
 	std::vector<std::string> dirs = path_parts(path);
 	std::string filename = dirs.back();
 	dirs.pop_back(); // Removes last element == filename
 
 	// Start with dir as root dir
-	FFS::Directory* dir = get_root_dir();
+	auto dir = get_root_dir();
 
-	FFS::InodeTable* table = FFS::State::get_inode_table();
-	std::vector<Magick::Blob*>* blobs;
-	FFS::InodeEntry* dir_entry;
+	auto table = FFS::State::get_inode_table();
+	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+	auto dir_entry = std::make_shared<FFS::InodeEntry>();
 	FFS::inode_id inode_id = FFS_ROOT_INODE;
 	for(std::string dir_name: dirs) {
         inode_id = dir->get_file(dir_name);
@@ -89,18 +90,18 @@ struct Traverser* traverse_path(std::string path) {
         dir = FFS::Storage::dir_from_blobs(blobs);
 	}
 
-	return new struct Traverser({dir, inode_id, filename, path});
+	return std::make_shared<struct Traverser>(dir, inode_id, filename, path);
 }
 
 // Check if file is in the parent directory of a traverser object. Throws BadFFSPath if not in
-void verify_file_in(struct Traverser* tr) {
+void verify_file_in(std::shared_ptr<struct Traverser> tr) {
     if(!tr->dir->entries->contains(tr->filename)) {
         throw FFS::BadFFSPath(tr->full_path, tr->filename);
     }
 }
 
 // Check that file is not in the parent directory of a traverser object. Throws BadFFSPath if not in
-void verify_not_in(struct Traverser* tr) {
+void verify_not_in(std::shared_ptr<struct Traverser> tr) {
     if(tr->dir->entries->contains(tr->filename)) {
         throw FFS::FileAlreadyExists(tr->filename);
     }
@@ -112,7 +113,7 @@ void remove_trailing_slash(std::string& s) {
 		s.pop_back();
 }
 
-FFS::Directory* FFS::FS::read_dir(std::string path) {
+std::shared_ptr<FFS::Directory> FFS::FS::read_dir(std::string path) {
 	// special case for root dir, /
 	if(path == "/")
 		return get_root_dir();
@@ -131,7 +132,7 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
 	FFS::decode(blobs, stream);
 }
 
-FFS::InodeEntry* FFS::FS::entry(std::string path) {
+std::shared_ptr<FFS::InodeEntry> FFS::FS::entry(std::string path) {
 	auto table = FFS::State::get_inode_table();
 
 	if(path == "/")
@@ -159,7 +160,7 @@ void FFS::FS::create_dir(std::string path) {
     auto parent_dir = traverser->dir;
 	auto parent_inode = traverser->dir_inode;
 
-	auto dir = new Directory();
+	auto dir = std::shared_ptr<Directory>();
 	auto inode = FFS::Storage::upload(*dir);
 	parent_dir->add_entry(dir_name, inode);
 	FFS::Storage::update(*parent_dir, parent_inode);
