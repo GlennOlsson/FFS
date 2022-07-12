@@ -10,15 +10,17 @@
 
 #include "../helpers/functions.h"
 
+#include "../exceptions/exceptions.h"
+
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <math.h>
 
 // Read and write for everyone
-#define PERM_OWNER (S_IRUSR | S_IWUSR)
-#define PERM_GROUP (S_IRGRP | S_IWGRP)
-#define PERM_OTHER ( S_IROTH | S_IWOTH)
+#define PERM_OWNER (S_IRWXU)
+#define PERM_GROUP (S_IRWXG)
+#define PERM_OTHER (S_IRWXO)
 #define FILE_PERMISSIONS ( PERM_OWNER | PERM_GROUP | PERM_OTHER )
 
 static int ffs_getattr(const char* path, struct stat* stat_struct) {
@@ -30,7 +32,7 @@ static int ffs_getattr(const char* path, struct stat* stat_struct) {
 		auto blobs = FFS::Storage::get_file(entry->post_blocks);
 		auto dir = FFS::Storage::dir_from_blobs(blobs);
 
-		stat_struct->st_mode = S_IFDIR | 0755;
+		stat_struct->st_mode = S_IFDIR | FILE_PERMISSIONS;
 		stat_struct->st_nlink = 2 + dir->entries->size(); // ., .. and all entries
 	} else {
 		stat_struct->st_mode = S_IFREG | FILE_PERMISSIONS;
@@ -70,11 +72,73 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	// Return either the amount of bytes requested, or the amount read if its lower
 	return std::min((int) size, index);
 }
+
+static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {	
+	if(!FFS::FS::exists(path)) 
+		return -ENOENT;
+
+	// Create stream for new file content
+	std::stringbuf new_string_buf;
+	std::basic_iostream new_stream(&new_string_buf);
+
+	// Add new content
+	size_t index = 0;
+	while(index < size) {
+		FFS::write_c(new_stream, buf[index++]);
+	}
+
+	FFS::FS::remove(path);
+	FFS::FS::create_file(path, new_stream);
+
+	return size;
+}
+
+static int ffs_unlink(const char * path) {
+	if(!FFS::FS::exists(path))
+		return -ENOENT;
+	
+	try {
+		FFS::FS::remove(path);
+	} catch (FFS::Exception) {
+		return 1;
+	}
+
+	return 0;
+}
+
+static int ffs_rmdir(const char * path) {
+	if(!FFS::FS::exists(path))
+		return -ENOENT;
+	
+	if(!FFS::FS::is_dir(path))
+		return -ENOTDIR;
+
+	try {
+		FFS::FS::remove(path);
+	} catch (FFS::Exception) {
+		return 1;
+	}
+
+	return 0;
+}
+
+
+/*
+ * Need:
+ * write
+ * mknod (or create)
+ * mkdir
+ * unlink
+ * rmdir
+ */
 	
 static struct fuse_operations ffs_operations = {
-	.getattr = ffs_getattr,
-	.read    = ffs_read,   
-	.readdir = ffs_readdir,
+	.getattr	= ffs_getattr,
+	.read		= ffs_read,   
+	.readdir	= ffs_readdir,
+	.write		= ffs_write,
+	.unlink		= ffs_unlink,
+	.rmdir		= ffs_rmdir,
 };
 
 int FFS::FUSE::start(int argc, char *argv[]) {
