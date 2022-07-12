@@ -20,25 +20,25 @@
 #include <string>
 #include <vector>
 #include <Magick++.h>
+#include <memory>
 
 // Inode Entry...
 
-FFS::InodeEntry::InodeEntry(uint32_t length,
-							std::vector<post_id>* post_blocks, uint8_t is_dir = false) {
+FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id>> post_blocks, uint8_t is_dir = false) {
 	this->length = length;
 	this->is_dir = is_dir;
-	this->post_blocks = post_blocks;
+	this->post_blocks = std::move(post_blocks);
 }
 
 FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = false) {
 	this->length = length;
 	this->is_dir = is_dir;
-	this->post_blocks = new std::vector<post_id>();
+	this->post_blocks = std::make_unique<std::vector<post_id>>();
 	this->post_blocks->push_back(post);
 }
 
 FFS::InodeEntry::~InodeEntry() {
-	delete this->post_blocks;
+	this->post_blocks.reset();
 }
 
 uint32_t FFS::InodeEntry::size() {
@@ -51,7 +51,7 @@ uint32_t FFS::InodeEntry::size() {
 	return value;
 }
 
-void FFS::InodeEntry::sterilize(std::ostream& stream) {
+void FFS::InodeEntry::serialize(std::ostream& stream) {
 	FFS::write_i(stream, this->length);
 	FFS::write_c(stream, this->is_dir);
 	FFS::write_i(stream, this->post_blocks->size());
@@ -60,7 +60,7 @@ void FFS::InodeEntry::sterilize(std::ostream& stream) {
 	}
 }
 
-FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
+std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stream) {
 	uint32_t length, block_count;
 	uint8_t is_dir;
 
@@ -68,7 +68,7 @@ FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 	FFS::read_c(stream, is_dir);
 	FFS::read_i(stream, block_count);
 
-	std::vector<post_id>* blocks = new std::vector<post_id>();
+	auto blocks = std::make_unique<std::vector<post_id>>();
 	while (block_count-- > 0) {
 		post_id l;
 		FFS::read_l(stream, l);
@@ -76,7 +76,7 @@ FFS::InodeEntry* FFS::InodeEntry::desterilize(std::istream& stream) {
 		blocks->push_back(l);
 	}
 
-	return new InodeEntry(length, blocks, is_dir);
+	return std::make_shared<InodeEntry>(length, blocks, is_dir);
 }
 
 bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
@@ -88,26 +88,26 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 
 // Inode Table...
 
-FFS::InodeTable::InodeTable(std::map< uint32_t, FFS::InodeEntry*>* entries) {
-	this->entries = entries;
+FFS::InodeTable::InodeTable(std::shared_ptr<std::map<uint32_t, std::shared_ptr<FFS::InodeEntry>>> entries) {
+	this->entries = std::move(entries);
 }
 
 // Creates empty inode table with only a root directory
 FFS::InodeTable::InodeTable() {
-	std::map<uint32_t,InodeEntry*>* empty_entries = new std::map<uint32_t,InodeEntry*>();
+	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> empty_entries = std::make_unique<std::map<inode_id, std::shared_ptr<InodeEntry>>>();
 
-	Directory* root_dir = new Directory();
-	std::vector<Magick::Blob*>* blobs = FFS::Storage::blobs(*root_dir);
+	auto root_dir = std::make_unique<FFS::Directory>();
+	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs = FFS::Storage::blobs(*root_dir);
 
-	std::vector<post_id>* ids = FFS::Storage::upload_file(blobs);
+	std::shared_ptr<std::vector<post_id>> ids = FFS::Storage::upload_file(blobs);
 	uint32_t dir_bytes = root_dir->size();
 
-	InodeEntry* entry = new InodeEntry(dir_bytes, ids, true);
+	auto entry = std::make_unique<InodeEntry>(dir_bytes, ids, true);
 	// Root dir should specific inode id
-	empty_entries->insert({FFS_ROOT_INODE, entry});
+	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
 
 	// TODO: Update entries with root dir and its id
-	this->entries = empty_entries;
+	this->entries = std::move(empty_entries);
 }
 
 uint32_t FFS::InodeTable::size() {
@@ -120,41 +120,41 @@ uint32_t FFS::InodeTable::size() {
 	return size;
 }
 
-void FFS::InodeTable::sterilize(std::ostream& stream) {
+void FFS::InodeTable::serialize(std::ostream& stream) {
 	uint32_t total_entries = this->entries->size();
 
 	FFS::write_i(stream, total_entries);
 
-	// For each entry add its id, and the sterilized entry
+	// For each entry add its id, and the serialized entry
 	for (auto entry : *this->entries) {
 		inode_id id = entry.first;
 		FFS::write_i(stream, id);
 
-		entry.second->sterilize(stream);
+		entry.second->serialize(stream);
 	}
 }
 
-FFS::InodeTable* FFS::InodeTable::desterilize(std::istream& stream) {
+std::shared_ptr<FFS::InodeTable> FFS::InodeTable::deserialize(std::istream& stream) {
 	uint32_t entries_count;
 
 	FFS::read_i(stream, entries_count);
 
-	auto entries = new std::map< inode_id, FFS::InodeEntry*>();
+	auto entries = std::make_shared<std::map< inode_id, std::shared_ptr<FFS::InodeEntry>>>();
 
 	while(entries_count--) {
 		inode_id id;
 
 		FFS::read_i(stream, id);
 
-		InodeEntry* entry = InodeEntry::desterilize(stream);
+		auto entry = InodeEntry::deserialize(stream);
 		entries->insert({id, entry});
 	}
 
-	return new InodeTable(entries);
+	return std::make_shared<InodeTable>(entries);
 }
 
-FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32_t length, uint8_t is_dir) {
-	InodeEntry* entry = new InodeEntry(length, posts, is_dir);
+FFS::inode_id FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id>> posts, uint32_t length, uint8_t is_dir) {
+	auto entry = std::make_shared<InodeEntry>(length, posts, is_dir);
 	
 	// Find next inode id to use
 	inode_id new_id;
@@ -174,7 +174,7 @@ FFS::inode_id FFS::InodeTable::new_file(std::vector<FFS::post_id>* posts, uint32
 	return new_id;
 }
 
-FFS::InodeEntry* FFS::InodeTable::entry(const FFS::inode_id& id) {
+std::shared_ptr<FFS::InodeEntry> FFS::InodeTable::entry(const FFS::inode_id& id) {
 	if(this->entries->contains(id))
 		return this->entries->at(id);
 	
@@ -183,7 +183,7 @@ FFS::InodeEntry* FFS::InodeTable::entry(const FFS::inode_id& id) {
 
 void FFS::InodeTable::remove_entry(FFS::inode_id id) {
 	auto entry = this->entries->at(id);
-	delete entry;
+	entry.reset();
 	entries->erase(id);
 }
 

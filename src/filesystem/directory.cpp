@@ -37,7 +37,7 @@ uint32_t FFS::Directory::size() {
 	return size;
 }
 
-void FFS::Directory::sterilize(std::ostream& stream) {
+void FFS::Directory::serialize(std::ostream& stream) {
 	FFS::write_i(stream, this->entries->size());
 	for(auto entry: *this->entries) {
 		std::string name = entry.first;
@@ -54,7 +54,7 @@ void FFS::Directory::sterilize(std::ostream& stream) {
 		FFS::write_i(stream, entry.second);
 	}
 }
-FFS::Directory* FFS::Directory::desterilize(std::istream& stream) {
+FFS::Directory* FFS::Directory::deserialize(std::istream& stream) {
 	uint32_t entries_count;
 	FFS::read_i(stream, entries_count);
 

@@ -52,9 +52,9 @@ TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]
 
 	auto blobs = FFS::Storage::blobs(*directory);
 
-	FFS::Directory* desterilized_dir = FFS::Storage::dir_from_blobs(blobs);
+	FFS::Directory* deserialized_dir = FFS::Storage::dir_from_blobs(blobs);
 
-	bool dirs_eq = *directory == *desterilized_dir;
+	bool dirs_eq = *directory == *deserialized_dir;
 
 	REQUIRE(dirs_eq);
 }
@@ -68,7 +68,7 @@ void test_flip_byte_and_create(uint32_t at, FFS::Directory* dir) {
 	
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
-	dir->sterilize(stream);
+	dir->serialize(stream);
 
 	std::stringstream cp_stream;
 

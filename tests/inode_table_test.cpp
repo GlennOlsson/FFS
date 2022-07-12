@@ -62,9 +62,9 @@ TEST_CASE("Sterlizing and desterlizing inode table creates same table", "[inode_
 
 	auto blobs = FFS::Storage::blobs(*table);
 
-	FFS::InodeTable* desterilized_table = FFS::Storage::itable_from_blobs(blobs);
+	FFS::InodeTable* deserialized_table = FFS::Storage::itable_from_blobs(blobs);
 
-	bool tables_eq = *table == *desterilized_table;
+	bool tables_eq = *table == *deserialized_table;
 
 	REQUIRE(tables_eq);
 }

@@ -24,7 +24,7 @@ std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::Directory& dir) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
-	dir.sterilize(stream);
+	dir.serialize(stream);
 
 	return FFS::encode(stream);
 }
@@ -33,7 +33,7 @@ std::vector<Magick::Blob*>* FFS::Storage::blobs(FFS::InodeTable& table) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 
-	table.sterilize(stream);
+	table.serialize(stream);
 
 	return FFS::encode(stream);
 }
@@ -44,7 +44,7 @@ FFS::Directory* FFS::Storage::dir_from_blobs(std::vector<Magick::Blob*>* blobs) 
 
 	FFS::decode(blobs, stream);
 
-	return FFS::Directory::desterilize(stream);
+	return FFS::Directory::deserialize(stream);
 }
 
 FFS::InodeTable* FFS::Storage::itable_from_blobs(std::vector<Magick::Blob*>* blobs) {
@@ -53,7 +53,7 @@ FFS::InodeTable* FFS::Storage::itable_from_blobs(std::vector<Magick::Blob*>* blo
 
 	FFS::decode(blobs, stream);
 
-	return FFS::InodeTable::desterilize(stream);
+	return FFS::InodeTable::deserialize(stream);
 }
 
 // Upload new directory and save to inode table

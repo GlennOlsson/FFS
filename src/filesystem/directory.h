@@ -26,11 +26,11 @@ public:
 	uint32_t size();
 
 	/**
-	 * @brief Sterilizes the directory into a stream as bytes 
+	 * @brief serializes the directory into a stream as bytes 
 	 * 
 	 * @param stream the output stream
 	 */
-	void sterilize(std::ostream& stream);
+	void serialize(std::ostream& stream);
 	
 	/**
 	 * @brief Creates an instance of a Directory from an FFS image
@@ -38,7 +38,7 @@ public:
 	 * @param stream the input stream for the FFS image
 	 * @return Directory the instanciated directory
 	 */
-	static Directory* desterilize(std::istream& stream);
+	static Directory* deserialize(std::istream& stream);
 
 	/**
 	 * @brief Get the content of the directory
