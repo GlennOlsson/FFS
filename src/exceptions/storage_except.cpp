@@ -16,7 +16,7 @@ FFS::FileAlreadyExists::FileAlreadyExists(std::string name) :
 {}
 
 FFS::NoFileWithInode::NoFileWithInode(FFS::inode_id i) : 
-    FFS::StorageException("There is no file with inode if " + std::to_string(i))
+    FFS::StorageException("There is no file with inode " + std::to_string(i))
 {};
 
 FFS::BadFFSPath::BadFFSPath(std::string path, std::string bad_part) : 
