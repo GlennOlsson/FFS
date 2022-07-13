@@ -36,4 +36,7 @@ namespace FFS::Storage {
 
 	std::shared_ptr<Magick::Blob> get_file(post_id id);
 	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> get_file(std::shared_ptr<std::vector<post_id>> ids);
+
+	// Remove the blocks from the storage media
+	void remove_blocks(std::vector<FFS::post_id>& blocks);
 };

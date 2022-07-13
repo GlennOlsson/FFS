@@ -16,6 +16,8 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <thread>
+#include <exception>
 
 // Expected in the form 
 //  	foo/bar/fizz[ext]
@@ -151,13 +153,14 @@ std::shared_ptr<FFS::InodeEntry> FFS::FS::entry(std::string path) {
 	return inode_entry;
 }
 
-std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>> FFS::FS::parent_entry(std::string path) {
+std::shared_ptr<std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>> FFS::FS::parent_entry(std::string path) {
 	auto table = FFS::State::get_inode_table();
 
 	if(path == "/") {
 		auto blobs = FFS::Storage::get_file(table->entry(FFS_ROOT_INODE)->post_blocks);
 
-		return std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>(FFS_ROOT_INODE, FFS::Storage::dir_from_blobs(blobs));
+		return std::make_shared<std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>>
+			(FFS_ROOT_INODE, FFS::Storage::dir_from_blobs(blobs));
 	}
 	
 	remove_trailing_slash(path);
@@ -165,7 +168,8 @@ std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>> FFS::FS::parent_entry(
 	auto traverser = traverse_path(path);
 	// Don't verify that it's in, doesn't have to (eg. ffs_rename)
 
-	return std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>(traverser->parent_inode, traverser->parent_dir);
+	return std::make_shared<std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>>
+		(traverser->parent_inode, traverser->parent_dir);
 }
 
 std::string FFS::FS::filename(std::string path) {
@@ -235,6 +239,11 @@ void FFS::FS::remove(std::string path) {
 	FFS::Storage::update(*parent_dir, parent_inode);
 	
 	auto table = FFS::State::get_inode_table();
+	
+	// remove from storage device
+	auto blocks = *table->entry(inode)->post_blocks;
+	FFS::Storage::remove_blocks(blocks);
+
 	table->remove_entry(inode);
 }
 
@@ -246,10 +255,26 @@ bool FFS::FS::exists(std::string path) {
 	
 	try {
 		auto traverser = traverse_path(path);
+		if(traverser->parent_dir->entries->count(traverser->filename) == 0) {
+			std::cerr << "Path does not exist \"" << path << "\" (" << traverser->filename.size() << "), files in parent: " << std::endl;
+			for(auto e: *traverser->parent_dir->entries) {
+				std::cerr << "\t\"" << e.first << "\" (" << e.first.size() << ")\n";
+				std::cerr << "\t\t";
+				for(char c: e.first) {
+					std::cerr << ((unsigned int) c) << " ";
+				}
+				std::cerr << std::endl;
+			}
+		}
 		return traverser->parent_dir->entries->count(traverser->filename) > 0;
 	} catch(FFS::BadFFSPath) {
+		std::cerr << "BAD FILE " << path << "\"" << std::endl;
 		return false;
 	} catch(FFS::NoFileWithName) { // Thrown if parent dir does not exist
+		std::cerr << "NO FILE WITH NAME \"" << path << "\""<< std::endl;
+		return false;
+	} catch(std::exception& e) {
+		std::cerr << "General exception for path \"" << path << "\"" << std::endl << e.what() << std::endl;
 		return false;
 	}
 }

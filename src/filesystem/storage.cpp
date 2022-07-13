@@ -12,6 +12,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <filesystem>
 
 std::string path_of(FFS::post_id id) {
 	std::stringstream path_stream;
@@ -67,6 +68,8 @@ void FFS::Storage::update(FFS::Directory& dir, FFS::inode_id inode_id) {
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
 
+	// remove old dir from storage device
+	FFS::Storage::remove_blocks(*inode_entry->post_blocks);
 	inode_entry->post_blocks = new_post_ids;
 
 	FFS::State::save_table();
@@ -127,4 +130,11 @@ std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_fi
 		v->push_back(get_file(id));
 	}
 	return v;
+}
+
+void FFS::Storage::remove_blocks(std::vector<FFS::post_id>& blocks) {
+	for(auto block: blocks) {
+		auto path = path_of(block);
+		std::filesystem::remove(path);
+	}
 }
