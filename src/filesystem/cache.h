@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <Magick++.h>
-#include <ostream>
+#include <istream>
 
 // How many files and directories are cached by the system
 #define FILE_CACHE_SIZE 10
@@ -19,13 +19,13 @@
 // Biggest possible cache, in megabytes
 #define CACHE_SIZE (MAX_CACHE_SIZE * (FILE_CACHE_SIZE + DIRECTORY_CACHE_SIZE))
 
-namespace FFS {
+namespace FFS::Cache {
 	// File cache
 
 	// Cache a file, and invalidate old cache for inode
-	void cache(FFS::inode_id, std::shared_ptr<std::ostream>);
+	void cache(FFS::inode_id, std::shared_ptr<std::istream>);
 	// Try to get the cache of a file. If not in cache, nullptr is returned
-	std::shared_ptr<std::ostream> get_file(FFS::inode_id);
+	std::shared_ptr<std::istream> get_file(FFS::inode_id);
 
 	// Directory cache
 

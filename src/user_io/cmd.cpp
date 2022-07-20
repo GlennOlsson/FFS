@@ -32,7 +32,7 @@ void save() {
 		cout << "Enter FFS path name: ";
 		cin >> save_path;
 
-		ifstream i_file(src_path);
+		auto i_file = std::make_shared<std::ifstream>(src_path);
 		try {
 			FFS::FS::create_file(save_path, i_file);
 			cout << "Saved file" << endl;

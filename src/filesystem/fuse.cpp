@@ -136,7 +136,8 @@ static int ffs_write(const char* c_path, const char* buf, size_t size, off_t off
 	}
 
 	FFS::FS::remove(path);
-	FFS::FS::create_file(path, new_stream);
+	auto ptr = std::make_shared<std::istream>(new_stream.rdbuf());
+	FFS::FS::create_file(path, ptr);
 
 	return size;
 }
@@ -150,7 +151,8 @@ int ffs_create(const char* c_path, mode_t mode, struct fuse_file_info* fi) {
 	std::stringbuf buf;
 	std::istream empty_stream(&buf);
 
-	FFS::FS::create_file(path, empty_stream);
+	auto ptr = std::make_shared<std::istream>(&buf);
+	FFS::FS::create_file(path, ptr);
 
 	return 0;
 }
@@ -222,13 +224,13 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	auto inode = parent_from->second->remove_entry(filename_from);
 
-	FFS::Storage::update(*parent_from->second, parent_from->first);
+	FFS::Storage::update(parent_from->second, parent_from->first);
 
 	auto parent_to = FFS::FS::parent_entry(to);
 	parent_to->second->add_entry(filename_to, inode);
 
 	// If the parent is same, update will be cached, don't worry about that here
-	FFS::Storage::update(*parent_to->second, parent_to->first);
+	FFS::Storage::update(parent_to->second, parent_to->first);
 
 	return 0;
 }
@@ -256,7 +258,9 @@ static int ffs_truncate(const char* c_path, off_t size) {
 	}
 
 	FFS::FS::remove(path);
-	FFS::FS::create_file(path, new_stream);
+
+	auto ptr = std::make_shared<std::istream>(new_stream.rdbuf());
+	FFS::FS::create_file(path, ptr);
 
 	return size;
 }

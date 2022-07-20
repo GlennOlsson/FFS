@@ -58,11 +58,13 @@ std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blobs(std::shared_ptr
 }
 
 FFS::inode_id FFS::Storage::upload(std::shared_ptr<Directory> dir) {
-	return FFS::Storage::upload_and_save_file(FFS::Storage::blobs(*dir), dir->size(), true);
+	auto inode = FFS::Storage::upload_and_save_file(FFS::Storage::blobs(*dir), dir->size(), true);
+
+	return inode;
 }
 
-void FFS::Storage::update(FFS::Directory& dir, FFS::inode_id inode_id) {
-	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(dir));
+void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id inode_id) {
+	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
 

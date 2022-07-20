@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 /* The filesystem for testing is defined as:
     /
@@ -60,17 +61,14 @@ void init_fs() {
 // Create files used in fs
 void create_files() {
     // use one stream to save memory
-    std::ifstream* stream = new std::ifstream(TEST_FILE_TXT);
-    FFS::FS::create_file(TEST_PATH_TXT, *stream);
-    delete stream;
+    auto stream = std::make_shared<std::ifstream>(TEST_FILE_TXT);
+    FFS::FS::create_file(TEST_PATH_TXT, stream);
     
-    stream = new std::ifstream(TEST_FILE_PDF);
-    FFS::FS::create_file(TEST_PATH_PDF, *stream);
-    delete stream;
+    stream = std::make_shared<std::ifstream>(TEST_FILE_PDF);
+    FFS::FS::create_file(TEST_PATH_PDF, stream);
 
-    stream = new std::ifstream(TEST_FILE_MOV);
-    FFS::FS::create_file(TEST_PATH_MOV, *stream);
-    delete stream;
+    stream = std::make_shared<std::ifstream>(TEST_FILE_MOV);
+    FFS::FS::create_file(TEST_PATH_MOV, stream);
 }
 
 bool streams_eq(std::basic_istream<char>& a, std::basic_istream<char>& b) {
@@ -188,7 +186,7 @@ TEST_CASE("Creating file or dir already existing throws", "[fs]") {
 
     // Create existing file
     try {
-        std::ifstream stream(TEST_FILE_TXT);
+        auto stream = std::make_shared<std::ifstream>(TEST_FILE_TXT);
         FFS::FS::create_file(TEST_PATH_TXT, stream);
         FAIL("Did not throw when creating file");
     } catch(FFS::FileAlreadyExists) {}
@@ -207,7 +205,7 @@ TEST_CASE("Creating file or dir already existing throws", "[fs]") {
 
     // Create file on existing dir location
     try {
-        std::ifstream stream(TEST_FILE_TXT);
+        auto stream = std::make_shared<std::ifstream>(TEST_FILE_TXT);
         FFS::FS::create_file(TEST_PATH_DIR_LEVEL_1, stream);
         FAIL("Did not throw when creating file on existing dir location");
     } catch(FFS::FileAlreadyExists) {}

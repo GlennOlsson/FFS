@@ -14,9 +14,6 @@ namespace FFS::FS {
     // Writes to the stream with the content of the file at path. Throws NoFileWithName if path does not exist
     void read_file(std::string, std::ostream&);
 
-    // Get the inode entry of a file or directory
-    std::shared_ptr<InodeEntry> entry(std::string);
-
     // Get the inode and directory entity of the parent directory of a file or directory
     std::shared_ptr<std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>> parent_entry(std::string);
 
@@ -27,7 +24,7 @@ namespace FFS::FS {
     void create_dir(std::string);
     
     // Create a file at path, with content of stream. Throws NoFileWithName if path up until file does not exist
-    void create_file(std::string, std::istream&);
+    void create_file(std::string, std::shared_ptr<std::istream>);
 
     // Remove file or directory at path. Throws NoFileWithName if path does not exist
     void remove(std::string);
@@ -37,6 +34,11 @@ namespace FFS::FS {
 
     // Is the entry at path a dir. If false it is a file. Throws NoFileWithName if path does not exist
     bool is_dir(std::string);
+
+    // Get the inode entry from an inode
+    std::shared_ptr<FFS::InodeEntry> entry(FFS::inode_id inode);
+    // Get the inode entry from a path
+    std::shared_ptr<FFS::InodeEntry> entry(std::string path);
 }
 
 #endif
