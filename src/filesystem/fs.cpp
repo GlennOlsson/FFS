@@ -192,7 +192,6 @@ void FFS::FS::create_dir(std::string path) {
 	auto traverser = traverse_path(path);
 	verify_not_in(traverser);
 
-
 	auto dir_name = traverser->filename;
     auto parent_dir = traverser->parent_dir;
 	auto parent_inode = traverser->parent_inode;
@@ -255,17 +254,6 @@ bool FFS::FS::exists(std::string path) {
 	
 	try {
 		auto traverser = traverse_path(path);
-		if(traverser->parent_dir->entries->count(traverser->filename) == 0) {
-			std::cerr << "Path does not exist \"" << path << "\" (" << traverser->filename.size() << "), files in parent: " << std::endl;
-			for(auto e: *traverser->parent_dir->entries) {
-				std::cerr << "\t\"" << e.first << "\" (" << e.first.size() << ")\n";
-				std::cerr << "\t\t";
-				for(char c: e.first) {
-					std::cerr << ((unsigned int) c) << " ";
-				}
-				std::cerr << std::endl;
-			}
-		}
 		return traverser->parent_dir->entries->count(traverser->filename) > 0;
 	} catch(FFS::BadFFSPath) {
 		std::cerr << "BAD FILE " << path << "\"" << std::endl;

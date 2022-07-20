@@ -38,6 +38,7 @@ std::size_t replace_all(std::string& inout, std::string_view what, std::string_v
 std::string sanitize_path(const char* c_path) {
 	std::string str(c_path);
 	replace_all(str, "\\ ", " ");
+	replace_all(str, "ö", "ö"); // force replace special ö inserted my macos
 
 	return str;
 }
@@ -46,7 +47,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	auto path = sanitize_path(c_path);
 
 	if(!FFS::FS::exists(path))
-		return std::cerr << "PATH NOT EXISTS \"" << path << "\"" << std::endl, -ENOENT;
+		return -ENOENT;
 
 	auto entry = FFS::FS::entry(path);
 	if(entry->is_dir) {
@@ -70,8 +71,6 @@ static int ffs_fgetattr(const char* c_path, struct stat* stat_struct, struct fus
 
 static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
 	auto path = sanitize_path(c_path);
-	
-	std::cout << "read dir " << path << std::endl;
 
 	auto dir = FFS::FS::read_dir(path);
 	filler(buf, ".", NULL, 0);
@@ -158,13 +157,11 @@ int ffs_create(const char* c_path, mode_t mode, struct fuse_file_info* fi) {
 
 int ffs_mkdir(const char* c_path, mode_t mode) {
 	auto path = sanitize_path(c_path);
-	std::cerr << "mkdir " << path << std::endl; 
 	
 	if(FFS::FS::exists(path))
 		return -EACCES;
 	
 	FFS::FS::create_dir(path);
-	std::cerr << "created " << path << std::endl;
 
 	return 0;
 }
@@ -204,15 +201,12 @@ static int ffs_rmdir(const char * c_path) {
 
 static int ffs_rename(const char* c_from, const char* c_to) {
 	auto from = sanitize_path(c_from);
-	std::cerr << "rename from " << c_from << std::endl;
 
 	if(!FFS::FS::exists(from))
-		return std::cerr << "rename from does not exist " << from << std::endl, -ENOENT;
+		return -ENOENT;
 
 	auto to = sanitize_path(c_to);
 	auto filename_to = FFS::FS::filename(to);
-	std::cerr << "rename to " << to << ", filname " << filename_to << std::endl;
-	// remove filename, and the / before
 
 	// Remove /filename from to_path, as we need to make sure the path before exists
 	auto offset = to.rfind(filename_to);
@@ -221,22 +215,20 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	auto to_parent = to.substr(0, offset);
 
 	if(!FFS::FS::exists(to_parent))
-		return std::cerr << "to parent does not exist " << to_parent << std::endl, -ENOENT;
+		return -ENOENT;
 
 	auto parent_from = FFS::FS::parent_entry(from);
 	auto filename_from = FFS::FS::filename(from);
 
 	auto inode = parent_from->second->remove_entry(filename_from);
 
+	FFS::Storage::update(*parent_from->second, parent_from->first);
+
 	auto parent_to = FFS::FS::parent_entry(to);
 	parent_to->second->add_entry(filename_to, inode);
 
-	FFS::Storage::update(*parent_from->second, parent_from->first);
-	// Only need to update the dir once if they are the same
-	if(parent_from->first != parent_to->first)
-		FFS::Storage::update(*parent_to->second, parent_to->first);
-
-	std::cerr << "renamed " << from << " to " << to << std::endl;
+	// If the parent is same, update will be cached, don't worry about that here
+	FFS::Storage::update(*parent_to->second, parent_to->first);
 
 	return 0;
 }
@@ -277,12 +269,12 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 /*
 	unsigned long	f_bsize;	// File system block size
 	unsigned long	f_frsize;	// Fundamental file system block size
-	fsblkcnt_t	f_blocks;	// Blocks on FS in units of f_frsize
-	fsblkcnt_t	f_bfree;	// Free blocks
-	fsblkcnt_t	f_bavail;	// Blocks available to non-root
-	fsfilcnt_t	f_files;	// Total inodes
-	fsfilcnt_t	f_ffree;	// Free inodes
-	fsfilcnt_t	f_favail;	// Free inodes for non-root
+	fsblkcnt_t		f_blocks;	// Blocks on FS in units of f_frsize
+	fsblkcnt_t		f_bfree;	// Free blocks
+	fsblkcnt_t		f_bavail;	// Blocks available to non-root
+	fsfilcnt_t		f_files;	// Total inodes
+	fsfilcnt_t		f_ffree;	// Free inodes
+	fsfilcnt_t		f_favail;	// Free inodes for non-root
 	unsigned long	f_fsid;		// Filesystem ID
 	unsigned long	f_flag;		// Bit mask of values
 	unsigned long	f_namemax;	// Max file name length

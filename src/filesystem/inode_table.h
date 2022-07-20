@@ -10,18 +10,30 @@
 
 namespace FFS {
 
+/**
+* @brief Describes and entry in the inode table, representing a file or directory
+*/
 class InodeEntry {
 public:
-	//TODO: add more metadata
-	// Total file length
+	/**
+	* @brief The size of the file (not used for directories) 
+	*/
 	uint32_t length;
+
+	/**
+	* @brief True if the entry describes a directory, false if it describes a file
+	*/
 	uint8_t is_dir;
 	
+	/**
+	* @brief A list representing the posts of the file or directory. 
+	*/
+	std::shared_ptr<std::vector<post_id>> post_blocks;
+
 	InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id>> post_blocks, uint8_t is_dir);
 	InodeEntry(uint32_t length, post_id post, uint8_t is_dir);
 	~InodeEntry();
 
-	std::shared_ptr<std::vector<post_id>> post_blocks;
 	
 	/**
 	 * @brief Returns the size of the object in terms of bytes
@@ -56,9 +68,15 @@ public:
 
 	friend class InodeTable;
 };
+
+/**
+* @brief Describes the inode table of the filesystem. The table consists of multiple inode entries
+*/
 class InodeTable {
 public:
-	// Inode -> Inode Entry
+	/**
+	* @brief Map of (inode id, Inode entry) describing the content of the inode table
+	*/
 	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> entries;
 
 	InodeTable(std::shared_ptr<std::map<inode_id,  std::shared_ptr<InodeEntry>>> entries);

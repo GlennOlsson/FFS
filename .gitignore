@@ -3,3 +3,4 @@ out.nosync
 **/*.DS_Store
 *.out
 ffs
+.vscode

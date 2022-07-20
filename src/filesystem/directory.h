@@ -9,11 +9,14 @@
 #include <memory>
 
 namespace FFS {
+/**
+* @brief Describes a directory in FFS. Keeps track of the filename and inode of each file
+*/
 class Directory {
 public:
 	/**
-	 * @brief Map of (filename, inode id) describing the content of the directory. The filename is limited to 255 characters
-	 */
+	* @brief Map of (filename, inode id) describing the content of the directory
+	*/
 	std::shared_ptr<std::map<std::string, inode_id>> entries;
 
 	Directory(std::shared_ptr<std::map<std::string, inode_id>> entries);
