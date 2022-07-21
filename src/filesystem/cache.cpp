@@ -1,6 +1,7 @@
 #include "cache.h"
 
 #include "../helpers/types.h"
+#include "../helpers/constants.h"
 
 #include <memory>
 #include <Magick++.h>
@@ -15,6 +16,8 @@
 std::map<FFS::inode_id, std::shared_ptr<FFS::Directory>> dir_cache;
 // Keeps track of the order the directory were added in, i.e. which should be removed if the cache is full
 inode_queue_t dir_cache_queue;
+
+std::shared_ptr<FFS::Directory> root_dir = nullptr;
 
 std::map<FFS::inode_id, std::shared_ptr<std::istream>> file_cache;
 // Keeps track of the order the files were added in, i.e. which should be removed if the cache is full
@@ -34,6 +37,12 @@ void remove_if_in(inode_queue_t& queue, FFS::inode_id inode) {
 // --- DIR --- 
 
 void FFS::Cache::cache(FFS::inode_id inode, std::shared_ptr<FFS::Directory> dir) {
+	// if inode is root, cache as root instead
+	if(inode == FFS_ROOT_INODE) {
+		cache_root(dir);
+		return;
+	}
+
 	auto insert_result = dir_cache.insert_or_assign(inode, dir);
 	// If false, means that it was assigned, i.e. inode already existed before. Could be in cache
 	if(!insert_result.second) {
@@ -52,10 +61,25 @@ void FFS::Cache::cache(FFS::inode_id inode, std::shared_ptr<FFS::Directory> dir)
 }
 
 std::shared_ptr<FFS::Directory> FFS::Cache::get_dir(FFS::inode_id inode) {
+	if(inode == FFS_ROOT_INODE)
+		return get_root();
+
 	// would preferably put this inode in the beginning of the queue as it was used,
 	// but with list it will be pretty slow. TODO: can we use another container or
 	// can we use the slow list-operation? Probably faster than downloading from twitter anyway
 	return dir_cache.contains(inode) ? dir_cache.at(inode) : nullptr;
+}
+
+void FFS::Cache::cache_root(std::shared_ptr<FFS::Directory> root) {
+	root_dir = root;
+}
+
+std::shared_ptr<FFS::Directory> FFS::Cache::get_root() {
+	return root_dir;
+}
+
+void FFS::Cache::invalidate_root() {
+	root_dir = nullptr;
 }
 
 // --- FILE ----
@@ -86,6 +110,10 @@ std::shared_ptr<std::istream> FFS::Cache::get_file(FFS::inode_id inode) {
 
 
 void FFS::Cache::invalidate(FFS::inode_id inode) {
+	if(inode == FFS_ROOT_INODE) {
+		invalidate_root();
+		return;
+	}
 	// Doesn't matter if the inode is a dir or a file, nothing throws
 	remove_if_in(dir_cache_queue, inode);
 	remove_if_in(file_cache_queue, inode);

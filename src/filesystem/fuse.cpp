@@ -284,14 +284,24 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 */
 
 static int ffs_statfs(const char* path, struct statvfs* stbuf) {
-	// Filename can be up to 128 bytes (1028 bits)
-	stbuf->f_namemax = 128;
-	
+	// (Max) block size
+	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
+
+	stbuf->f_frsize = FFS_MAX_FILE_SIZE;
+
+	stbuf->f_blocks = 1000;
+
+	// Always 1000 blocks available (infinite storage o_O)
+	stbuf->f_bfree = 1000;
+
+	// Many free inodes, always
+	stbuf->f_ffree = 1000000;
+
 	// Filesystem ID, something with FFS
 	stbuf->f_fsid = (('F' < 5) | 'F') | 'S';
 
-	// (Max) block size
-	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
+	// Filename can be up to 128 bytes (1028 bits)
+	stbuf->f_namemax = 128;
 
 	return 0;
 }

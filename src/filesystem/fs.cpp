@@ -58,12 +58,20 @@ struct Traverser {
 };
 
 std::shared_ptr<FFS::Directory> get_root_dir() {
+	auto cached_root = FFS::Cache::get_root();
+	if(cached_root != nullptr)
+		return cached_root;
+
 	auto table = FFS::State::get_inode_table();
 	// Root dir entry
 	auto dir_entry = table->entry(FFS_ROOT_INODE);
+
 	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
 
 	auto dir = FFS::Storage::dir_from_blobs(blobs);
+
+	FFS::Cache::cache(FFS_ROOT_INODE, dir);
+
 	return dir;
 }
 
