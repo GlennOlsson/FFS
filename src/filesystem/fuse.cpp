@@ -23,7 +23,7 @@
 #define PERM_OWNER (S_IRWXU)
 #define PERM_GROUP (S_IRWXG)
 #define PERM_OTHER (S_IRWXO)
-#define FILE_PERMISSIONS ( PERM_OWNER | PERM_GROUP | PERM_OTHER )
+#define FULL_PERMISSIONS ( PERM_OWNER | PERM_GROUP | PERM_OTHER )
 
 std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with) {
     std::size_t count{};
@@ -54,10 +54,10 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		auto blobs = FFS::Storage::get_file(entry->post_blocks);
 		auto dir = FFS::Storage::dir_from_blobs(blobs);
 
-		stat_struct->st_mode = S_IFDIR | FILE_PERMISSIONS;
+		stat_struct->st_mode = S_IFDIR | FULL_PERMISSIONS;
 		stat_struct->st_nlink = 2 + dir->entries->size(); // ., .. and all entries
 	} else {
-		stat_struct->st_mode = S_IFREG | FILE_PERMISSIONS;
+		stat_struct->st_mode = S_IFREG | FULL_PERMISSIONS;
 
 		stat_struct->st_nlink = 1;
 		stat_struct->st_size = entry->length;

@@ -2,6 +2,7 @@
 
 #include "../src/filesystem/fs.h"
 #include "../src/filesystem/directory.h"
+#include "../src/filesystem/cache.h"
 
 #include "../src/helpers/constants.h"
 
@@ -44,6 +45,8 @@
 void clear_fs() {
     std::filesystem::remove_all(TEST_PATH_ROOT);
     std::filesystem::create_directory(TEST_PATH_ROOT);
+
+    FFS::Cache::clear_cache();
 }
 
 // Setup fs with files and directories created. Does not create files
