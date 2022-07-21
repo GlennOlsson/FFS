@@ -224,12 +224,11 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	auto inode = parent_from->second->remove_entry(filename_from);
 
-	FFS::Storage::update(parent_from->second, parent_from->first);
-
 	auto parent_to = FFS::FS::parent_entry(to);
 	parent_to->second->add_entry(filename_to, inode);
 
 	// If the parent is same, update will be cached, don't worry about that here
+	FFS::Storage::update(parent_from->second, parent_from->first);
 	FFS::Storage::update(parent_to->second, parent_to->first);
 
 	return 0;

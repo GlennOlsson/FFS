@@ -168,7 +168,12 @@ std::shared_ptr<FFS::Directory> FFS::FS::read_dir(std::string path) {
 
     auto inode_entry = entry(inode);
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
-    return FFS::Storage::dir_from_blobs(blobs);
+	
+	auto dir = FFS::Storage::dir_from_blobs(blobs);
+    
+	FFS::Cache::cache(inode, dir);
+	
+	return dir;
 }
 
 void FFS::FS::read_file(std::string path, std::ostream& stream) {
@@ -184,7 +189,15 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
 	auto inode_entry = entry(inode);
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 
-	FFS::decode(blobs, stream);
+	std::stringbuf buf;
+	auto iostream = std::make_shared<std::iostream>(&buf);
+
+	FFS::decode(blobs, *iostream);
+
+	stream << iostream->rdbuf();
+	
+	iostream->seekg(0);
+	FFS::Cache::cache(inode, iostream);
 }
 
 std::shared_ptr<std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>> FFS::FS::parent_entry(std::string path) {
@@ -232,9 +245,11 @@ void FFS::FS::create_dir(std::string path) {
 
 	auto dir = std::make_shared<Directory>();
 	auto inode = FFS::Storage::upload(dir);
+
 	parent_dir->add_entry(dir_name, inode);
 	FFS::Storage::update(parent_dir, parent_inode);
 
+	FFS::Cache::cache(parent_inode, parent_dir);
 	FFS::Cache::cache(inode, dir);
 }
 
@@ -257,6 +272,7 @@ void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream
 
 	// Save new content of parent dir
 	FFS::Storage::update(parent_dir, parent_inode);
+	FFS::Cache::invalidate(parent_inode);
 
 	FFS::Cache::cache(inode_id, stream);
 }
@@ -274,6 +290,7 @@ void FFS::FS::remove(std::string path) {
 	auto inode = parent_dir->remove_entry(filename);
 
 	FFS::Storage::update(parent_dir, parent_inode);
+	FFS::Cache::cache(parent_inode, parent_dir);
 	
 	auto table = FFS::State::get_inode_table();
 	

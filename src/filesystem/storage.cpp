@@ -1,6 +1,7 @@
 #include "storage.h"
 
 #include "file_coder.h"
+#include "cache.h"
 
 #include "../helpers/types.h"
 #include "../helpers/functions.h"
@@ -13,6 +14,8 @@
 #include <string>
 #include <sstream>
 #include <filesystem>
+#include <chrono>
+#include <thread>
 
 std::string path_of(FFS::post_id id) {
 	std::stringstream path_stream;
@@ -64,6 +67,8 @@ FFS::inode_id FFS::Storage::upload(std::shared_ptr<Directory> dir) {
 }
 
 void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id inode_id) {
+	FFS::Cache::invalidate(inode_id);
+
 	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
@@ -72,6 +77,7 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id ino
 	FFS::Storage::remove_blocks(*inode_entry->post_blocks);
 	inode_entry->post_blocks = new_post_ids;
 
+	FFS::Cache::cache(inode_id, dir);
 	FFS::State::save_table();
 }
 
@@ -119,6 +125,9 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 
 	auto blob = std::make_shared<Magick::Blob>();
 	img.write(blob.get());
+
+	// Simulate time to fetch from online service
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	return blob;
 }

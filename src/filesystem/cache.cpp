@@ -8,6 +8,7 @@
 #include <map>
 #include <list>
 #include <iterator>
+#include <iostream>
 
 #define inode_queue_t std::list<FFS::inode_id>
 
@@ -43,8 +44,11 @@ void FFS::Cache::cache(FFS::inode_id inode, std::shared_ptr<FFS::Directory> dir)
 	dir_cache_queue.push_front(inode);
 
 	// If queue is now full (should max be SIZE + 1), remove last element
-	if(dir_cache_queue.size() > DIRECTORY_CACHE_SIZE)
+	if(dir_cache_queue.size() > DIRECTORY_CACHE_SIZE) {
+		auto rm_inode = dir_cache_queue.back();
+		dir_cache.erase(rm_inode);
 		dir_cache_queue.pop_back();
+	}
 }
 
 std::shared_ptr<FFS::Directory> FFS::Cache::get_dir(FFS::inode_id inode) {
@@ -68,8 +72,11 @@ void FFS::Cache::cache(FFS::inode_id inode, std::shared_ptr<std::istream> file) 
 	file_cache_queue.push_front(inode);
 
 	// If queue is now full (should max be SIZE + 1), remove last element
-	if(file_cache_queue.size() > FILE_CACHE_SIZE)
+	if(file_cache_queue.size() > FILE_CACHE_SIZE) {
+		auto rm_inode = file_cache_queue.back();
+		file_cache.erase(rm_inode);
 		file_cache_queue.pop_back();
+	}
 }
 
 std::shared_ptr<std::istream> FFS::Cache::get_file(FFS::inode_id inode) {
