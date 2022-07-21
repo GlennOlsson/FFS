@@ -11,63 +11,23 @@
 #include <iterator>
 #include <iostream>
 
-#define inode_queue_t std::list<FFS::inode_id>
-
-std::map<FFS::inode_id, std::shared_ptr<FFS::Directory>> dir_cache;
-// Keeps track of the order the directory were added in, i.e. which should be removed if the cache is full
-inode_queue_t dir_cache_queue;
-
 std::shared_ptr<FFS::Directory> root_dir = nullptr;
 
-std::map<FFS::inode_id, std::shared_ptr<std::istream>> file_cache;
-// Keeps track of the order the files were added in, i.e. which should be removed if the cache is full
-inode_queue_t file_cache_queue;
+std::map<FFS::post_id, std::shared_ptr<Magick::Blob>> post_cache;
+// Keeps track of the order the post were added in, i.e. which should be removed if the cache is full
+std::list<FFS::post_id> post_cache_queue;
 
-void remove_if_in(inode_queue_t& queue, FFS::inode_id inode) {
+
+template<class T>
+void remove_if_in(std::list<T>& queue, T elem) {
 	auto it = queue.begin();
 	while(it != queue.end()) {
-		if(*it == inode) {
+		if(*it == elem) {
 			queue.erase(it);
 			return;
 		}
 		++it;
 	}
-}
-
-// --- DIR --- 
-
-void FFS::Cache::cache(FFS::inode_id inode, std::shared_ptr<FFS::Directory> dir) {
-	// if inode is root, cache as root instead
-	if(inode == FFS_ROOT_INODE) {
-		cache_root(dir);
-		return;
-	}
-
-	auto insert_result = dir_cache.insert_or_assign(inode, dir);
-	// If false, means that it was assigned, i.e. inode already existed before. Could be in cache
-	if(!insert_result.second) {
-		remove_if_in(dir_cache_queue, inode);
-	}
-
-	// Add inode to beginning of queue
-	dir_cache_queue.push_front(inode);
-
-	// If queue is now full (should max be SIZE + 1), remove last element
-	if(dir_cache_queue.size() > DIRECTORY_CACHE_SIZE) {
-		auto rm_inode = dir_cache_queue.back();
-		dir_cache.erase(rm_inode);
-		dir_cache_queue.pop_back();
-	}
-}
-
-std::shared_ptr<FFS::Directory> FFS::Cache::get_dir(FFS::inode_id inode) {
-	if(inode == FFS_ROOT_INODE)
-		return get_root();
-
-	// would preferably put this inode in the beginning of the queue as it was used,
-	// but with list it will be pretty slow. TODO: can we use another container or
-	// can we use the slow list-operation? Probably faster than downloading from twitter anyway
-	return dir_cache.contains(inode) ? dir_cache.at(inode) : nullptr;
 }
 
 void FFS::Cache::cache_root(std::shared_ptr<FFS::Directory> root) {
@@ -82,42 +42,29 @@ void FFS::Cache::invalidate_root() {
 	root_dir = nullptr;
 }
 
-// --- FILE ----
-
-void FFS::Cache::cache(FFS::inode_id inode, std::shared_ptr<std::istream> file) {
-	file->seekg(0);
-	auto insert_result = file_cache.insert_or_assign(inode, file);
+void FFS::Cache::cache(FFS::post_id post_id, std::shared_ptr<Magick::Blob> blob) {
+	auto insert_result = post_cache.insert_or_assign(post_id, blob);
 	// If false, means that it was assigned, i.e. inode already existed before. Could be in cache
 	if(!insert_result.second) {
-		remove_if_in(file_cache_queue, inode);
+		remove_if_in(post_cache_queue, post_id);
 	}
 
 	// Add inode to beginning of queue
-	file_cache_queue.push_front(inode);
+	post_cache_queue.push_front(post_id);
 
 	// If queue is now full (should max be SIZE + 1), remove last element
-	if(file_cache_queue.size() > FILE_CACHE_SIZE) {
-		auto rm_inode = file_cache_queue.back();
-		file_cache.erase(rm_inode);
-		file_cache_queue.pop_back();
+	if(post_cache_queue.size() > 50) {
+		auto rm_inode = post_cache_queue.back();
+		post_cache.erase(rm_inode);
+		post_cache_queue.pop_back();
 	}
 }
 
-std::shared_ptr<std::istream> FFS::Cache::get_file(FFS::inode_id inode) {
-	// see comment under get_dir
-	return file_cache.contains(inode) ? file_cache.at(inode) : nullptr;
+std::shared_ptr<Magick::Blob> FFS::Cache::get(FFS::post_id post_id) {
+	return post_cache.contains(post_id) ? post_cache.at(post_id) : nullptr;
 }
 
-
-void FFS::Cache::invalidate(FFS::inode_id inode) {
-	if(inode == FFS_ROOT_INODE) {
-		invalidate_root();
-		return;
-	}
-	// Doesn't matter if the inode is a dir or a file, nothing throws
-	remove_if_in(dir_cache_queue, inode);
-	remove_if_in(file_cache_queue, inode);
-
-	dir_cache.erase(inode);
-	file_cache.erase(inode);
+void FFS::Cache::invalidate(FFS::post_id post_id) {
+	remove_if_in(post_cache_queue, post_id);
+	post_cache.erase(post_id);
 }

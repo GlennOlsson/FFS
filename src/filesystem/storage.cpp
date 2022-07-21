@@ -67,8 +67,6 @@ FFS::inode_id FFS::Storage::upload(std::shared_ptr<Directory> dir) {
 }
 
 void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id inode_id) {
-	FFS::Cache::invalidate(inode_id);
-
 	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
@@ -77,7 +75,6 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id ino
 	FFS::Storage::remove_blocks(*inode_entry->post_blocks);
 	inode_entry->post_blocks = new_post_ids;
 
-	FFS::Cache::cache(inode_id, dir);
 	FFS::State::save_table();
 }
 
@@ -86,6 +83,11 @@ void FFS::Storage::save_file(FFS::post_id id, std::shared_ptr<Magick::Blob> blob
 
 	Magick::Image img(*blob);
 	img.write(path);
+
+	FFS::Cache::cache(id, blob);
+
+	// Simulate time to save to online service
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 FFS::post_id _upload_file(std::shared_ptr<Magick::Blob> blob) {
@@ -120,6 +122,9 @@ std::shared_ptr<std::vector<FFS::post_id>> FFS::Storage::upload_file(std::shared
 }
 
 std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
+	if(FFS::Cache::get(id) != nullptr)
+		return FFS::Cache::get(id);
+
 	std::string path = path_of(id);
 	Magick::Image img(path);
 
@@ -128,6 +133,8 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 
 	// Simulate time to fetch from online service
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	FFS::Cache::cache(id, blob);
 
 	return blob;
 }
@@ -145,5 +152,6 @@ void FFS::Storage::remove_blocks(std::vector<FFS::post_id>& blocks) {
 	for(auto block: blocks) {
 		auto path = path_of(block);
 		std::filesystem::remove(path);
+		FFS::Cache::invalidate(block);
 	}
 }
