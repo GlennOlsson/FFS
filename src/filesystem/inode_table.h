@@ -7,6 +7,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <chrono>
 
 namespace FFS {
 
@@ -24,6 +25,13 @@ public:
 	* @brief True if the entry describes a directory, false if it describes a file
 	*/
 	uint8_t is_dir;
+
+	// When the file first was created
+	uint64_t time_created;
+	// When the file last was accessed
+	uint64_t time_accessed;
+	// When the file last was modified
+	uint64_t time_modified;
 	
 	/**
 	* @brief A list representing the posts of the file or directory. 

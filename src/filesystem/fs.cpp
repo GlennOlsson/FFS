@@ -311,3 +311,7 @@ bool FFS::FS::is_dir(std::string path) {
 
 	return entry->is_dir;
 }
+
+void FFS::FS::sync_inode_table() {
+	FFS::State::save_table();
+}

@@ -21,6 +21,7 @@
 #include <vector>
 #include <Magick++.h>
 #include <memory>
+#include <chrono>
 
 // Inode Entry...
 
@@ -28,6 +29,12 @@ FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id
 	this->length = length;
 	this->is_dir = is_dir;
 	this->post_blocks = std::move(post_blocks);
+
+	// Just created, so set as current time
+	auto now = std::chrono::system_clock::now().time_since_epoch();
+	this->time_created = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+	this->time_accessed = this->time_created;
+	this->time_modified = this->time_created;
 }
 
 FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = false) {
@@ -35,6 +42,12 @@ FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = fals
 	this->is_dir = is_dir;
 	this->post_blocks = std::make_shared<std::vector<post_id>>();
 	this->post_blocks->push_back(post);
+
+	// Just created, so set as current time
+	auto now = std::chrono::system_clock::now().time_since_epoch();
+	this->time_created = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+	this->time_accessed = this->time_created;
+	this->time_modified = this->time_created;
 }
 
 FFS::InodeEntry::~InodeEntry() {
@@ -54,6 +67,10 @@ uint32_t FFS::InodeEntry::size() {
 void FFS::InodeEntry::serialize(std::ostream& stream) {
 	FFS::write_i(stream, this->length);
 	FFS::write_c(stream, this->is_dir);
+	FFS::write_l(stream, this->time_created);
+	FFS::write_l(stream, this->time_accessed);
+	FFS::write_l(stream, this->time_modified);
+
 	FFS::write_i(stream, this->post_blocks->size());
 	for (post_id entry : *post_blocks) {
 		FFS::write_l(stream, entry);
@@ -62,12 +79,16 @@ void FFS::InodeEntry::serialize(std::ostream& stream) {
 
 std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stream) {
 	uint32_t length, block_count;
+	uint64_t time_created, time_accessed, time_modified;
 	uint8_t is_dir;
 
 	FFS::read_i(stream, length);
 	FFS::read_c(stream, is_dir);
+	FFS::read_l(stream, time_created);
+	FFS::read_l(stream, time_accessed);
+	FFS::read_l(stream, time_modified);
+	
 	FFS::read_i(stream, block_count);
-
 	auto blocks = std::make_shared<std::vector<post_id>>();
 	while (block_count-- > 0) {
 		post_id l;
@@ -75,8 +96,14 @@ std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stre
 
 		blocks->push_back(l);
 	}
+
+	auto entry = std::make_shared<InodeEntry>(length, blocks, is_dir);
+
+	entry->time_created = time_created;
+	entry->time_accessed = time_accessed;
+	entry->time_modified = time_modified;
 	
-	return std::make_shared<InodeEntry>(length, blocks, is_dir);
+	return entry;
 }
 
 bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {

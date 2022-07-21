@@ -58,8 +58,18 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		stat_struct->st_nlink = 2 + dir->entries->size(); // ., .. and all entries
 	} else {
 		stat_struct->st_mode = S_IFREG | FILE_PERMISSIONS;
+
 		stat_struct->st_nlink = 1;
 		stat_struct->st_size = entry->length;
+
+		stat_struct->st_birthtimespec.tv_nsec = entry->time_created;
+		stat_struct->st_birthtimespec.tv_sec = entry->time_created / 1000;
+
+		stat_struct->st_atimespec.tv_nsec = entry->time_accessed;
+		stat_struct->st_atimespec.tv_sec = entry->time_accessed / 1000;
+
+		stat_struct->st_mtimespec.tv_nsec = entry->time_modified;
+		stat_struct->st_mtimespec.tv_sec = entry->time_modified / 1000;
 	}
 
 	return 0;
@@ -306,7 +316,8 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	return 0;
 }
 
-static int ffs_access(const char* path, int mask) {
+static int ffs_access(const char* c_path, int mask) {
+	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
 
@@ -315,6 +326,29 @@ static int ffs_access(const char* path, int mask) {
 
 static int ffs_flush(const char* path, struct fuse_file_info* fi) {
 	// Do nothing interesting, but don't return error
+	return 0;
+}
+
+static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
+	auto path = sanitize_path(c_path);
+	if(!FFS::FS::exists(path))
+		return -ENOENT;
+	
+	auto entry = FFS::FS::entry(path);
+
+	auto now = std::chrono::system_clock::now().time_since_epoch();
+	auto ms_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
+
+	auto new_access_time = ts[0].tv_nsec;
+	auto new_modified_time = ts[1].tv_nsec;
+
+	// Only update if value is greater than last time, but smaller than current time
+	if((new_access_time > entry->time_accessed) && (new_access_time <= ms_since_epoch))
+		entry->time_accessed = new_access_time;
+	
+	if((new_modified_time > entry->time_modified) && (new_modified_time <= ms_since_epoch))	
+		entry->time_modified = new_modified_time;
+
 	return 0;
 }
 
@@ -350,10 +384,6 @@ static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 	return -EPERM;
 }
 
-static int ffs_utimens(const char* path, const struct timespec ts[2]) {
-	std::cerr << "UNIMPLEMENTED: utimens" << std::endl;
-	return -EPERM;
-}
 
 //static int ffs_open(const char* path, struct fuse_file_info* fi) {
 //	std::cerr << "UNIMPLEMENTED: open" << std::endl;

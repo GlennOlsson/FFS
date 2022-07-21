@@ -39,6 +39,9 @@ namespace FFS::FS {
     std::shared_ptr<FFS::InodeEntry> entry(FFS::inode_id inode);
     // Get the inode entry from a path
     std::shared_ptr<FFS::InodeEntry> entry(std::string path);
+
+    // Save the current state of the inode table
+    void sync_inode_table();
 }
 
 #endif
