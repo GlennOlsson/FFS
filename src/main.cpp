@@ -7,6 +7,8 @@
 
 #include "user_io/cmd.h"
 
+// #include "api/curl.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -80,6 +82,10 @@ void fs_interact(int argc, char *argv[]){
 	interact();
 }
 
+void tweet() {
+	cout << "nah" << endl;
+}
+
 int main(int argc, char *argv[]) {
 
 	if(argc < 2) {
@@ -87,17 +93,21 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	// FFS::API::Curl::init();
+
 	std::string argument = argv[1];
 
-	if(argument == "encode") {
+	if(argument == "encode")
 		encode_main(argc - 1, ++argv);
-	} else if(argument == "decode") {
+	else if(argument == "decode")
 		decode_main(argc - 1, ++argv);
-	} else if(argument == "fs") {
+	else if(argument == "fs")
 		fs_interact(argc - 1, ++argv);
-	} else if(argument == "fuse") {
+	else if(argument == "fuse")
 		return FFS::FUSE::start(argc - 1, argv + 1);
-	} else {
+	else if(argument == "tweet")
+		tweet();
+	else {
 		cerr << "Argument not covered: " << argv[1] << endl;
 		return 1;
 	}

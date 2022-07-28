@@ -4,3 +4,4 @@ out.nosync
 *.out
 ffs
 .vscode
+src/secret.h
