@@ -12,7 +12,7 @@ test_dir := tests
 
 CC := g++
 
-files := src/*/*.cpp
+files := src/**/*.cpp
 test_files := $(test_dir)/*.cpp
 test_main := $(out_dir)/main_test.out
 

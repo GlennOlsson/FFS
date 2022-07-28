@@ -5,7 +5,7 @@
 #include <iostream>
 
 std::shared_ptr<FFS::InodeTable> FFS::State::inode_table = nullptr;
-FFS::post_id FFS::State::inode_table_id = 0;
+FFS::post_id FFS::State::inode_table_id = "0";
 
 std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {

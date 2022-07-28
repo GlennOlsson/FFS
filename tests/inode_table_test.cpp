@@ -29,7 +29,7 @@ std::shared_ptr<FFS::InodeTable> create_table(std::shared_ptr<std::map<uint32_t,
 
 		uint32_t rand_block_counts = FFS::random_int(1, 100);
 		for(uint32_t j = 0; j < rand_block_counts; j++) {
-			uint64_t rand_post_id = FFS::random_long();
+			auto rand_post_id = FFS::random_str(10);
 			
 			rand_blocks->push_back(rand_post_id);
 		}
