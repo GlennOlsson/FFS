@@ -57,4 +57,14 @@ public:
 	BadFFSPath(std::string path, std::string bad_part);
 };
 
+class RequestException: public FFS::Exception {
+public:
+	RequestException(std::string reason): FFS::Exception(reason){}
+};
+
+class BadHTTPStatusCode: public FFS::RequestException {
+public:
+	BadHTTPStatusCode(long code);
+};
+
 };

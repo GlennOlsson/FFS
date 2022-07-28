@@ -6,8 +6,7 @@
 #include <vector>
 #include <utility>
 
-// Post to url with params. Returns JSON root object of response body
-std::stringstream* post(std::string, std::string, std::vector<std::pair<std::string, std::string>> = {});
-std::stringstream* get(std::string, std::string="");
+std::stringstream* post(std::string url, std::string params="");
+std::stringstream* get(std::string url, std::string params="");
 
 #endif

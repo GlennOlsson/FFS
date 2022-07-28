@@ -8,53 +8,57 @@
 #include <string>
 #include <sstream>
 #include <utilspp/clone_ptr.hpp>
-#include <vector>
-#include <utility>
 
-std::stringstream* post(std::string base_url, std::string params, std::vector<std::pair<std::string, std::string>> forms_v) {
-	curlpp::Cleanup myCleanup;
-	curlpp::Easy request;
+#include "../exceptions/exceptions.h"
 
-	request.setOpt<curlpp::options::Url>(base_url + "?" + params);
+curlpp::Easy* create_request(std::string url, std::string params, std::stringstream* ss) {
+	auto request = new curlpp::Easy();
+
+	// If there are params, add to url
+	if(params.length() > 1) {
+		url += "?" + params;
+	}
+
+	request->setOpt<curlpp::options::Url>(url + "?" + params);
 	
+	request->setOpt<curlpp::options::WriteStream>(ss);
+
+	return request;
+}
+
+void assert_http_status(curlpp::Easy* request) {
+	long http_code;
+	curlpp::InfoGetter::get(*request, CURLINFO_RESPONSE_CODE, http_code);
+
+	if(http_code < 200 || http_code > 299)
+		throw FFS::BadHTTPStatusCode(http_code);
+}
+
+std::stringstream* post(std::string url, std::string params) {
+	curlpp::Cleanup cleanup;
 	auto ss = new std::stringstream();
-	request.setOpt<curlpp::options::WriteStream>(ss);
+
+	auto request = create_request(url, params, ss);
 
 	curlpp::Forms forms;
-	for(auto form_entry: forms_v) {
-		auto form = new curlpp::FormParts::Content(form_entry.first, form_entry.second);
-		forms.push_back(utilspp::clone_ptr<curlpp::FormPart>(form));
-	}
-	request.setOpt<curlpp::options::HttpPost>(forms);
+	request->setOpt<curlpp::options::HttpPost>(forms);
 
-	request.perform();
+	request->perform();
 
-	long http_code;
-	curlpp::InfoGetter::get(request, CURLINFO_RESPONSE_CODE, http_code);
-
-	std::cout << "got http code " << http_code << std::endl;
-	std::cout << "Full url: " << base_url + "?" + params << std::endl;
+	assert_http_status(request);
 
 	return ss;
 }
 
-std::stringstream* get(std::string base_url, std::string params) {
-	curlpp::Cleanup myCleanup;
-	curlpp::Easy request;
-
-	request.setOpt<curlpp::options::Url>(base_url + "?" + params);
-	
-	std::cout << "full url: " << (base_url + "?" + params) << std::endl;
-
+std::stringstream* get(std::string url, std::string params) {
+	curlpp::Cleanup cleanup;
 	auto ss = new std::stringstream();
-	request.setOpt<curlpp::options::WriteStream>(ss);
 
-	request.perform();
+	auto request = create_request(url, params, ss);
 
-	long http_code;
-	curlpp::InfoGetter::get(request, CURLINFO_RESPONSE_CODE, http_code);
+	request->perform();
 
-	std::cout << "status code: " << http_code << std::endl;
+	assert_http_status(request);
 
 	return ss;
 }
