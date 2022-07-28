@@ -51,8 +51,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 
 	auto entry = FFS::FS::entry(path);
 	if(entry->is_dir) {
-		auto blobs = FFS::Storage::get_file(entry->post_blocks);
-		auto dir = FFS::Storage::dir_from_blobs(blobs);
+		auto dir = FFS::FS::get_dir(entry);
 
 		stat_struct->st_mode = S_IFDIR | FULL_PERMISSIONS;
 		stat_struct->st_nlink = 2 + dir->entries->size(); // ., .. and all entries

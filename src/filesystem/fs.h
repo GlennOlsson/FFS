@@ -11,6 +11,9 @@
 namespace FFS::FS {
     // Return the directory at path. Throws NoFileWithName if path does not exist
     std::shared_ptr<FFS::Directory> read_dir(std::string);
+    // Return the directory with specified inode entry
+    std::shared_ptr<FFS::Directory> get_dir(std::shared_ptr<FFS::InodeEntry>);
+
     // Writes to the stream with the content of the file at path. Throws NoFileWithName if path does not exist
     void read_file(std::string, std::ostream&);
 

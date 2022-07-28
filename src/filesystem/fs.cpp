@@ -163,7 +163,11 @@ std::shared_ptr<FFS::Directory> FFS::FS::read_dir(std::string path) {
 	auto inode = inode_from_path(path);
 
     auto inode_entry = entry(inode);
-    auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+    return get_dir(inode_entry);
+}
+
+std::shared_ptr<FFS::Directory> FFS::FS::get_dir(std::shared_ptr<FFS::InodeEntry> inode_entry) {
+	 auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 	
 	auto dir = FFS::Storage::dir_from_blobs(blobs);
     
