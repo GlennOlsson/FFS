@@ -3,10 +3,11 @@
 
 #include <string>
 #include <sstream>
-#include <vector>
-#include <utility>
+#include <memory>
 
-std::stringstream* post(std::string url, std::string params="");
-std::stringstream* get(std::string url, std::string params="");
+namespace FFS::API::HTTP {
+	std::shared_ptr<std::stringstream> post(std::string url, std::string params="");
+	std::shared_ptr<std::stringstream> get(std::string url, std::string params="");
+}
 
 #endif
