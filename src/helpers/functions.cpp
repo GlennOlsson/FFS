@@ -55,7 +55,7 @@ void FFS::write_str(std::ostream& stream, std::string s) {
 
 void FFS::read_c(std::istream& stream, char& c) { 
 	stream.get(c);
-
+	
 	if(stream.rdstate() & std::ios_base::eofbit) {
 		throw FFS::UnexpectedEOF((uint64_t) stream.tellg() - 1);
 	}

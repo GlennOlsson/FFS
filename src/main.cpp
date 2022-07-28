@@ -1,6 +1,9 @@
 #include "filesystem/file_coder.h"
 #include "filesystem/inode_table.h"
+#include "filesystem/directory.h"
 #include "filesystem/fuse.h"
+
+#include "system/state.h"
 
 #include "helpers/constants.h"
 #include "helpers/functions.h"
@@ -93,7 +96,15 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	// FFS::API::Curl::init();
+	auto tmp_inode_table = std::make_shared<FFS::InodeTable>();
+
+	auto root_dir_entry = std::make_shared<FFS::InodeEntry>(4, "52247776175", true);
+	auto makefile_entry = std::make_shared<FFS::InodeEntry>(1274, "52247278006", false);
+
+	tmp_inode_table->entries->insert_or_assign(0, root_dir_entry);
+	tmp_inode_table->entries->insert_or_assign(1, makefile_entry);
+
+	FFS::State::inode_table = tmp_inode_table;
 
 	std::string argument = argv[1];
 

@@ -46,6 +46,8 @@ std::shared_ptr<std::stringstream> FFS::API::HTTP::post(std::string url, std::st
 
 	request->perform();
 
+	ss->flush();
+
 	assert_http_status(request);
 
 	return ss;
@@ -58,6 +60,8 @@ std::shared_ptr<std::stringstream> FFS::API::HTTP::get(std::string url, std::str
 	auto request = create_request(url, params, ss);
 
 	request->perform();
+
+	ss->flush();
 
 	assert_http_status(request);
 

@@ -9,6 +9,9 @@
 
 #include "../system/state.h"
 
+#include "../api/flickr.h"
+#include "../api/curl.h"
+
 #include <Magick++.h>
 #include <vector>
 #include <string>
@@ -125,14 +128,32 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 	if(FFS::Cache::get(id) != nullptr)
 		return FFS::Cache::get(id);
 
-	std::string path = path_of(id);
-	Magick::Image img(path);
+	auto source_url = FFS::API::Flickr::get_image(id);
+	auto file_stream = FFS::API::HTTP::get(source_url);
 
-	auto blob = std::make_shared<Magick::Blob>();
-	img.write(blob.get());
+	file_stream->seekg(0, file_stream->end);
+	// must be int so it can go under 0
+	auto length = file_stream->tellg();
+	file_stream->seekg(0, file_stream->beg);
 
-	// Simulate time to fetch from online service
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	int index = 0;
+	char* data = new char[length];
+	while(index < length) {
+		FFS::read_c(*file_stream, data[index++]);
+	}
+
+	auto blob = std::make_shared<Magick::Blob>(data, length);
+
+	delete[] data;
+
+	// std::string path = path_of(id);
+	// Magick::Image img(path);
+
+	// auto blob = std::make_shared<Magick::Blob>();
+	// img.write(blob.get());
+
+	// // Simulate time to fetch from online service
+	// std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	FFS::Cache::cache(id, blob);
 
@@ -140,7 +161,6 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 }
 
 std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_file(std::shared_ptr<std::vector<FFS::post_id>> ids) {
-	// TODO: Cache and check cache?
 	auto v = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 	for(auto id: *ids) {
 		v->push_back(get_file(id));
