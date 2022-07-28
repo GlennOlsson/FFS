@@ -57,14 +57,24 @@ public:
 	BadFFSPath(std::string path, std::string bad_part);
 };
 
-class RequestException: public FFS::Exception {
+class APIException: public FFS::Exception {
 public:
-	RequestException(std::string reason): FFS::Exception(reason){}
+	APIException(std::string reason): FFS::Exception(reason){}
 };
 
-class BadHTTPStatusCode: public FFS::RequestException {
+class BadHTTPStatusCode: public FFS::APIException {
 public:
 	BadHTTPStatusCode(long code);
+};
+
+class FlickrException: public FFS::APIException {
+public:
+	FlickrException(std::string reason): FFS::APIException(reason){}
+};
+
+class BadFlickrKeys: public FFS::FlickrException {
+public:
+	BadFlickrKeys(): FFS::FlickrException("Could not verify API keys"){}
 };
 
 };

@@ -11,6 +11,7 @@
 
 #include "../secret.h"
 #include "curl.h"
+#include "../exceptions/exceptions.h"
 
 // Should change if the keys don't work
 std::string oauth_key = FFS_FLICKR_ACCESS_TOKEN;
@@ -20,15 +21,22 @@ void assert_keys_ok(flickcurl* fc) {
 	// get user of keys
 	auto user = std::string(flickcurl_test_login(fc));
 	if(user != std::string(FFS_FLICKR_USER)) {
-		throw std::runtime_error("User does not match! Response: " + user);
+		throw FFS::BadFlickrKeys();
 	}
+}
+
+void flickr_error_handler(void *user_data, const char *message) {
+	auto error_str = std::string(message);
+	throw FFS::FlickrException(error_str);
 }
 
 void flickr() {
 	auto fc = flickcurl_new();
+	
+	flickcurl_set_error_handler(fc, flickr_error_handler, nullptr);
 
-	flickcurl_set_oauth_client_key(fc, FFS_FLICKR_CONSUMER_KEY);
-  	flickcurl_set_oauth_client_secret(fc, FFS_FLICKR_CONSUMER_SECRET);
+	flickcurl_set_oauth_client_key(fc, FFS_FLICKR_APP_CONSUMER_KEY);
+  	flickcurl_set_oauth_client_secret(fc, FFS_FLICKR_APP_CONSUMER_SECRET);
 	flickcurl_set_oauth_token(fc, oauth_key.c_str());
 	flickcurl_set_oauth_token_secret(fc, oauth_secret.c_str());
 
@@ -44,7 +52,7 @@ void flickr() {
 
 	std::cout << "URL: " << size_struct->source << std::endl;
 
-	auto image_stream = get(std::string(size_struct->source));
+	auto image_stream = FFS::API::HTTP::get(std::string(size_struct->source));
 	std::ofstream out_stream("flickr_img.png", std::ios::binary);
 
 	out_stream << image_stream->rdbuf();
