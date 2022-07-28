@@ -77,4 +77,9 @@ public:
 	BadFlickrKeys(): FFS::FlickrException("Could not verify API keys"){}
 };
 
+class NoPhotoWithTag: public FFS::FlickrException {
+public:
+	NoPhotoWithTag(std::string tag): FFS::FlickrException("Could not find any photos with tag " + tag) {}
+};
+
 };
