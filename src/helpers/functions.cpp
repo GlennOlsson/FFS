@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 uint32_t FFS::random_int() { return rand(); }
 
@@ -26,6 +27,14 @@ uint64_t FFS::random_long(uint64_t low, uint64_t high) {
 
 uint8_t FFS::random_byte() { return ((uint32_t)random_int()) % 255; }
 
+std::string FFS::random_str(uint32_t length) {
+	std::stringstream ss;
+	while(length--) {
+		ss << ((random_int() % 10) + 48);
+	}
+	return ss.str();
+}
+
 void FFS::write_c(std::ostream& stream, uint8_t c) { stream.put(c); }
 void FFS::write_i(std::ostream& stream, uint32_t i) {
 	stream.put((i >> (3 * 8)) & 0xFF);
@@ -36,6 +45,12 @@ void FFS::write_i(std::ostream& stream, uint32_t i) {
 void FFS::write_l(std::ostream& stream, uint64_t l) {
 	write_i(stream, l >> 4 * 8);
 	write_i(stream, l & 0xFFFFFFFF);
+}
+void FFS::write_str(std::ostream& stream, std::string s) {
+	for(auto c: s) {
+		write_c(stream, c);
+	}
+	write_c(stream, '\0');
 }
 
 void FFS::read_c(std::istream& stream, char& c) { 
@@ -72,6 +87,16 @@ void FFS::read_l(std::istream& stream, uint64_t& l) {
 	l = i1;
 	l <<= 4 * 8;
 	l |= (i2 & 0xFFFFFFFF);
+}
+void FFS::read_str(std::istream& stream, std::string& s) {
+	std::stringstream ss;
+	char c;
+	read_c(stream, c);
+	while(c != '\0') {
+		write_c(ss, c);
+		read_c(stream, c);
+	}
+	s = ss.str();
 }
 
 size_t FFS::stream_size(std::istream& stream) {

@@ -73,7 +73,7 @@ void FFS::InodeEntry::serialize(std::ostream& stream) {
 
 	FFS::write_i(stream, this->post_blocks->size());
 	for (post_id entry : *post_blocks) {
-		FFS::write_l(stream, entry);
+		FFS::write_str(stream, entry);
 	}
 }
 
@@ -91,10 +91,10 @@ std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stre
 	FFS::read_i(stream, block_count);
 	auto blocks = std::make_shared<std::vector<post_id>>();
 	while (block_count-- > 0) {
-		post_id l;
-		FFS::read_l(stream, l);
+		post_id id;
+		FFS::read_str(stream, id);
 
-		blocks->push_back(l);
+		blocks->push_back(id);
 	}
 
 	auto entry = std::make_shared<InodeEntry>(length, blocks, is_dir);

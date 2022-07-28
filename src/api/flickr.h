@@ -13,7 +13,7 @@ namespace FFS::API::Flickr {
 	std::string get_image(FFS::post_id);
 
 	// Get the post_id of the first image found with the tag, posted by the authenticated user. Will throw if no results are found
-	FFS::post_id get_image(std::string);
+	FFS::post_id search_image(std::string);
 
 	// Delete an image of flickr with specified post_id
 	void delete_image(FFS::post_id);

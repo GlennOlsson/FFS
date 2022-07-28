@@ -19,7 +19,7 @@
 
 std::string path_of(FFS::post_id id) {
 	std::stringstream path_stream;
-	path_stream << FFS_TMP_FS_PATH << "/ffs_" << std::to_string(id) << "." << FFS_IMAGE_TYPE;
+	path_stream << FFS_TMP_FS_PATH << "/ffs_" << id << "." << FFS_IMAGE_TYPE;
 	return path_stream.str();
 }
 
@@ -91,8 +91,8 @@ void FFS::Storage::save_file(FFS::post_id id, std::shared_ptr<Magick::Blob> blob
 }
 
 FFS::post_id _upload_file(std::shared_ptr<Magick::Blob> blob) {
-	// Assume no collision as it's 64-bit, i.e. 1.8e19 choices
-	FFS::post_id id = FFS::random_long();
+	// Assume no collision as it's 10^10 == 10 billion combinations
+	FFS::post_id id = FFS::random_str(10);
 	FFS::Storage::save_file(id, blob);
 	return id;
 }
