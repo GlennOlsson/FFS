@@ -70,9 +70,7 @@ std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blob(std::shared_ptr<
 }
 
 FFS::inode_id FFS::Storage::upload(std::shared_ptr<Directory> dir) {
-	auto inode = FFS::Storage::upload_and_save_file(FFS::Storage::blobs(*dir), dir->size(), true);
-
-	return inode;
+	return FFS::Storage::upload_and_save_file(FFS::Storage::blobs(*dir), dir->size(), true);;
 }
 
 void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id inode_id) {
@@ -83,12 +81,13 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id ino
 	// remove old dir from storage device
 	FFS::Storage::remove_posts(*inode_entry->post_blocks);
 	inode_entry->post_blocks = new_post_ids;
-
-	FFS::State::save_table();
 }
 
 FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
 	// Write to temporary file, upload, and then remove temp file
+	auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	std::cout << "Uploading " << (is_inode ? "Inode table" : "file/dir") << std::endl;
+
 	auto tmp_filename = "/tmp/ffs_" + std::to_string(FFS::random_int());
 
 	Magick::Image img(*blob);
@@ -105,6 +104,9 @@ FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool 
 
 	FFS::Cache::cache(id, blob);
 
+	auto done_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+	std::cout << "Took: " << (done_time.count() - now.count()) << std::endl << std::endl;
+	
 	return id;
 }
 

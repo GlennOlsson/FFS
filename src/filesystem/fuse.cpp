@@ -8,6 +8,8 @@
 #include "inode_table.h"
 #include "directory.h"
 
+#include "../system/state.h"
+
 #include "../helpers/functions.h"
 #include "../helpers/constants.h"
 
@@ -148,6 +150,8 @@ static int ffs_write(const char* c_path, const char* buf, size_t size, off_t off
 	auto ptr = std::make_shared<std::istream>(new_stream.rdbuf());
 	FFS::FS::create_file(path, ptr);
 
+	FFS::FS::sync_inode_table();
+
 	return size;
 }
 
@@ -163,6 +167,8 @@ int ffs_create(const char* c_path, mode_t mode, struct fuse_file_info* fi) {
 	auto ptr = std::make_shared<std::istream>(&buf);
 	FFS::FS::create_file(path, ptr);
 
+	FFS::FS::sync_inode_table();
+
 	return 0;
 }
 
@@ -174,6 +180,8 @@ int ffs_mkdir(const char* c_path, mode_t mode) {
 	
 	FFS::FS::create_dir(path);
 
+	FFS::FS::sync_inode_table();
+	
 	return 0;
 }
 
@@ -189,6 +197,8 @@ static int ffs_unlink(const char * c_path) {
 		return 1;
 	}
 
+	FFS::FS::sync_inode_table();
+	
 	return 0;
 }
 
@@ -207,6 +217,8 @@ static int ffs_rmdir(const char * c_path) {
 		return 1;
 	}
 
+	FFS::FS::sync_inode_table();
+	
 	return 0;
 }
 
@@ -240,6 +252,8 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	FFS::Storage::update(parent_from->second, parent_from->first);
 	FFS::Storage::update(parent_to->second, parent_to->first);
 
+	FFS::FS::sync_inode_table();
+	
 	return 0;
 }
 
@@ -270,6 +284,8 @@ static int ffs_truncate(const char* c_path, off_t size) {
 	auto ptr = std::make_shared<std::istream>(new_stream.rdbuf());
 	FFS::FS::create_file(path, ptr);
 
+	FFS::FS::sync_inode_table();
+	
 	return size;
 }
 
@@ -341,12 +357,22 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 	auto new_access_time = ts[0].tv_nsec;
 	auto new_modified_time = ts[1].tv_nsec;
 
+	bool change_made = false;
+
 	// Only update if value is greater than last time, but smaller than current time
-	if((new_access_time > entry->time_accessed) && (new_access_time <= ms_since_epoch))
+	if((new_access_time > entry->time_accessed) && (new_access_time <= ms_since_epoch)) {
 		entry->time_accessed = new_access_time;
+		change_made = true;
+	}
 	
-	if((new_modified_time > entry->time_modified) && (new_modified_time <= ms_since_epoch))	
+	if((new_modified_time > entry->time_modified) && (new_modified_time <= ms_since_epoch))	 {
 		entry->time_modified = new_modified_time;
+		change_made = true;
+	}
+
+	if(change_made)
+		FFS::FS::sync_inode_table();
+	
 
 	return 0;
 }
@@ -494,5 +520,10 @@ int FFS::FUSE::start(int argc, char *argv[]) {
 	std::cout << "|    volumes directory     |" << std::endl;
 	std::cout << "|                          |" << std::endl;
 	std::cout << "+ ------------------------ +" << std::endl;
-	return fuse_main(argc, argv, &ffs_operations, NULL);
+	
+	auto fuse_ret = fuse_main(argc, argv, &ffs_operations, NULL);
+
+	FFS::FS::sync_inode_table();
+
+	return fuse_ret;
 }

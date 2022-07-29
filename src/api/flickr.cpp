@@ -70,6 +70,8 @@ FFS::post_id FFS::API::Flickr::post_image(std::string file_path, std::string pos
 	if(tags.size() > 2)
 		params.tags = tags.c_str();
 
+	auto status = flickcurl_photos_upload_params(fc, &params);
+
 	auto uploaded_id = std::string(status->photoid);
 
 	return uploaded_id;

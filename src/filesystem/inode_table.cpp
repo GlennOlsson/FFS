@@ -196,8 +196,6 @@ FFS::inode_id FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id
 	// Use new id as inode id, and return it
 	this->entries->insert({new_id, entry});
 
-	FFS::State::save_table();
-
 	return new_id;
 }
 
