@@ -167,7 +167,6 @@ FFS::post_id FFS::Storage::get_inode_table() {
 	std::string tag = FFS_INODE_TABLE_TAG;
 
 	auto post_id = FFS::API::Flickr::search_image(tag);
-	std::cout << "Found post with tag " << tag << std::endl;// << ", post_id: " << post_id << std::endl;
 	return post_id;
 }
 
