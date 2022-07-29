@@ -82,4 +82,9 @@ public:
 	NoPhotoWithTag(std::string tag): FFS::FlickrException("Could not find any photos with tag " + tag) {}
 };
 
+class NoPhotoWithID: public FFS::FlickrException {
+public:
+	NoPhotoWithID(std::string id): FFS::FlickrException("Could not find any photos with id " + id) {}
+};
+
 };

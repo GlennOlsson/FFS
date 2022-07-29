@@ -272,7 +272,7 @@ void FFS::FS::remove(std::string path) {
 	
 	// remove from storage device
 	auto blocks = *table->entry(inode)->post_blocks;
-	FFS::Storage::remove_blocks(blocks);
+	FFS::Storage::remove_posts(blocks);
 
 	table->remove_entry(inode);
 }

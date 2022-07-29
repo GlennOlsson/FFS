@@ -12,6 +12,8 @@
 #include "../api/flickr.h"
 #include "../api/curl.h"
 
+#include "../exceptions/exceptions.h"
+
 #include <Magick++.h>
 #include <vector>
 #include <string>
@@ -20,12 +22,13 @@
 #include <chrono>
 #include <thread>
 
+#define FFS_INODE_TABLE_TAG "ffs_inode"
+
 std::string path_of(FFS::post_id id) {
 	std::stringstream path_stream;
 	path_stream << FFS_TMP_FS_PATH << "/ffs_" << id << "." << FFS_IMAGE_TYPE;
 	return path_stream.str();
 }
-
 
 std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::blobs(FFS::Directory& dir) {
 	std::stringbuf buf;
@@ -54,9 +57,12 @@ std::shared_ptr<FFS::Directory> FFS::Storage::dir_from_blobs(std::shared_ptr<std
 	return FFS::Directory::deserialize(stream);
 }
 
-std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blobs(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
+std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blob(std::shared_ptr<Magick::Blob> blob) {
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
+
+	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+	blobs->push_back(blob);
 
 	FFS::decode(blobs, stream);
 
@@ -75,53 +81,50 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id ino
 	auto inode_entry = table->entry(inode_id);
 
 	// remove old dir from storage device
-	FFS::Storage::remove_blocks(*inode_entry->post_blocks);
+	FFS::Storage::remove_posts(*inode_entry->post_blocks);
 	inode_entry->post_blocks = new_post_ids;
 
 	FFS::State::save_table();
 }
 
-void FFS::Storage::save_file(FFS::post_id id, std::shared_ptr<Magick::Blob> blob) { 
-	std::string path = path_of(id);
+FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
+	// Write to temporary file, upload, and then remove temp file
+	auto tmp_filename = "/tmp/ffs_" + std::to_string(FFS::random_int());
 
 	Magick::Image img(*blob);
-	img.write(path);
+	img.write(tmp_filename);
+
+	std::string tag = "";
+	if(is_inode) {
+		tag = FFS_INODE_TABLE_TAG;
+	}
+
+	auto id = FFS::API::Flickr::post_image(tmp_filename, "", tag);
+
+	std::filesystem::remove(tmp_filename);
 
 	FFS::Cache::cache(id, blob);
 
-	// Simulate time to save to online service
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
-}
-
-FFS::post_id _upload_file(std::shared_ptr<Magick::Blob> blob) {
-	// Assume no collision as it's 10^10 == 10 billion combinations
-	FFS::post_id id = FFS::random_str(10);
-	FFS::Storage::save_file(id, blob);
 	return id;
 }
-
-FFS::inode_id FFS::Storage::upload_and_save_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, size_t size, bool is_dir) {
-	auto posts = std::make_shared<std::vector<FFS::post_id>>();
-	for(auto blob: *blobs) {
-		FFS::post_id id = _upload_file(blob);
-		posts->push_back(id);
-	}
-
-	auto table = FFS::State::get_inode_table();
-
-	return table->new_file(posts, size, is_dir);
-}
-
 
 std::shared_ptr<std::vector<FFS::post_id>> FFS::Storage::upload_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
 	auto posts = std::make_shared<std::vector<FFS::post_id>>();
 
 	for(auto blob: *blobs) {
-		FFS::post_id id = _upload_file(blob);
+		FFS::post_id id = upload_file(blob);
 		posts->push_back(id);
 	}
 
 	return posts;
+}
+
+FFS::inode_id FFS::Storage::upload_and_save_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, size_t size, bool is_dir) {
+	auto posts = upload_file(blobs);
+
+	auto table = FFS::State::get_inode_table();
+
+	return table->new_file(posts, size, is_dir);
 }
 
 std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
@@ -131,29 +134,21 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 	auto source_url = FFS::API::Flickr::get_image(id);
 	auto file_stream = FFS::API::HTTP::get(source_url);
 
+	// Read stream length
 	file_stream->seekg(0, file_stream->end);
-	// must be int so it can go under 0
 	auto length = file_stream->tellg();
 	file_stream->seekg(0, file_stream->beg);
 
+	// Copy stream to data array for Blob
 	int index = 0;
 	char* data = new char[length];
-	while(index < length) {
+	while(*file_stream) {
 		FFS::read_c(*file_stream, data[index++]);
 	}
 
 	auto blob = std::make_shared<Magick::Blob>(data, length);
 
 	delete[] data;
-
-	// std::string path = path_of(id);
-	// Magick::Image img(path);
-
-	// auto blob = std::make_shared<Magick::Blob>();
-	// img.write(blob.get());
-
-	// // Simulate time to fetch from online service
-	// std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	FFS::Cache::cache(id, blob);
 
@@ -168,10 +163,22 @@ std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_fi
 	return v;
 }
 
-void FFS::Storage::remove_blocks(std::vector<FFS::post_id>& blocks) {
-	for(auto block: blocks) {
-		auto path = path_of(block);
-		std::filesystem::remove(path);
-		FFS::Cache::invalidate(block);
+FFS::post_id FFS::Storage::get_inode_table() {
+	std::string tag = FFS_INODE_TABLE_TAG;
+
+	auto post_id = FFS::API::Flickr::search_image(tag);
+	std::cout << "Found post with tag " << tag << std::endl;// << ", post_id: " << post_id << std::endl;
+	return post_id;
+}
+
+void FFS::Storage::remove_post(FFS::post_id& post_id) {
+	FFS::API::Flickr::delete_image(post_id);
+
+	FFS::Cache::invalidate(post_id);
+}
+
+void FFS::Storage::remove_posts(std::vector<FFS::post_id>& posts) {
+	for(auto post_id: posts) {
+		remove_post(post_id);
 	}
 }
