@@ -37,6 +37,11 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 void FFS::State::clear_inode_table() {
 	FFS::State::inode_table.reset();
 	FFS::State::inode_table = nullptr;
+	// Delete from service
+	if(FFS::State::inode_table_id.size() > 2)
+		FFS::Storage::remove_post(FFS::State::inode_table_id);
+	
+	FFS::State::inode_table_id = "";
 }
 
 void FFS::State::save_table() {

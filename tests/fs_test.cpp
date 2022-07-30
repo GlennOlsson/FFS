@@ -41,20 +41,16 @@
 #define TEST_FILE_MOV "tests/assets.nosync/movie.mp4"
 
 
-// Remove all previous content in fs and re-create the root directory (empty dir)
+// Removing inode table removes the reference to all files and dirs.
+// Data is still saved on storage medium, but doesn't matter
 void clear_fs() {
-    std::filesystem::remove_all(TEST_PATH_ROOT);
-    std::filesystem::create_directory(TEST_PATH_ROOT);
-
+    FFS::State::clear_inode_table();
     FFS::Cache::clear_cache();
 }
 
 // Setup fs with files and directories created. Does not create files
 void init_fs() {
     clear_fs();
-
-    // Clear previous inode table from memory
-    FFS::State::clear_inode_table();
 
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_1);
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_2);

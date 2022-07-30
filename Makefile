@@ -22,7 +22,8 @@ $(out_dir):
 	@mkdir $(out_dir)
 
 all: | $(out_dir)
-	@$(CC) $(all_flags) src/main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out 
+	@$(CC) $(all_flags) src/main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out
+	@notify FFS compile is done
 
 # Keep alive (-f), disable multi-threading (-s), debugging (-d)
 fuse: clean_fuse all
@@ -30,10 +31,12 @@ fuse: clean_fuse all
 
 main_test: | $(out_dir)
 	@$(CC) $(compile_flags) -c $(test_dir)/main/main_test.cpp -o $(test_main)
+	@notify FFS Main Test has been compiled
 
 all_tests: all | $(out_dir)
-	@$(CC) $(all_flags) $(test_main) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/test.out 
-	$(out_dir)/test.out
+	@time $(CC) $(all_flags) $(test_main) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/test.out 
+	time $(out_dir)/test.out
+	@notify FFS testing is done
 
 clean: | $(out_dir)
 	@rm -f $(out_dir)/*.out
