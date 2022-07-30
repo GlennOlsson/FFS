@@ -71,14 +71,19 @@ FFS::post_id FFS::API::Flickr::post_image(std::string file_path, std::string pos
 		params.tags = tags.c_str();
 
 	auto status = flickcurl_photos_upload_params(fc, &params);
-
 	auto uploaded_id = std::string(status->photoid);
+
+	flickcurl_free_upload_status(status);
+
+	flickcurl_free(fc);
 
 	return uploaded_id;
 }
 
 std::string FFS::API::Flickr::get_image(FFS::post_id id) {
 	auto fc = get_fc();
+
+	std::cout << "GETTING IMG WITH ID " << id << std::endl;
 
 	auto sizes = flickcurl_photos_getSizes(fc, id.c_str());
 
@@ -102,10 +107,8 @@ std::string FFS::API::Flickr::get_image(FFS::post_id id) {
 FFS::post_id FFS::API::Flickr::search_image(std::string tag) {
 	auto fc = get_fc();
 
-
 	flickcurl_search_params search_params;
 	flickcurl_search_params_init(&search_params);
-
 
 	auto tag_len = tag.length() + 1;
 	auto user_id_len = strlen(FLICKR_USER_ID) + 1;

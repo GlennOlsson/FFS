@@ -29,19 +29,9 @@ FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id
 	this->length = length;
 	this->is_dir = is_dir;
 	this->post_blocks = std::move(post_blocks);
-
-	// Just created, so set as current time
-	auto now = std::chrono::system_clock::now().time_since_epoch();
-	this->time_created = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-	this->time_accessed = this->time_created;
-	this->time_modified = this->time_created;
-}
-
-FFS::InodeEntry::InodeEntry(uint32_t length, post_id post, uint8_t is_dir = false) {
-	this->length = length;
-	this->is_dir = is_dir;
-	this->post_blocks = std::make_shared<std::vector<post_id>>();
-	this->post_blocks->push_back(post);
+	if(this->post_blocks == nullptr) {
+		this->post_blocks = std::make_shared<std::vector<post_id>>();
+	}
 
 	// Just created, so set as current time
 	auto now = std::chrono::system_clock::now().time_since_epoch();
@@ -71,6 +61,17 @@ void FFS::InodeEntry::serialize(std::ostream& stream) {
 	FFS::write_l(stream, this->time_accessed);
 	FFS::write_l(stream, this->time_modified);
 
+	std::cout << "Ser inode entry, is_dir: " << (this->is_dir ? "yes" : "no") << std::endl;
+	std::cout << "Ser inode entry, post_blocks nullptr: " << (this->post_blocks == nullptr ? "yes" : "no") << std::endl;
+
+	// If has no posts, just write 0 and return
+	if(this->post_blocks == nullptr) {
+		FFS::write_i(stream, 0);
+		return;
+	}
+
+	std::cout << "Ser inode entry, post_blocks size: " << (this->post_blocks->size()) << std::endl;
+
 	FFS::write_i(stream, this->post_blocks->size());
 	for (post_id entry : *post_blocks) {
 		FFS::write_str(stream, entry);
@@ -90,11 +91,16 @@ std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stre
 	
 	FFS::read_i(stream, block_count);
 	auto blocks = std::make_shared<std::vector<post_id>>();
-	while (block_count-- > 0) {
+	std::cout << "DESER I_ENTRY BLOCK COUNT: " << block_count << std::endl;
+	while (block_count > 0) {
+		std::cout << "Deser inode entry " << (is_dir ? "dir" : "file") << std::endl;
 		post_id id;
 		FFS::read_str(stream, id);
 
+		std::cout << "Post_id = \"" << id << "\"" << std::endl;
+
 		blocks->push_back(id);
+		block_count--;
 	}
 
 	auto entry = std::make_shared<InodeEntry>(length, blocks, is_dir);
@@ -123,13 +129,9 @@ FFS::InodeTable::InodeTable(std::shared_ptr<std::map<uint32_t, std::shared_ptr<F
 FFS::InodeTable::InodeTable() {
 	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> empty_entries = std::make_shared<std::map<inode_id, std::shared_ptr<InodeEntry>>>();
 
-	auto root_dir = std::make_shared<FFS::Directory>();
-	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs = FFS::Storage::blobs(*root_dir);
-
-	std::shared_ptr<std::vector<post_id>> ids = FFS::Storage::upload_file(blobs);
-	uint32_t dir_bytes = root_dir->size();
-
-	auto entry = std::make_shared<InodeEntry>(dir_bytes, ids, true);
+	// Create root dir entry of base size, but no entries
+	std::shared_ptr<std::vector<post_id>> no_posts = nullptr;
+	auto entry = std::make_shared<InodeEntry>(0, no_posts, true);
 	// Root dir should specific inode id
 	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
 
@@ -149,6 +151,8 @@ uint32_t FFS::InodeTable::size() {
 
 void FFS::InodeTable::serialize(std::ostream& stream) {
 	uint32_t total_entries = this->entries->size();
+
+	std::cout << "serializing inode table, entries: " << total_entries << std::endl;
 
 	FFS::write_i(stream, total_entries);
 

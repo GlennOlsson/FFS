@@ -59,6 +59,8 @@ void init_fs() {
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_1);
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_2);
     FFS::FS::create_dir(TEST_PATH_EMPTY_DIR);
+
+    FFS::State::save_table();
 }
 
 // Create files used in fs
@@ -72,6 +74,8 @@ void create_files() {
 
     stream = std::make_shared<std::ifstream>(TEST_FILE_MOV);
     FFS::FS::create_file(TEST_PATH_MOV, stream);
+
+    FFS::State::save_table();
 }
 
 bool streams_eq(std::basic_istream<char>& a, std::basic_istream<char>& b) {

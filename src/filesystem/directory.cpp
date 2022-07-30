@@ -56,12 +56,18 @@ void FFS::Directory::serialize(std::ostream& stream) {
 	}
 }
 std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream) {
+	// If stream is empty, just return empty Directory
+	if(!stream || FFS::stream_size(stream) == 0)
+		return std::make_shared<FFS::Directory>();
+
 	uint32_t entries_count;
 	FFS::read_i(stream, entries_count);
 
+	std::cout << "Entries: " << entries_count << std::endl;
+
 	auto entries = std::make_shared<std::map<std::string, uint32_t>>();
 
-	while(entries_count--) {
+	while(entries_count-- > 0) {
 		uint8_t name_count;
 		FFS::read_c(stream, name_count);
 

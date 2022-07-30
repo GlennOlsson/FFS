@@ -54,6 +54,8 @@ std::shared_ptr<FFS::Directory> FFS::Storage::dir_from_blobs(std::shared_ptr<std
 
 	FFS::decode(blobs, stream);
 
+	stream.flush();
+		
 	return FFS::Directory::deserialize(stream);
 }
 
@@ -69,14 +71,12 @@ std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blob(std::shared_ptr<
 	return FFS::InodeTable::deserialize(stream);
 }
 
-FFS::inode_id FFS::Storage::upload(std::shared_ptr<Directory> dir) {
-	return FFS::Storage::upload_and_save_file(FFS::Storage::blobs(*dir), dir->size(), true);;
-}
-
 void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id inode_id) {
 	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
+
+	std::cout << "Updating dir with inode " << inode_id << ", posts: " << dir->entries->size() << std::endl;
 
 	// remove old dir from storage device
 	FFS::Storage::remove_posts(*inode_entry->post_blocks);
@@ -121,14 +121,6 @@ std::shared_ptr<std::vector<FFS::post_id>> FFS::Storage::upload_file(std::shared
 	return posts;
 }
 
-FFS::inode_id FFS::Storage::upload_and_save_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, size_t size, bool is_dir) {
-	auto posts = upload_file(blobs);
-
-	auto table = FFS::State::get_inode_table();
-
-	return table->new_file(posts, size, is_dir);
-}
-
 std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 	if(FFS::Cache::get(id) != nullptr)
 		return FFS::Cache::get(id);
@@ -137,9 +129,7 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 	auto file_stream = FFS::API::HTTP::get(source_url);
 
 	// Read stream length
-	file_stream->seekg(0, file_stream->end);
-	auto length = file_stream->tellg();
-	file_stream->seekg(0, file_stream->beg);
+	auto length = FFS::stream_size(*file_stream);
 
 	// Copy stream to data array for Blob
 	int index = 0;

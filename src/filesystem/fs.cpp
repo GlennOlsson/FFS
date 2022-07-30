@@ -19,6 +19,7 @@
 #include <memory>
 #include <thread>
 #include <exception>
+#include <Magick++.h>
 
 // Expected in the form 
 //  	foo/bar/fizz[ext]
@@ -167,7 +168,11 @@ std::shared_ptr<FFS::Directory> FFS::FS::read_dir(std::string path) {
 }
 
 std::shared_ptr<FFS::Directory> FFS::FS::get_dir(std::shared_ptr<FFS::InodeEntry> inode_entry) {
-	 auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+	// If there are no post blocks it is an empty directory
+	if(inode_entry->post_blocks == nullptr)
+		return std::make_shared<FFS::Directory>();
+
+	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 	
 	auto dir = FFS::Storage::dir_from_blobs(blobs);
     
@@ -178,6 +183,10 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
 	auto inode = inode_from_path(path);
 
 	auto inode_entry = entry(inode);
+	// If is nullptr, empty file
+	if(inode_entry->post_blocks == nullptr)
+		return;
+
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 
 	FFS::decode(blobs, stream);
@@ -226,10 +235,11 @@ void FFS::FS::create_dir(std::string path) {
     auto parent_dir = traverser->parent_dir;
 	auto parent_inode = traverser->parent_inode;
 
-	auto dir = std::make_shared<Directory>();
-	auto inode = FFS::Storage::upload(dir);
+	// Add empty entry to inode table
+	auto table = FFS::State::get_inode_table();
+	auto new_dir_inode = table->new_file(nullptr, 0, true);
 
-	parent_dir->add_entry(dir_name, inode);
+	parent_dir->add_entry(dir_name, new_dir_inode);
 	FFS::Storage::update(parent_dir, parent_inode);
 }
 
@@ -243,10 +253,18 @@ void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream
     auto parent_dir = traverser->parent_dir;
 	auto parent_inode = traverser->parent_inode;
 
-	auto blobs = FFS::encode(*stream);
+	// If stream is nullptr, create as empty file in inode table. Means that is does not have to be uploaded
+	std::shared_ptr<std::__1::vector<FFS::post_id>> posts = nullptr;
+	if(stream != nullptr) {
+		std::cout << "creating file with content at " << path << std::endl;
+		auto blobs = FFS::encode(*stream);
+		posts = FFS::Storage::upload_file(blobs);
+	} else
+		std::cout << "creating file WITHOUT content at " << path << std::endl;
 
-	// Adds it to inode table
-	auto inode_id = FFS::Storage::upload_and_save_file(blobs, FFS::stream_size(*stream));
+	auto inode_table = FFS::State::get_inode_table();
+	auto stream_length = stream == nullptr ? 0 : FFS::stream_size(*stream);
+	auto inode_id = inode_table->new_file(posts, stream_length, false);
 
 	parent_dir->add_entry(filename, inode_id);
 

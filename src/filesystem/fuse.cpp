@@ -161,11 +161,7 @@ int ffs_create(const char* c_path, mode_t mode, struct fuse_file_info* fi) {
 	if(FFS::FS::exists(path))
 		return -EACCES;
 	
-	std::stringbuf buf;
-	std::istream empty_stream(&buf);
-
-	auto ptr = std::make_shared<std::istream>(&buf);
-	FFS::FS::create_file(path, ptr);
+	FFS::FS::create_file(path, nullptr);
 
 	FFS::FS::sync_inode_table();
 
@@ -248,15 +244,17 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	auto parent_to = FFS::FS::parent_entry(to);
 	parent_to->second->add_entry(filename_to, inode);
 
-	// If the parent is same, update will be cached, don't worry about that here
+	// If the parent is same, only update once
 	FFS::Storage::update(parent_from->second, parent_from->first);
-	FFS::Storage::update(parent_to->second, parent_to->first);
+	if(parent_to->second != parent_to->second)
+		FFS::Storage::update(parent_to->second, parent_to->first);
 
 	FFS::FS::sync_inode_table();
 	
 	return 0;
 }
 
+// truncate or extend file to be size bytes
 static int ffs_truncate(const char* c_path, off_t size) {
 	auto path = sanitize_path(c_path);
 
@@ -274,9 +272,16 @@ static int ffs_truncate(const char* c_path, off_t size) {
 
 	FFS::FS::read_file(path, curr_stream);
 	
-	int i = 0;
-	while(i++ < size) {
+	// While there is content in the stream and the index 
+	// 	is smaller than the size, add from current stream
+	int new_size = 0;
+	while(curr_stream && new_size++ < size) {
 		new_stream.put(curr_stream.get());
+	}
+
+	// If extending the file, continue to add NULL to match the new size of the file
+	while(new_size++ < size) {
+		new_stream.put('\0');
 	}
 
 	FFS::FS::remove(path);
@@ -305,7 +310,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	fsfilcnt_t		f_favail;	// Free inodes for non-root
 	unsigned long	f_fsid;		// Filesystem ID
 	unsigned long	f_flag;		// Bit mask of values
-	unsigned long	f_namemax;	// Max file name length
+	unsigned long	f_namemax;	// Max filename length
 */
 
 static int ffs_statfs(const char* path, struct statvfs* stbuf) {
@@ -372,8 +377,7 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 
 	if(change_made)
 		FFS::FS::sync_inode_table();
-	
-
+		
 	return 0;
 }
 
@@ -487,6 +491,8 @@ static struct fuse_operations ffs_operations = {
 	.ftruncate	= ffs_ftruncate,
 	.statfs		= ffs_statfs,
 	.access		= ffs_access,
+	.flush		= ffs_flush,
+	.utimens	= ffs_utimens,
 
 	// -- UNIMPLEMENTED -- 
 	.readlink	= ffs_readlink,
@@ -495,13 +501,11 @@ static struct fuse_operations ffs_operations = {
 	.link		= ffs_link,
 	.chmod		= ffs_chmod,
 	.chown		= ffs_chown,
-	.utimens	= ffs_utimens,
 	//.open		= ffs_open,
 	//.release	= ffs_release,
 	//.releasedir	= ffs_releasedir,
 	.fsync		= ffs_fsync,
 	.fsyncdir	= ffs_fsyncdir,
-	.flush		= ffs_flush,
 	//.lock		= ffs_lock,
 	.bmap		= ffs_bmap,
 	//.setxattr	= ffs_setxattr,

@@ -37,6 +37,8 @@ void save() {
 			FFS::FS::create_file(save_path, i_file);
 			cout << "Saved file" << endl;
 			fclose(file);
+			
+			FFS::FS::sync_inode_table();
 		} catch(FFS::FileAlreadyExists) {
 			cout << "Cannot overwrite" << endl;
 		}
@@ -53,6 +55,8 @@ void create_dir() {
 	try {
 		FFS::FS::create_dir(src_path);
 		cout << "Created directory" << endl;
+		
+		FFS::FS::sync_inode_table();
 	} catch(FFS::FileAlreadyExists) {
 		cout << "Cannot overwrite" << endl;
 	}
@@ -153,6 +157,8 @@ void remove_file() {
 	cin >> path;
 	
 	FFS::FS::remove(path);
+
+	FFS::FS::sync_inode_table();
 }
 
 void exists() {
