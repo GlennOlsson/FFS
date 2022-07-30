@@ -61,16 +61,11 @@ void FFS::InodeEntry::serialize(std::ostream& stream) {
 	FFS::write_l(stream, this->time_accessed);
 	FFS::write_l(stream, this->time_modified);
 
-	std::cout << "Ser inode entry, is_dir: " << (this->is_dir ? "yes" : "no") << std::endl;
-	std::cout << "Ser inode entry, post_blocks nullptr: " << (this->post_blocks == nullptr ? "yes" : "no") << std::endl;
-
 	// If has no posts, just write 0 and return
 	if(this->post_blocks == nullptr) {
 		FFS::write_i(stream, 0);
 		return;
 	}
-
-	std::cout << "Ser inode entry, post_blocks size: " << (this->post_blocks->size()) << std::endl;
 
 	FFS::write_i(stream, this->post_blocks->size());
 	for (post_id entry : *post_blocks) {
@@ -91,13 +86,9 @@ std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stre
 	
 	FFS::read_i(stream, block_count);
 	auto blocks = std::make_shared<std::vector<post_id>>();
-	std::cout << "DESER I_ENTRY BLOCK COUNT: " << block_count << std::endl;
 	while (block_count > 0) {
-		std::cout << "Deser inode entry " << (is_dir ? "dir" : "file") << std::endl;
 		post_id id;
 		FFS::read_str(stream, id);
-
-		std::cout << "Post_id = \"" << id << "\"" << std::endl;
 
 		blocks->push_back(id);
 		block_count--;
@@ -151,8 +142,6 @@ uint32_t FFS::InodeTable::size() {
 
 void FFS::InodeTable::serialize(std::ostream& stream) {
 	uint32_t total_entries = this->entries->size();
-
-	std::cout << "serializing inode table, entries: " << total_entries << std::endl;
 
 	FFS::write_i(stream, total_entries);
 

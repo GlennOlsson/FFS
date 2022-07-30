@@ -83,8 +83,6 @@ FFS::post_id FFS::API::Flickr::post_image(std::string file_path, std::string pos
 std::string FFS::API::Flickr::get_image(FFS::post_id id) {
 	auto fc = get_fc();
 
-	std::cout << "GETTING IMG WITH ID " << id << std::endl;
-
 	auto sizes = flickcurl_photos_getSizes(fc, id.c_str());
 
 	if(!sizes)

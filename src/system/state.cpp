@@ -48,14 +48,10 @@ void FFS::State::save_table() {
 		return;
 	}
 
-	std::cout << "getting blobs of inode" << std::endl;
 	auto blobs = FFS::Storage::blobs(*table);
-
-	std::cout << "got blobs for inode, count: " << blobs->size() << std::endl;
+	
 	// DANGEROUS: Assuming only one blob for inode table, _should_ be fine!
 	FFS::State::inode_table_id = FFS::Storage::upload_file(blobs->front(), true);
-
-	std::cout << "New inode table at " << inode_table_id << ", old: " << old_id << std::endl;
 
 	// If old id existed, remove old post
 	if(old_id.size() > 2)

@@ -76,7 +76,6 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id ino
 	auto table = FFS::State::get_inode_table();
 	auto inode_entry = table->entry(inode_id);
 
-	std::cout << "Updating dir with inode " << inode_id << ", posts: " << dir->entries->size() << std::endl;
 
 	// remove old dir from storage device
 	FFS::Storage::remove_posts(*inode_entry->post_blocks);
@@ -86,7 +85,6 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id ino
 FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
 	// Write to temporary file, upload, and then remove temp file
 	auto now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	std::cout << "Uploading " << (is_inode ? "Inode table" : "file/dir") << std::endl;
 
 	auto tmp_filename = "/tmp/ffs_" + std::to_string(FFS::random_int());
 
@@ -105,7 +103,6 @@ FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool 
 	FFS::Cache::cache(id, blob);
 
 	auto done_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-	std::cout << "Took: " << (done_time.count() - now.count()) << std::endl << std::endl;
 	
 	return id;
 }
