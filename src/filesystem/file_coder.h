@@ -5,6 +5,8 @@
 #include <Magick++.h>
 #include <memory>
 
+#define FFS_HEADER_SIZE 16
+
 namespace FFS {
 
 	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> encode(std::istream& file_stream);

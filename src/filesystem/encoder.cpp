@@ -3,6 +3,8 @@
 #include "../helpers/constants.h"
 #include "../helpers/functions.h"
 
+#include "crypto.h"
+
 #include <iostream>
 #include <Magick++.h>
 #include <string>
@@ -12,14 +14,11 @@
 #include <vector>
 #include <memory>
 
-// Bytes required for header
-#define HEADER_SIZE 16
-
 // Header structure is described in doc/Binary-Structures.md
 void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 
-	*(component_pointer++) = ('F' << 8) | 'F';
-	*(component_pointer++) = ('S' << 8) | FFS_FILE_VERSION;
+	component_pointer[0] = ('F' << 8) | 'F';
+	component_pointer[1] = ('S' << 8) | FFS_FILE_VERSION;
 
 	const auto timestamp = std::chrono::system_clock::now();
 
@@ -27,20 +26,22 @@ void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 		timestamp.time_since_epoch()
 	).count();
 
-	*(component_pointer++) = (nanos_since_epoch >> 48) & 0xFFFF;
-	*(component_pointer++) = (nanos_since_epoch >> 32) & 0xFFFF;
-	*(component_pointer++) = (nanos_since_epoch >> 16) & 0xFFFF;
-	*(component_pointer++) = nanos_since_epoch & 0xFFFF;
+	component_pointer[2] = (nanos_since_epoch >> 48) & 0xFFFF;
+	component_pointer[3] = (nanos_since_epoch >> 32) & 0xFFFF;
+	component_pointer[4] = (nanos_since_epoch >> 16) & 0xFFFF;
+	component_pointer[5] = nanos_since_epoch & 0xFFFF;
 
-	*(component_pointer++) = (length >> 16) & 0xFFFF;
-	*(component_pointer++) = length & 0xFFFF;
+	component_pointer[6] = (length >> 16) & 0xFFFF;
+	component_pointer[7] = length & 0xFFFF;
+
+	std::cout << "wrote length " << length << ", " << ((short) component_pointer[6]) << ", " << ((short)component_pointer[7]) << std::endl;
 }
 
 std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint32_t length) {
 	assert(QuantumRange == 65535);
 
 	// Bytes required for header and file
-	uint32_t min_bytes = length + HEADER_SIZE;
+	uint32_t min_bytes = length + FFS_HEADER_SIZE;
 
 	assert(min_bytes <= FFS_MAX_FILE_SIZE);
 
@@ -54,7 +55,7 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	uint32_t total_pixels = width * height;
 
 	// Bytes required to change in output image
-	// file length + header size + filler pixels
+	// Per pixel, 3 colors (quantum). Per Quantum, 2 bytes. i.e. 6 bytes per pixel
 	uint32_t total_bytes = total_pixels * 6;
 
 	Magick::Image image(Magick::Geometry(width, height), Magick::Color("white"));
@@ -73,32 +74,48 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	save_header(component_pointer, length);
 
 	// First pixel saves header
-	uint32_t byte_index = HEADER_SIZE;
+	uint32_t component_index = 8;
+	uint32_t written_bytes = 8 * 2;
 
 	// Keeps two bytes, most significan bytes at most significant position
 	uint16_t current_value;
 
 	uint8_t b;
-	while(byte_index < total_bytes) {
-		if(byte_index < (length + HEADER_SIZE)) {
+	while(written_bytes < total_bytes) {
+		if(written_bytes < length + FFS_HEADER_SIZE) {
 			FFS::read_c(input_stream, b);
+			std::cout << "Add " << (char ) b << std::endl;
 		}
 		else {
 			b = random_byte();
+			std::cout << "Add random byte" << std::endl;
 		}
 
 		// If first byte in component, shift to left by one byte
-		if(byte_index % 2 == 0) {
+		if(written_bytes % 2 == 0) {
 			current_value = (b << 8) & 0xFF00;
 		} else { // mod == 1
 			current_value |= (b & 0xFF);
-			*(component_pointer++) = current_value;
+			component_pointer[component_index++] = current_value;
 		}
- 
-		byte_index += 1;
+		written_bytes += 1;
 	}
 
+
+	size_t data_count = total_bytes;
+	auto encrypted_pixels = (Magick::Quantum*) FFS::Crypto::encrypt((const void*) component_pointer, data_count);
+	
+	memcpy(component_pointer, encrypted_pixels, total_bytes);
+
+	std::cout << "comp[5]: " << (short) component_pointer[5] << std::endl;
+	std::cout << "comp[6]: " << (short) component_pointer[6] << std::endl;
+	std::cout << "comp[7]: " << (short) component_pointer[7] << std::endl;
+
 	pixel_view.sync();
+
+	std::cout << "'comp[5]: " << (short) component_pointer[5] << std::endl;
+	std::cout << "'comp[6]: " << (short) component_pointer[6] << std::endl;
+	std::cout << "'comp[7]: " << (short) component_pointer[7] << std::endl;
 
 	std::shared_ptr<Magick::Blob> blob = std::make_shared<Magick::Blob>();
 	image.write(blob.get());
@@ -107,18 +124,16 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 }
 
 std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::istream& file_stream) {
-	// length of file:
-	file_stream.seekg(0, file_stream.end);
-	// must be int so it can go under 0
-	int length = file_stream.tellg(); // Tells current location of pointer, i.e. how long the file is
-	file_stream.seekg(0, file_stream.beg);
+	int length = FFS::stream_size(file_stream);
 
 	uint32_t out_file_index = 0;
 
 	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 
 	while(length > 0) {
-		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - HEADER_SIZE, (int) length);
+		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - FFS_HEADER_SIZE, (int) length);
+
+		std::cout << "Out file size: " << out_file_size << ", length: " << length << std::endl;
 
 		std::shared_ptr<Magick::Blob> blob = create_image(file_stream, out_file_size);
 		blobs->push_back(blob);
