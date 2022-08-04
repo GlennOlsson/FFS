@@ -157,11 +157,13 @@ FFS::post_id FFS::Storage::get_inode_table() {
 }
 
 void FFS::Storage::remove_post(FFS::post_id& post_id) {
-	try {
-		FFS::API::Flickr::delete_image(post_id);
-	} catch(FFS::FlickrException& e) {
-		std::cerr << "Could not delete post with id " << post_id << std::endl;
-	}
+	std::thread([post_id] {
+		try {
+			FFS::API::Flickr::delete_image(post_id);
+		} catch(FFS::FlickrException& e) {
+			std::cerr << "Could not delete post with id " << post_id << std::endl;
+		}
+	}).detach();
 
 	FFS::Cache::invalidate(post_id);
 }

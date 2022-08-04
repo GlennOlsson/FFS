@@ -28,13 +28,13 @@
 #define FULL_PERMISSIONS ( PERM_OWNER | PERM_GROUP | PERM_OTHER )
 
 std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with) {
-    std::size_t count{};
-    for (std::string::size_type pos{};
-         inout.npos != (pos = inout.find(what.data(), pos, what.length()));
-         pos += with.length(), ++count) {
-        inout.replace(pos, what.length(), with.data(), with.length());
-    }
-    return count;
+	std::size_t count{};
+	for (std::string::size_type pos{};
+		 inout.npos != (pos = inout.find(what.data(), pos, what.length()));
+		 pos += with.length(), ++count) {
+		inout.replace(pos, what.length(), with.data(), with.length());
+	}
+	return count;
 }
 
 std::string sanitize_path(const char* c_path) {
@@ -47,6 +47,7 @@ std::string sanitize_path(const char* c_path) {
 
 static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	auto path = sanitize_path(c_path);
+	std::cout << "ffs_getattr " << path << std::endl;
 
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
@@ -73,6 +74,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		stat_struct->st_mtimespec.tv_sec = entry->time_modified / 1000;
 	}
 
+	std::cout << "End of ffs_getattr " << path << std::endl << std::endl;
 	return 0;
 }
 
@@ -82,6 +84,7 @@ static int ffs_fgetattr(const char* c_path, struct stat* stat_struct, struct fus
 
 static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
 	auto path = sanitize_path(c_path);
+	std::cout << "ffs_readir " << path << std::endl;
 
 	auto dir = FFS::FS::read_dir(path);
 	filler(buf, ".", NULL, 0);
@@ -90,11 +93,13 @@ static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, of
 		filler(buf, entry.first.c_str(), NULL, 0);
 	}
 
+	std::cout << "End of ffs_readir " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_read(const char* c_path, char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
 	auto path = sanitize_path(c_path);
+	std::cout << "read " << path << std::endl;
 	
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
@@ -110,12 +115,14 @@ static int ffs_read(const char* c_path, char* buf, size_t size, off_t offset, st
 		FFS::read_c(stream, buf[index++]);
 	}
 
+	std::cout << "End of read " << path << std::endl << std::endl;
 	// Return either the amount of bytes requested, or the amount read if its lower
 	return std::min((int) size, index);
 }
 
 static int ffs_write(const char* c_path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
 	auto path = sanitize_path(c_path);
+	std::cout << "write " << path << std::endl;
 
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
@@ -152,11 +159,13 @@ static int ffs_write(const char* c_path, const char* buf, size_t size, off_t off
 
 	FFS::FS::sync_inode_table();
 
+	std::cout << "End of write " << path << std::endl << std::endl;
 	return size;
 }
 
 int ffs_create(const char* c_path, mode_t mode, struct fuse_file_info* fi) {
 	auto path = sanitize_path(c_path);
+	std::cout << "create " << path << std::endl;
 	
 	if(FFS::FS::exists(path))
 		return -EACCES;
@@ -165,11 +174,13 @@ int ffs_create(const char* c_path, mode_t mode, struct fuse_file_info* fi) {
 
 	FFS::FS::sync_inode_table();
 
+	std::cout << "End of create " << path << std::endl << std::endl;
 	return 0;
 }
 
 int ffs_mkdir(const char* c_path, mode_t mode) {
 	auto path = sanitize_path(c_path);
+	std::cout << "mkdir " << path << std::endl;
 	
 	if(FFS::FS::exists(path))
 		return -EACCES;
@@ -178,11 +189,13 @@ int ffs_mkdir(const char* c_path, mode_t mode) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End of mkdir " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_unlink(const char * c_path) {
 	auto path = sanitize_path(c_path);
+	std::cout << "unlink " << path << std::endl;
 	
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
@@ -195,11 +208,13 @@ static int ffs_unlink(const char * c_path) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End of unlink " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_rmdir(const char * c_path) {
 	auto path = sanitize_path(c_path);
+	std::cout << "rmdir " << path << std::endl;
 	
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
@@ -215,6 +230,7 @@ static int ffs_rmdir(const char * c_path) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End of rmdir " << path << std::endl << std::endl;
 	return 0;
 }
 
@@ -226,6 +242,8 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	auto to = sanitize_path(c_to);
 	auto filename_to = FFS::FS::filename(to);
+
+	std::cout << "rename " << from << ", " << to << std::endl;
 
 	// Remove /filename from to_path, as we need to make sure the path before exists
 	auto offset = to.rfind(filename_to);
@@ -251,12 +269,14 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End of rename " << from << ", " << to << std::endl << std::endl;
 	return 0;
 }
 
 // truncate or extend file to be size bytes
 static int ffs_truncate(const char* c_path, off_t size) {
 	auto path = sanitize_path(c_path);
+	std::cout << "truncate " << path << std::endl;
 
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
@@ -291,6 +311,7 @@ static int ffs_truncate(const char* c_path, off_t size) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End of truncate " << path << std::endl << std::endl;
 	return size;
 }
 
@@ -344,11 +365,6 @@ static int ffs_access(const char* c_path, int mask) {
 	return F_OK;
 }
 
-static int ffs_flush(const char* path, struct fuse_file_info* fi) {
-	// Do nothing interesting, but don't return error
-	return 0;
-}
-
 static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
@@ -382,6 +398,10 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 }
 
 // --- UNIMPLEMENTED ---
+static int ffs_flush(const char* path, struct fuse_file_info* fi) {
+	// Do nothing interesting, but don't return error
+	return 0;
+}
 
 static int ffs_readlink(const char* path, char* buf, size_t size) {
 	std::cerr << "UNIMPLEMENTED: readlink" << std::endl;
@@ -414,15 +434,17 @@ static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 }
 
 
-//static int ffs_open(const char* path, struct fuse_file_info* fi) {
-//	std::cerr << "UNIMPLEMENTED: open" << std::endl;
-//	return -EPERM;
-//}
+static int ffs_open(const char* path, struct fuse_file_info* fi) {
+	std::cerr << "UNIMPLEMENTED: open " << path << std::endl;
+	return 0;
+	// return -EPERM;
+}
 
-//static int ffs_release(const char* path, struct fuse_file_info *fi) {
-//	std::cerr << "UNIMPLEMENTED: release" << std::endl;
-//	return -EPERM;
-//}
+static int ffs_release(const char* path, struct fuse_file_info *fi) {
+	std::cerr << "UNIMPLEMENTED: release " << path << std::endl;
+	return 0;
+	// return -EPERM;
+}
 
 //static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
 //	std::cerr << "UNIMPLEMENTED: releasedir" << std::endl;
@@ -491,18 +513,18 @@ static struct fuse_operations ffs_operations = {
 	.ftruncate	= ffs_ftruncate,
 	.statfs		= ffs_statfs,
 	.access		= ffs_access,
-	.flush		= ffs_flush,
 	.utimens	= ffs_utimens,
 
 	// -- UNIMPLEMENTED -- 
+	.flush		= ffs_flush,
 	.readlink	= ffs_readlink,
 	//.opendir	= ffs_opendir,
 	.symlink	= ffs_symlink,
 	.link		= ffs_link,
 	.chmod		= ffs_chmod,
 	.chown		= ffs_chown,
-	//.open		= ffs_open,
-	//.release	= ffs_release,
+	.open		= ffs_open,
+	.release	= ffs_release,
 	//.releasedir	= ffs_releasedir,
 	.fsync		= ffs_fsync,
 	.fsyncdir	= ffs_fsyncdir,
@@ -527,7 +549,19 @@ int FFS::FUSE::start(int argc, char *argv[]) {
 	
 	auto fuse_ret = fuse_main(argc, argv, &ffs_operations, NULL);
 
+	std::cout << "+ ----------------------- +" << std::endl;
+	std::cout << "|							|" << std::endl;
+	std::cout << "| 		FFS is			|" << std::endl;
+	std::cout << "| 	unmounting safely.	|" << std::endl;
+	std::cout << "|                         |" << std::endl;
+	std::cout << "| 	Do NOT force the	|" << std::endl;
+	std::cout << "|   program to shut down	|" << std::endl;
+	std::cout << "|                         |" << std::endl;
+	std::cout << "+ ----------------------- +" << std::endl;
+
 	FFS::FS::sync_inode_table();
+
+
 
 	return fuse_ret;
 }
