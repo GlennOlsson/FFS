@@ -33,8 +33,6 @@ void save_header(Magick::Quantum*& component_pointer, uint32_t length) {
 
 	component_pointer[6] = (length >> 16) & 0xFFFF;
 	component_pointer[7] = length & 0xFFFF;
-
-	std::cout << "wrote length " << length << ", " << ((short) component_pointer[6]) << ", " << ((short)component_pointer[7]) << std::endl;
 }
 
 std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint32_t length) {
@@ -84,11 +82,9 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	while(written_bytes < total_bytes) {
 		if(written_bytes < length + FFS_HEADER_SIZE) {
 			FFS::read_c(input_stream, b);
-			std::cout << "Add " << (char ) b << std::endl;
 		}
 		else {
 			b = random_byte();
-			std::cout << "Add random byte" << std::endl;
 		}
 
 		// If first byte in component, shift to left by one byte
@@ -107,15 +103,7 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	
 	memcpy(component_pointer, encrypted_pixels, total_bytes);
 
-	std::cout << "comp[5]: " << (short) component_pointer[5] << std::endl;
-	std::cout << "comp[6]: " << (short) component_pointer[6] << std::endl;
-	std::cout << "comp[7]: " << (short) component_pointer[7] << std::endl;
-
 	pixel_view.sync();
-
-	std::cout << "'comp[5]: " << (short) component_pointer[5] << std::endl;
-	std::cout << "'comp[6]: " << (short) component_pointer[6] << std::endl;
-	std::cout << "'comp[7]: " << (short) component_pointer[7] << std::endl;
 
 	std::shared_ptr<Magick::Blob> blob = std::make_shared<Magick::Blob>();
 	image.write(blob.get());
@@ -132,8 +120,6 @@ std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::ist
 
 	while(length > 0) {
 		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - FFS_HEADER_SIZE, (int) length);
-
-		std::cout << "Out file size: " << out_file_size << ", length: " << length << std::endl;
 
 		std::shared_ptr<Magick::Blob> blob = create_image(file_stream, out_file_size);
 		blobs->push_back(blob);
