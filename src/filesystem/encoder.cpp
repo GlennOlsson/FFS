@@ -88,10 +88,8 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
 	Magick::Quantum* component_pointer = pixel_view.get(0, 0, width, height);
 
-	// *((uint32_t*) component_pointer) = encrypted_len;
-
-	component_pointer[0] = (64 >> 16) & 0xFFFF;
-	component_pointer[1] = 64 & 0xFFFF;
+	component_pointer[0] = (encrypted_len >> 16) & 0xFFFF;
+	component_pointer[1] = encrypted_len & 0xFFFF;
 	// component_pointer[0] = (uint32_t) 64;
 
 	// First 4 bytes == 2 components save the encrypted data lenght

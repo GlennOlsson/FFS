@@ -51,8 +51,8 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
 	auto encrypted_pixel_data = pixel_view.get(0, 0, image_size.width(), image_size.height());
-	auto encrypted_data_len = ( (short) encrypted_pixel_data[0] << 16) | (short) encrypted_pixel_data[1];
-	
+	uint32_t encrypted_data_len = ((unsigned short) encrypted_pixel_data[0] << 16) | (unsigned short) encrypted_pixel_data[1];
+
 	// Skip 4 first bytes == stores encrypted data length
 	unsigned char encrypted_data[encrypted_data_len];
 
@@ -61,12 +61,17 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	while(byte_index < encrypted_data_len) {
 		auto s = (unsigned short) encrypted_pixel_data[pixel_index++];
 		encrypted_data[byte_index] = (s >> 8) & 0xFFFF;
-		encrypted_data[byte_index + 1] = s & 0xFFFF;
+		if(byte_index + 1 < encrypted_data_len)
+			encrypted_data[byte_index + 1] = s & 0xFFFF;
 
 		byte_index += 2;
 	}
 
+	std::cout << "copied data " << std::endl;
+
 	auto decryption = FFS::Crypto::decrypt(encrypted_data, encrypted_data_len);
+
+	std::cout << "decrytpred data " << decryption.len << std::endl;
 
 	auto raw_data = (char*) decryption.ptr;
 
