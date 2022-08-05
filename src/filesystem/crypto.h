@@ -4,7 +4,13 @@
 #include <iostream>
 
 namespace FFS::Crypto {
-	void* encrypt(const void*, size_t);
+
+	struct crypt_t {
+		void* ptr;
+		size_t len;
+	};
+
+	crypt_t encrypt(const void*, size_t);
 	void* decrypt(const void*, size_t);
 }
 

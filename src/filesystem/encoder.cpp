@@ -99,9 +99,9 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 
 
 	size_t data_count = total_bytes;
-	auto encrypted_pixels = (Magick::Quantum*) FFS::Crypto::encrypt((const void*) component_pointer, data_count);
+	auto encrypted_result = FFS::Crypto::encrypt((const void*) component_pointer, data_count);
 	
-	memcpy(component_pointer, encrypted_pixels, total_bytes);
+	memcpy(component_pointer, encrypted_result.ptr, encrypted_result.len);
 
 	pixel_view.sync();
 
