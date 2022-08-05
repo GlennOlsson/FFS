@@ -21,6 +21,8 @@
 // Some public data
 const char* salt = "FFS_ULTIMATE_FILESYSTEM_SALT";
 
+CryptoPP::AutoSeededRandomPool rng;
+
 CryptoPP::byte* derive_key() {
 	CryptoPP::byte* password = (unsigned char*) UNDERIVED_KEY;
 
@@ -37,8 +39,6 @@ CryptoPP::byte* derive_key() {
 
 FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 	CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e;
-	
-	CryptoPP::AutoSeededRandomPool rng;
 
 	size_t iv_len = e.IVSize();
 	CryptoPP::byte iv[iv_len];
@@ -77,4 +77,8 @@ void* FFS::Crypto::decrypt(const void* ptr, size_t len) {
 	char* ret_p = new char[len];
 	memcpy(ret_p, ptr, len);
 	return ret_p;
+}
+
+uint8_t FFS::Crypto::random_c() {
+	return rng.GenerateByte();
 }

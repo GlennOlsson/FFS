@@ -12,6 +12,8 @@ namespace FFS::Crypto {
 
 	crypt_t encrypt(const void*, size_t);
 	void* decrypt(const void*, size_t);
+	
+	uint8_t random_c();
 }
 
 #endif
