@@ -45,6 +45,10 @@
 // Data is still saved on storage medium, but doesn't matter
 void clear_fs() {
     FFS::State::clear_inode_table();
+
+    // Clearing will remove it from the OWS, but in another thread. Could possibly find the old inode table first
+    FFS::State::inode_table = std::make_shared<FFS::InodeTable>();
+
     FFS::Cache::clear_cache();
 }
 

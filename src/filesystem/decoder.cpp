@@ -53,8 +53,12 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	auto encrypted_pixel_data = pixel_view.get(0, 0, image_size.width(), image_size.height());
 	uint32_t encrypted_data_len = ((unsigned short) encrypted_pixel_data[0] << 16) | (unsigned short) encrypted_pixel_data[1];
 
+	if(encrypted_data_len > FFS_MAX_FILE_SIZE)
+		throw FFS::BadFFSFile("Encrypted data length to big");
+	
+
 	// Skip 4 first bytes == stores encrypted data length
-	unsigned char encrypted_data[encrypted_data_len];
+	unsigned char* encrypted_data = new unsigned char[encrypted_data_len];
 
 	auto pixel_index = 2;
 	auto byte_index = 0;
@@ -67,20 +71,17 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 		byte_index += 2;
 	}
 
-	std::cout << "copied data " << std::endl;
-
 	auto decryption = FFS::Crypto::decrypt(encrypted_data, encrypted_data_len);
-
-	std::cout << "decrytpred data " << decryption.len << std::endl;
-
 	auto raw_data = (char*) decryption.ptr;
 
 	uint32_t length = assert_header(raw_data);
-
 	// Write length amount of bytes to stream
 	uint32_t data_index = FFS_HEADER_SIZE;
 	while(data_index < length + FFS_HEADER_SIZE)
 		FFS::write_c(output_stream, raw_data[data_index++]);
+	
+	delete[] encrypted_data;
+	delete[] decryption.ptr;
 }
 
 void FFS::decode(const std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, std::ostream& file_stream){

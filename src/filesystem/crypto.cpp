@@ -80,14 +80,12 @@ FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* ptr, size_t len) {
 	memcpy(iv, ptr, d.IVSize());
 
 	auto cipher_len = len - d.IVSize();
-	unsigned char cipher_text[cipher_len];
-	memcpy(cipher_text, ((char*) ptr) + d.IVSize(), cipher_len);
 
 	auto key = derive_key();
 	d.SetKeyWithIV(key, CryptoPP::AES::DEFAULT_KEYLENGTH, iv);
 
 	std::string recovered;
-	CryptoPP::StringSource s(cipher_text, cipher_len, true, 
+	CryptoPP::StringSource s(((unsigned char*) ptr) + d.IVSize(), cipher_len, true, 
 		new CryptoPP::StreamTransformationFilter(d,
 			new CryptoPP::StringSink(recovered)
 		)

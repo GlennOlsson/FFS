@@ -36,7 +36,7 @@ main_test: | $(out_dir)
 
 all_tests: all | $(out_dir)
 	@time $(CC) $(all_flags) $(test_main) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/test.out 
-	time $(out_dir)/test.out
+	time $(out_dir)/test.out || notify_err FFS test failed
 	@notify FFS testing is done
 
 clean: | $(out_dir)

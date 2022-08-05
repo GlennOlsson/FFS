@@ -51,7 +51,7 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 
 	assert(data_bytes <= FFS_MAX_FILE_SIZE);
 
-	char data[data_bytes];
+	char* data = new char[data_bytes];
 	// Write header and all stream data to data ptr
 	encode_data(input_stream, length, data);
 
@@ -120,6 +120,9 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 
 	std::shared_ptr<Magick::Blob> blob = std::make_shared<Magick::Blob>();
 	image.write(blob.get());
+
+	delete[] data;
+	delete[] encryption.ptr;
 
 	return blob;
 }
