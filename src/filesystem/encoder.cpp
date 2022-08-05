@@ -38,7 +38,7 @@ void save_header(char* data, uint32_t length) {
 void encode_data(std::istream& input_stream, uint32_t stream_len, char* data) {
 	save_header(data, stream_len);
 	
-	uint32_t byte_index = 0;
+	uint32_t byte_index = FFS_HEADER_SIZE;
 	while(input_stream)
 		FFS::read_c(input_stream, data[byte_index++]);
 }
@@ -55,10 +55,20 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	// Write header and all stream data to data ptr
 	encode_data(input_stream, length, data);
 
+	std::cout << "Encoded data len: " << length << std::endl;
+
+	std::cout << "Encoded raw data: " << std::endl;
+	for(int i = 0; i < data_bytes; ++i) {
+		std::cout << "\t" << +(unsigned char)data[i] << std::endl;
+	}	
+
 	auto encryption = FFS::Crypto::encrypt(data, data_bytes);
+
 
 	auto encrypted_data = (char*) encryption.ptr;
 	auto encrypted_len = encryption.len;
+
+	std::cout << "Encrypted data len: " << encrypted_len << std::endl;
 
 	// Minumum required bytes for image. Length of encrypted data (4 bytes) + Encrypted data
 	uint32_t required_bytes = 4 + encrypted_len;
@@ -88,7 +98,11 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	// Pixels is a 3-packed array of rgb values, one Quantum (2 bytes) per component
 	Magick::Quantum* component_pointer = pixel_view.get(0, 0, width, height);
 
-	*((uint32_t*) component_pointer) = encrypted_len;
+	// *((uint32_t*) component_pointer) = encrypted_len;
+
+	component_pointer[0] = (64 >> 16) & 0xFFFF;
+	component_pointer[1] = 64 & 0xFFFF;
+	// component_pointer[0] = (uint32_t) 64;
 
 	// First 4 bytes == 2 components save the encrypted data lenght
 	uint32_t byte_index = 4;
@@ -98,8 +112,9 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 
 	uint8_t b;
 	while(byte_index < total_bytes) {
-		if(byte_index < encrypted_len) {
-			b = encrypted_data[byte_index];
+		if(byte_index < encrypted_len + 4) {
+			b = encrypted_data[byte_index - 4];
+			std::cout << +b << std::endl;
 		}
 		else {
 			b = FFS::Crypto::random_c();
@@ -111,15 +126,51 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 		} else { // mod == 1
 			current_value |= (b & 0xFF);
 			// 2 bytes per component. Will round down.
-			component_pointer[byte_index / 2] = current_value;
+			uint32_t index = byte_index / 2;
+			// std::cout << "assign " << current_value << " to index " << index << std::endl;
+			component_pointer[index] = current_value;
 		}
 		byte_index += 1;
 	}
+	// component_pointer[0] = 1;
+
+	// component_pointer[1] = 1;
+
+	std::cout << "Add 0 " << component_pointer << std::endl;
+	std::cout << "Add 1 " << &component_pointer[1] << std::endl;
+	std::cout << "Quantum size: " << (sizeof(Magick::Quantum)) << std::endl;
+
+	std::cout << "0 " << (component_pointer[0]) << std::endl;
+	std::cout << "1 " << (component_pointer[1]) << std::endl;
+	std::cout << "2 " << (component_pointer[2]) << std::endl;
 
 	pixel_view.sync();
 
+	uint32_t size = (((short) component_pointer[0]) << 16) | (((short) component_pointer[1]) & 0xFFFF);
+
+	std::cout << "SIZE: " << size << std::endl;
+
+	std::cout << "First hex: " << std::hex << ((int) component_pointer[1]) << std::endl;
+
+	std::cout << "Bytes of first" << std::endl;
+	char* byte_p = (char*) (component_pointer + 1);
+	for(int i = 0; i < 4; ++i) {
+		std::cout << std::hex << +byte_p[i] << " ";
+	}
+
+	std::cout << " - 0 " << (short) (component_pointer[0]) << std::endl;
+	std::cout << " - 1 " << (component_pointer[1]) << std::endl;
+	std::cout << " - 2 " << (component_pointer[2]) << std::endl;
+
 	std::shared_ptr<Magick::Blob> blob = std::make_shared<Magick::Blob>();
 	image.write(blob.get());
+
+	
+	// Magick::Image img2(*blob);
+	// short* encrypted_pixel_data = (short*) Magick::Pixels(img2).get(0, 0, width, height);
+	// for(int i = 0; i < total_pixels * 3; ++i) {
+	// 	std::cout << ((short*) encrypted_pixel_data)[i] << std::endl;
+	// }
 
 	return blob;
 }

@@ -73,10 +73,34 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 	return crypt;
 }
 
-void* FFS::Crypto::decrypt(const void* ptr, size_t len) {
-	char* ret_p = new char[len];
-	memcpy(ret_p, ptr, len);
-	return ret_p;
+FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* ptr, size_t len) {
+	CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption d;
+
+	CryptoPP::byte iv[d.IVSize()];
+	memcpy(iv, ptr, d.IVSize());
+
+	auto cipher_len = len - d.IVSize();
+	unsigned char cipher_text[cipher_len];
+	memcpy(cipher_text, ((char*) ptr) + d.IVSize(), cipher_len);
+
+	auto key = derive_key();
+	d.SetKeyWithIV(key, CryptoPP::AES::DEFAULT_KEYLENGTH, iv);
+
+	std::string recovered;
+	CryptoPP::StringSource s(cipher_text, cipher_len, true, 
+		new CryptoPP::StreamTransformationFilter(d,
+			new CryptoPP::StringSink(recovered)
+		)
+	);
+
+	char* out_ptr = new char[recovered.size()];
+	memcpy(out_ptr, recovered.c_str(), recovered.size());
+
+	crypt_t crypt;
+	crypt.ptr = out_ptr;
+	crypt.len = recovered.size();
+
+	return crypt;
 }
 
 uint8_t FFS::Crypto::random_c() {
