@@ -53,7 +53,6 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	auto encrypted_pixel_data = pixel_view.get(0, 0, image_size.width(), image_size.height());
 	auto encrypted_data_len = ( (short) encrypted_pixel_data[0] << 16) | (short) encrypted_pixel_data[1];
 	
-	std::cout << "encrypted data len: " << encrypted_data_len << std::endl;
 	// Skip 4 first bytes == stores encrypted data length
 	unsigned char encrypted_data[encrypted_data_len];
 
@@ -64,24 +63,14 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 		encrypted_data[byte_index] = (s >> 8) & 0xFFFF;
 		encrypted_data[byte_index + 1] = s & 0xFFFF;
 
-		std::cout << +encrypted_data[byte_index] << "\n" << +encrypted_data[byte_index + 1] << std::endl;
-
 		byte_index += 2;
 	}
 
 	auto decryption = FFS::Crypto::decrypt(encrypted_data, encrypted_data_len);
-	std::cout << "decrypted, data len: " << decryption.len << std::endl;
 
 	auto raw_data = (char*) decryption.ptr;
 
-	std::cout << "Decoded raw data: " << std::endl;
-	for(int i = 0; i < decryption.len; ++i) {
-		std::cout << "\t" << +(unsigned char)raw_data[i] << std::endl;
-	}
-
 	uint32_t length = assert_header(raw_data);
-
-	std::cout << "Asserted header" << std::endl;
 
 	// Write length amount of bytes to stream
 	uint32_t data_index = FFS_HEADER_SIZE;
