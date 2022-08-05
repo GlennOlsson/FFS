@@ -122,7 +122,8 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	image.write(blob.get());
 
 	delete[] data;
-	delete[] encryption.ptr;
+	// Cannot delete void*
+	delete[] (char*) encryption.ptr;
 
 	return blob;
 }

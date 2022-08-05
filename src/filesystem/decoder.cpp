@@ -81,7 +81,8 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 		FFS::write_c(output_stream, raw_data[data_index++]);
 	
 	delete[] encrypted_data;
-	delete[] decryption.ptr;
+	// Cannot delete void*
+	delete[] (char*) decryption.ptr;
 }
 
 void FFS::decode(const std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, std::ostream& file_stream){
