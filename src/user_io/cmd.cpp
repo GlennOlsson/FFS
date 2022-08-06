@@ -115,8 +115,8 @@ void print_table() {
 		bool is_dir = entry_obj->is_dir;
 		ss << (is_dir ? "directory" : "file") << " of " << entry_obj->length << " bytes at ";
 
-		for(auto post_id: *entry_obj->post_blocks) {
-			ss << post_id << ", ";
+		for(auto post_id_t: *entry_obj->post_blocks) {
+			ss << post_id_t << ", ";
 		}
 
 		ss << endl;
@@ -130,17 +130,17 @@ void print_root_dir() {
 }
 
 void print_inode_content() {
-	FFS::inode_id inode_id;
+	FFS::inode_t inode_t;
 	cout << "Enter inode id to read: ";
-	cin >> inode_id;
+	cin >> inode_t;
 
 	auto table = FFS::State::get_inode_table();
-	if(!table->entries->contains(inode_id)) {
-		cout << "No entry with inode " << inode_id << endl;
+	if(!table->entries->contains(inode_t)) {
+		cout << "No entry with inode " << inode_t << endl;
 		return;
 	}
 
-	auto inode_entry = table->entry(inode_id);
+	auto inode_entry = table->entry(inode_t);
 	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 	if(inode_entry->is_dir) {
 		auto dir = FFS::Storage::dir_from_blobs(blobs);

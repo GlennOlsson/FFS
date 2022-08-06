@@ -20,25 +20,25 @@ std::shared_ptr<FFS::InodeTable> create_table(std::shared_ptr<std::map<uint32_t,
 
 	// 10 files
 	for(uint32_t i = 0; i < 10; i++) {
-		FFS::inode_id rand_inode_id = FFS::random_int();
+		FFS::inode_t rand_inode_t = FFS::random_int();
 
 		//Random length between 10 and 10000 bytes
 		uint32_t rand_length = FFS::random_int(10, 10000);
 
-		auto rand_blocks = std::make_shared<std::vector<FFS::post_id>>();
+		auto rand_blocks = std::make_shared<std::vector<FFS::post_id_t>>();
 
 		uint32_t rand_block_counts = FFS::random_int(1, 100);
 		for(uint32_t j = 0; j < rand_block_counts; j++) {
-			auto rand_post_id = FFS::random_str(10);
+			auto rand_post_id_t = FFS::random_str(10);
 			
-			rand_blocks->push_back(rand_post_id);
+			rand_blocks->push_back(rand_post_id_t);
 		}
 
 		uint8_t is_dir = FFS::random_byte() % 2; // will be either 0 or 1
 
 		auto entry = std::make_shared<FFS::InodeEntry>(rand_length, rand_blocks, is_dir);
 
-		m->insert_or_assign(rand_inode_id, entry);
+		m->insert_or_assign(rand_inode_t, entry);
 	}
 
 	auto table = std::make_shared<FFS::InodeTable>(m);

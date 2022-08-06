@@ -24,7 +24,7 @@
 
 #define FFS_INODE_TABLE_TAG "ffs_inode"
 
-std::string path_of(FFS::post_id id) {
+std::string path_of(FFS::post_id_t id) {
 	std::stringstream path_stream;
 	path_stream << FFS_TMP_FS_PATH << "/ffs_" << id << "." << FFS_IMAGE_TYPE;
 	return path_stream.str();
@@ -71,18 +71,18 @@ std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blob(std::shared_ptr<
 	return FFS::InodeTable::deserialize(stream);
 }
 
-void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_id inode_id) {
-	auto new_post_ids = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
+void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inode_t) {
+	auto new_post_id_ts = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
 	auto table = FFS::State::get_inode_table();
-	auto inode_entry = table->entry(inode_id);
+	auto inode_entry = table->entry(inode_t);
 
 
 	// remove old dir from storage device
 	FFS::Storage::remove_posts(*inode_entry->post_blocks);
-	inode_entry->post_blocks = new_post_ids;
+	inode_entry->post_blocks = new_post_id_ts;
 }
 
-FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
+FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
 	// Write to temporary file, upload, and then remove temp file
 
 	auto tmp_filename = "/tmp/ffs_" + std::to_string(FFS::random_int());
@@ -104,18 +104,18 @@ FFS::post_id FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool 
 	return id;
 }
 
-std::shared_ptr<std::vector<FFS::post_id>> FFS::Storage::upload_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
-	auto posts = std::make_shared<std::vector<FFS::post_id>>();
+std::shared_ptr<std::vector<FFS::post_id_t>> FFS::Storage::upload_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs) {
+	auto posts = std::make_shared<std::vector<FFS::post_id_t>>();
 
 	for(auto blob: *blobs) {
-		FFS::post_id id = upload_file(blob);
+		FFS::post_id_t id = upload_file(blob);
 		posts->push_back(id);
 	}
 
 	return posts;
 }
 
-std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
+std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
 	if(FFS::Cache::get(id) != nullptr)
 		return FFS::Cache::get(id);
 
@@ -141,7 +141,7 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id id) {
 	return blob;
 }
 
-std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_file(std::shared_ptr<std::vector<FFS::post_id>> ids) {
+std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_file(std::shared_ptr<std::vector<FFS::post_id_t>> ids) {
 	auto v = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 	for(auto id: *ids) {
 		v->push_back(get_file(id));
@@ -149,27 +149,27 @@ std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::Storage::get_fi
 	return v;
 }
 
-FFS::post_id FFS::Storage::get_inode_table() {
+FFS::post_id_t FFS::Storage::get_inode_table() {
 	std::string tag = FFS_INODE_TABLE_TAG;
 
-	auto post_id = FFS::API::Flickr::search_image(tag);
-	return post_id;
+	auto post_id_t = FFS::API::Flickr::search_image(tag);
+	return post_id_t;
 }
 
-void FFS::Storage::remove_post(FFS::post_id& post_id) {
-	std::thread([post_id] {
+void FFS::Storage::remove_post(FFS::post_id_t& post_id_t) {
+	std::thread([post_id_t] {
 		try {
-			FFS::API::Flickr::delete_image(post_id);
+			FFS::API::Flickr::delete_image(post_id_t);
 		} catch(FFS::FlickrException& e) {
-			std::cerr << "Could not delete post with id " << post_id << std::endl;
+			std::cerr << "Could not delete post with id " << post_id_t << std::endl;
 		}
 	}).detach();
 
-	FFS::Cache::invalidate(post_id);
+	FFS::Cache::invalidate(post_id_t);
 }
 
-void FFS::Storage::remove_posts(std::vector<FFS::post_id>& posts) {
-	for(auto post_id: posts) {
-		remove_post(post_id);
+void FFS::Storage::remove_posts(std::vector<FFS::post_id_t>& posts) {
+	for(auto post_id_t: posts) {
+		remove_post(post_id_t);
 	}
 }

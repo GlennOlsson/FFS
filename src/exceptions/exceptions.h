@@ -41,6 +41,13 @@ class NoPathWithName: public StorageException {
 public:
 	NoPathWithName(std::string path);
 };
+
+class NoOpenFileWithFH: public StorageException {
+public:
+	NoOpenFileWithFH(FFS::file_handle_t fh) : 
+		FFS::StorageException("No open file or directory with file handle " + std::to_string(fh)) {}
+};
+
 class FileAlreadyExists: public StorageException {
 public:
 	FileAlreadyExists(std::string file_name);
@@ -48,7 +55,7 @@ public:
 
 class NoFileWithInode: public StorageException {
 public:
-	NoFileWithInode(FFS::inode_id inode);
+	NoFileWithInode(FFS::inode_t inode);
 };
 
 // when part of the path is a file rather than a directory

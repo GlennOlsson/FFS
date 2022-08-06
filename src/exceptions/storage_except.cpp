@@ -15,7 +15,7 @@ FFS::FileAlreadyExists::FileAlreadyExists(std::string name) :
     FFS::StorageException("There already exists a file or directory named " + name + ", cannot overwrite")
 {}
 
-FFS::NoFileWithInode::NoFileWithInode(FFS::inode_id i) : 
+FFS::NoFileWithInode::NoFileWithInode(FFS::inode_t i) : 
     FFS::StorageException("There is no file with inode " + std::to_string(i))
 {};
 

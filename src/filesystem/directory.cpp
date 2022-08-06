@@ -16,12 +16,12 @@
 #include <Magick++.h>
 #include <memory>
 
-FFS::Directory::Directory(std::shared_ptr<std::map<std::string, FFS::inode_id>> entries) {
+FFS::Directory::Directory(std::shared_ptr<std::map<std::string, FFS::inode_t>> entries) {
 	this->entries = entries;
 }
 
 FFS::Directory::Directory() {
-	auto empty_entries = std::make_shared<std::map<std::string, FFS::inode_id>>();
+	auto empty_entries = std::make_shared<std::map<std::string, FFS::inode_t>>();
 
 	this->entries = empty_entries;
 }
@@ -78,12 +78,12 @@ std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream
 
 		std::string name = name_stream.str();
 
-		uint32_t inode_id;
+		uint32_t inode_t;
 
 		// Write inode id
-		FFS::read_i(stream, inode_id);
+		FFS::read_i(stream, inode_t);
 
-		entries->insert({name, inode_id});
+		entries->insert({name, inode_t});
 	}
 
 	return std::make_shared<FFS::Directory>(entries);
@@ -98,22 +98,22 @@ std::vector<std::string> FFS::Directory::content() {
 }
 
 // Create file in directory
-void FFS::Directory::add_entry(std::string name, FFS::inode_id id) {
+void FFS::Directory::add_entry(std::string name, FFS::inode_t id) {
 	this->entries->insert({name, id});
 }
 // Get a file with specified name. Throws NoFileWithName exception if file does not exist
-FFS::inode_id FFS::Directory::get_file(std::string name) {
+FFS::inode_t FFS::Directory::get_file(std::string name) {
 	if(this->entries->contains(name))
 		return this->entries->at(name);
 
 	throw FFS::NoFileWithName(name);
 }
 
-FFS::inode_id FFS::Directory::remove_entry(std::string name) {
+FFS::inode_t FFS::Directory::remove_entry(std::string name) {
 	if(this->entries->count(name) == 0)
 		throw FFS::NoFileWithName(name);
 		
-	FFS::inode_id inode = this->entries->at(name);
+	FFS::inode_t inode = this->entries->at(name);
 	this->entries->erase(name);
 	return inode;
 }

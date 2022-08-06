@@ -11,7 +11,7 @@
 namespace FFS::FS {
     struct Traverser {
         std::shared_ptr<FFS::Directory> parent_dir;
-        FFS::inode_id parent_inode;
+        FFS::inode_t parent_inode;
         std::string filename;
 
         std::string full_path;
@@ -20,7 +20,7 @@ namespace FFS::FS {
     // Traverse path and return Traverser struct
     std::shared_ptr<Traverser> traverse_path(std::string);
     // Verify filename of traverser is in directory
-    void verify_file_in(std::shared_ptr<Traverser>);
+    void verify_in(std::shared_ptr<Traverser>);
     // Verify filename of traverser is NOT in directory
     void verify_not_in(std::shared_ptr<Traverser>);
 
@@ -33,7 +33,7 @@ namespace FFS::FS {
     void read_file(std::string, std::ostream&);
 
     // Get the inode and directory entity of the parent directory of a file or directory
-    std::shared_ptr<std::pair<FFS::inode_id, std::shared_ptr<FFS::Directory>>> parent_entry(std::string);
+    std::shared_ptr<std::pair<FFS::inode_t, std::shared_ptr<FFS::Directory>>> parent_entry(std::string);
 
     // Get the filename of a path
     std::string filename(std::string);
@@ -54,7 +54,7 @@ namespace FFS::FS {
     bool is_dir(std::string);
 
     // Get the inode entry from an inode
-    std::shared_ptr<FFS::InodeEntry> entry(FFS::inode_id inode);
+    std::shared_ptr<FFS::InodeEntry> entry(FFS::inode_t inode);
     // Get the inode entry from a path
     std::shared_ptr<FFS::InodeEntry> entry(std::string path);
 

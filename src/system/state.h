@@ -8,7 +8,7 @@ class State {
 private:
 public:
 	static std::shared_ptr<InodeTable> inode_table;
-	static post_id inode_table_id;
+	static post_id_t inode_table_id;
 
 //TODO: Set public here
 	// Check if has a inode table, else fetch from social media

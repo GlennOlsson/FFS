@@ -25,12 +25,12 @@
 
 // Inode Entry...
 
-FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id>> post_blocks, uint8_t is_dir = false) {
+FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id_t>> post_blocks, uint8_t is_dir = false) {
 	this->length = length;
 	this->is_dir = is_dir;
 	this->post_blocks = std::move(post_blocks);
 	if(this->post_blocks == nullptr) {
-		this->post_blocks = std::make_shared<std::vector<post_id>>();
+		this->post_blocks = std::make_shared<std::vector<post_id_t>>();
 	}
 
 	// Just created, so set as current time
@@ -68,7 +68,7 @@ void FFS::InodeEntry::serialize(std::ostream& stream) {
 	}
 
 	FFS::write_i(stream, this->post_blocks->size());
-	for (post_id entry : *post_blocks) {
+	for (post_id_t entry : *post_blocks) {
 		FFS::write_str(stream, entry);
 	}
 }
@@ -85,9 +85,9 @@ std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stre
 	FFS::read_l(stream, time_modified);
 	
 	FFS::read_i(stream, block_count);
-	auto blocks = std::make_shared<std::vector<post_id>>();
+	auto blocks = std::make_shared<std::vector<post_id_t>>();
 	while (block_count > 0) {
-		post_id id;
+		post_id_t id;
 		FFS::read_str(stream, id);
 
 		blocks->push_back(id);
@@ -118,10 +118,10 @@ FFS::InodeTable::InodeTable(std::shared_ptr<std::map<uint32_t, std::shared_ptr<F
 
 // Creates empty inode table with only a root directory
 FFS::InodeTable::InodeTable() {
-	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> empty_entries = std::make_shared<std::map<inode_id, std::shared_ptr<InodeEntry>>>();
+	std::shared_ptr<std::map<inode_t, std::shared_ptr<InodeEntry>>> empty_entries = std::make_shared<std::map<inode_t, std::shared_ptr<InodeEntry>>>();
 
 	// Create root dir entry of base size, but no entries
-	std::shared_ptr<std::vector<post_id>> no_posts = nullptr;
+	std::shared_ptr<std::vector<post_id_t>> no_posts = nullptr;
 	auto entry = std::make_shared<InodeEntry>(0, no_posts, true);
 	// Root dir should specific inode id
 	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
@@ -147,7 +147,7 @@ void FFS::InodeTable::serialize(std::ostream& stream) {
 
 	// For each entry add its id, and the serialized entry
 	for (auto entry : *this->entries) {
-		inode_id id = entry.first;
+		inode_t id = entry.first;
 		FFS::write_i(stream, id);
 
 		entry.second->serialize(stream);
@@ -159,10 +159,10 @@ std::shared_ptr<FFS::InodeTable> FFS::InodeTable::deserialize(std::istream& stre
 
 	FFS::read_i(stream, entries_count);
 
-	auto entries = std::make_shared<std::map< inode_id, std::shared_ptr<FFS::InodeEntry>>>();
+	auto entries = std::make_shared<std::map< inode_t, std::shared_ptr<FFS::InodeEntry>>>();
 
 	while(entries_count--) {
-		inode_id id;
+		inode_t id;
 
 		FFS::read_i(stream, id);
 
@@ -173,16 +173,16 @@ std::shared_ptr<FFS::InodeTable> FFS::InodeTable::deserialize(std::istream& stre
 	return std::make_shared<InodeTable>(entries);
 }
 
-FFS::inode_id FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id>> posts, uint32_t length, uint8_t is_dir) {
+FFS::inode_t FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id_t>> posts, uint32_t length, uint8_t is_dir) {
 	auto entry = std::make_shared<InodeEntry>(length, posts, is_dir);
 	
 	// Find next inode id to use
-	inode_id new_id;
+	inode_t new_id;
 	if(this->entries->empty()) {
 		new_id = 0;
 	} else {
 		auto r_it = this->entries->rbegin();
-		inode_id biggest_id = r_it->first;
+		inode_t biggest_id = r_it->first;
 		new_id = biggest_id + 1;
 	}
 
@@ -192,14 +192,14 @@ FFS::inode_id FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id
 	return new_id;
 }
 
-std::shared_ptr<FFS::InodeEntry> FFS::InodeTable::entry(const FFS::inode_id& id) {
+std::shared_ptr<FFS::InodeEntry> FFS::InodeTable::entry(const FFS::inode_t& id) {
 	if(this->entries->contains(id))
 		return this->entries->at(id);
 	
 	throw FFS::NoFileWithInode(id);
 }
 
-void FFS::InodeTable::remove_entry(FFS::inode_id id) {
+void FFS::InodeTable::remove_entry(FFS::inode_t id) {
 	auto entry = this->entries->at(id);
 	entry.reset();
 	entries->erase(id);

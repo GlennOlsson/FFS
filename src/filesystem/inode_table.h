@@ -36,10 +36,10 @@ public:
 	/**
 	* @brief A list representing the posts of the file or directory. 
 	*/
-	std::shared_ptr<std::vector<post_id>> post_blocks;
+	std::shared_ptr<std::vector<post_id_t>> post_blocks;
 
-	InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id>> post_blocks, uint8_t is_dir);
-	InodeEntry(uint32_t length, post_id post, uint8_t is_dir);
+	InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id_t>> post_blocks, uint8_t is_dir);
+	InodeEntry(uint32_t length, post_id_t post, uint8_t is_dir);
 	~InodeEntry();
 
 	
@@ -85,9 +85,9 @@ public:
 	/**
 	* @brief Map of (inode id, Inode entry) describing the content of the inode table
 	*/
-	std::shared_ptr<std::map<inode_id, std::shared_ptr<InodeEntry>>> entries;
+	std::shared_ptr<std::map<inode_t, std::shared_ptr<InodeEntry>>> entries;
 
-	InodeTable(std::shared_ptr<std::map<inode_id,  std::shared_ptr<InodeEntry>>> entries);
+	InodeTable(std::shared_ptr<std::map<inode_t,  std::shared_ptr<InodeEntry>>> entries);
 
 	InodeTable();
 
@@ -117,9 +117,9 @@ public:
 	static std::shared_ptr<InodeTable> deserialize(std::istream& stream);
 
 	// TODO: Test these methods
-	inode_id new_file(std::shared_ptr<std::vector<post_id>> posts, uint32_t length, uint8_t is_dir);
-	std::shared_ptr<InodeEntry> entry(const inode_id& id);
-	void remove_entry(inode_id);
+	inode_t new_file(std::shared_ptr<std::vector<post_id_t>> posts, uint32_t length, uint8_t is_dir);
+	std::shared_ptr<InodeEntry> entry(const inode_t& id);
+	void remove_entry(inode_t);
 
 	bool operator==(const InodeTable& rhs) const;
 };

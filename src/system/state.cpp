@@ -7,13 +7,13 @@
 #include <iostream>
 
 std::shared_ptr<FFS::InodeTable> FFS::State::inode_table = nullptr;
-FFS::post_id FFS::State::inode_table_id = "";
+FFS::post_id_t FFS::State::inode_table_id = "";
 
 std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {
 		// try to load from storage, else create new
 		std::shared_ptr<Magick::Blob> blob;
-		FFS::post_id new_id = "";
+		FFS::post_id_t new_id = "";
 		try {
 			new_id = FFS::Storage::get_inode_table();	
 			blob = FFS::Storage::get_file(new_id);
@@ -21,7 +21,7 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 			blob = nullptr;
 		}
 
-		// If could get blob, save new post_id and inode table
+		// If could get blob, save new post_id_t and inode table
 		if(blob != nullptr) {
 			FFS::State::inode_table_id = new_id;
 			State::inode_table = FFS::Storage::itable_from_blob(blob);

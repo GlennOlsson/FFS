@@ -49,7 +49,7 @@ flickcurl* get_fc() {
 	return fc;
 }
 
-FFS::post_id FFS::API::Flickr::post_image(std::string file_path, std::string post_text, std::string tags) {
+FFS::post_id_t FFS::API::Flickr::post_image(std::string file_path, std::string post_text, std::string tags) {
 	auto fc = get_fc();
 
 	flickcurl_upload_params params;
@@ -80,7 +80,7 @@ FFS::post_id FFS::API::Flickr::post_image(std::string file_path, std::string pos
 	return uploaded_id;
 }
 
-std::string FFS::API::Flickr::get_image(FFS::post_id id) {
+std::string FFS::API::Flickr::get_image(FFS::post_id_t id) {
 	auto fc = get_fc();
 
 	auto sizes = flickcurl_photos_getSizes(fc, id.c_str());
@@ -102,7 +102,7 @@ std::string FFS::API::Flickr::get_image(FFS::post_id id) {
 	return src_str;
 }
 
-FFS::post_id FFS::API::Flickr::search_image(std::string tag) {
+FFS::post_id_t FFS::API::Flickr::search_image(std::string tag) {
 	auto fc = get_fc();
 
 	flickcurl_search_params search_params;
@@ -139,7 +139,7 @@ FFS::post_id FFS::API::Flickr::search_image(std::string tag) {
 	return id;
 }
 
-void FFS::API::Flickr::delete_image(FFS::post_id id) {
+void FFS::API::Flickr::delete_image(FFS::post_id_t id) {
 	auto fc = get_fc();
 
  	flickcurl_photos_delete(fc, id.c_str());
