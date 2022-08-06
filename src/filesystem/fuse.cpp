@@ -179,9 +179,6 @@ int ffs_mkdir(const char* c_path, mode_t mode) {
 	auto path = sanitize_path(c_path);
 	std::cout << "mkdir " << path << std::endl;
 	
-	if(FFS::FS::exists(path))
-		return -EACCES;
-	
 	FFS::FS::create_dir(path);
 
 	FFS::FS::sync_inode_table();
@@ -193,9 +190,6 @@ int ffs_mkdir(const char* c_path, mode_t mode) {
 static int ffs_unlink(const char * c_path) {
 	auto path = sanitize_path(c_path);
 	std::cout << "unlink " << path << std::endl;
-	
-	if(!FFS::FS::exists(path))
-		return -ENOENT;
 	
 	try {
 		FFS::FS::remove(path);
@@ -212,12 +206,7 @@ static int ffs_unlink(const char * c_path) {
 static int ffs_rmdir(const char * c_path) {
 	auto path = sanitize_path(c_path);
 	std::cout << "rmdir " << path << std::endl;
-	
-	if(!FFS::FS::exists(path))
-		return -ENOENT;
-	
-	if(!FFS::FS::is_dir(path))
-		return -ENOTDIR;
+
 
 	try {
 		FFS::FS::remove(path);
@@ -234,9 +223,6 @@ static int ffs_rmdir(const char * c_path) {
 static int ffs_rename(const char* c_from, const char* c_to) {
 	auto from = sanitize_path(c_from);
 
-	if(!FFS::FS::exists(from))
-		return -ENOENT;
-
 	auto to = sanitize_path(c_to);
 	auto filename_to = FFS::FS::filename(to);
 
@@ -247,9 +233,6 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	if(offset == std::string::npos || offset < 1)
 		throw FFS::NoPathWithName(to);
 	auto to_parent = to.substr(0, offset);
-
-	if(!FFS::FS::exists(to_parent))
-		return -ENOENT;
 
 	auto parent_from = FFS::FS::parent_entry(from);
 	auto filename_from = FFS::FS::filename(from);
@@ -312,9 +295,41 @@ static int ffs_truncate(const char* c_path, off_t size) {
 	return size;
 }
 
-// Same as above but called by user program
+// Similar to above but uses file handle
 static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
-	return ffs_truncate(path, size);
+	std::cout << "Start of ftruncate " << path << std::endl << std::endl;
+	
+	auto fh = fi->fh;
+	auto inode = FFS::FileHandle::inode(fh);
+
+	std::stringbuf new_string_buf;
+	std::basic_iostream new_stream(&new_string_buf);
+
+	std::stringbuf curr_string_buf;
+	std::basic_iostream curr_stream(&curr_string_buf);
+
+	if(FFS::FileHandle::is_modified(fh)) {
+		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+		FFS::decode(curr_blobs, curr_stream);
+	} else
+		FFS::FS::read_file(inode, curr_stream);
+
+	// While there is content in the stream and the index 
+	// 	is smaller than the size, add from current stream
+	int new_size = 0;
+	while(curr_stream && new_size++ < size) {
+		new_stream.put(curr_stream.get());
+	}
+
+	// If extending the file, continue to add NULL to match the new size of the file
+	while(new_size++ < size) {
+		new_stream.put('\0');
+	}
+
+	auto new_blobs = FFS::FS::update_file(inode, new_stream);
+	FFS::FileHandle::update_blobs(fh, new_blobs);
+
+	std::cout << "End of ftruncate " << path << std::endl << std::endl;
 }
 
 /*
