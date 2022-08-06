@@ -25,7 +25,7 @@ std::shared_ptr<FFS::Directory> create_directory() {
 
 	// 10 files
 	for(uint32_t i = 0; i < 10; i++) {
-		FFS::inode_t rand_inode_t = FFS::random_int();
+		FFS::inode_t rand_inode = FFS::random_int();
 
 		uint8_t rand_name_length = FFS::random_byte();
 		std::stringstream name_stream;
@@ -40,7 +40,7 @@ std::shared_ptr<FFS::Directory> create_directory() {
 
 		std::string name = name_stream.str();
 
-		entries->insert({name, rand_inode_t});
+		entries->insert({name, rand_inode});
 	}
 
 	return std::make_shared<FFS::Directory>(entries);

@@ -17,9 +17,9 @@ public:
 	/**
 	* @brief Map of (filename, inode id) describing the content of the directory
 	*/
-	std::shared_ptr<std::map<std::string, inode_t>> entries;
+	std::shared_ptr<std::map<std::string, FFS::inode_t>> entries;
 
-	Directory(std::shared_ptr<std::map<std::string, inode_t>> entries);
+	Directory(std::shared_ptr<std::map<std::string, FFS::inode_t>> entries);
 	Directory();
 	
 	/**
@@ -52,11 +52,11 @@ public:
 	std::vector<std::string> content();
 
 	// Create file in directory
-	void add_entry(std::string name, inode_t id);
+	void add_entry(std::string name, FFS::inode_t id);
 	// Get a file with specified name
-	inode_t get_file(std::string name);
+	FFS::inode_t get_file(std::string name);
 	//Remove entry from directory and returns its inode. Throws NoFileWithName if file does not exist
-	inode_t remove_entry(std::string name);
+	FFS::inode_t remove_entry(std::string name);
 
 	/**
 	 * @brief Compare equality of two directories

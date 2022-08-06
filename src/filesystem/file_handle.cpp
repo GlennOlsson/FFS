@@ -4,6 +4,7 @@
 #include "storage.h"
 
 #include "../helpers/types.h"
+#include "../helpers/constants.h"
 
 #include "../system/state.h"
 
@@ -27,6 +28,8 @@ private:
 
 	blobs_t blobs;
 	blobs_t parent_blobs;
+
+	bool modified = false;
 
 public:
 
@@ -59,8 +62,33 @@ public:
 
 	blobs_t get_parent_blobs() {
 		return this->parent_blobs;
-	}	
+	}
+
+	void modify() {
+		this->modified = true;
+	}
+
+	bool is_modified() {
+		return this->modified;
+	}
 };
+
+std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with) {
+	std::size_t count{};
+	for (std::string::size_type pos{};
+		 inout.npos != (pos = inout.find(what.data(), pos, what.length()));
+		 pos += with.length(), ++count) {
+		inout.replace(pos, what.length(), with.data(), with.length());
+	}
+	return count;
+}
+
+std::string sanitize_path(std::string str) {
+	replace_all(str, "\\ ", " ");
+	replace_all(str, "ö", "ö"); // force replace special ö inserted my macos
+
+	return str;
+}
 
 FFS::file_handle_t fh(FFS::inode_t inode) {
 	return (FFS::file_handle_t) inode;
@@ -69,12 +97,18 @@ FFS::file_handle_t fh(FFS::inode_t inode) {
 std::map<FFS::inode_t, FileHandler> open_files;
 
 FFS::file_handle_t FFS::FileHandle::open(std::string path) {
-	auto traverser = FFS::FS::traverse_path(path);
-
-	FFS::FS::verify_in(traverser);
+	auto traverser = FFS::FS::traverse_path(sanitize_path(path));
 
 	auto filename = traverser->filename;
-	auto inode = traverser->parent_dir->get_file(filename);
+
+	FFS::inode_t inode;
+	// Special case if root
+	if(path == "/") {
+		inode = FFS_ROOT_INODE;
+	} else {
+		FFS::FS::verify_in(traverser);
+		inode = traverser->parent_dir->get_file(filename);
+	}
 
 	// If call to already open file
 	if(open_files.contains(inode)) {
@@ -93,20 +127,24 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 	if(!open_files.contains(inode))
 		throw FFS::NoOpenFileWithFH(fh);
 
-	auto open_file = open_files.at(inode);
+	auto& open_file = open_files.at(inode);
+
 	bool last_close = open_file.close();
 	if(last_close) {
-		// Save open file/dir, (parent dir?) and inode table
+		if(open_file.is_modified()) {
+			// Save open file/dir, (parent dir?) and inode table
+			auto table = FFS::State::get_inode_table();
 
-		auto table = FFS::State::get_inode_table();
+			auto inode_entry = table->entry(inode);
 
-		auto inode_entry = table->entry(inode);
+			auto blobs = open_file.get_blobs();
+			auto posts = FFS::Storage::upload_file(blobs);
+			inode_entry->post_blocks = posts;
 
-		auto blobs = open_file.get_blobs();
-		auto posts = FFS::Storage::upload_file(blobs);
-		inode_entry->post_blocks = posts;
+			FFS::State::save_table();
+		}
 
-		FFS::State::save_table();
+		open_files.erase(inode);
 	}
 }
 

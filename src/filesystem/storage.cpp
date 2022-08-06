@@ -71,10 +71,10 @@ std::shared_ptr<FFS::InodeTable> FFS::Storage::itable_from_blob(std::shared_ptr<
 	return FFS::InodeTable::deserialize(stream);
 }
 
-void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inode_t) {
+void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inode_id) {
 	auto new_post_id_ts = FFS::Storage::upload_file(FFS::Storage::blobs(*dir));
 	auto table = FFS::State::get_inode_table();
-	auto inode_entry = table->entry(inode_t);
+	auto inode_entry = table->entry(inode_id);
 
 
 	// remove old dir from storage device

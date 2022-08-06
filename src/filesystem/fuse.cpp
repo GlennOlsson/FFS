@@ -28,7 +28,7 @@
 #define PERM_OTHER (S_IRWXO)
 #define FULL_PERMISSIONS ( PERM_OWNER | PERM_GROUP | PERM_OTHER )
 
-std::size_t replace_all(std::string& inout, std::string_view what, std::string_view with) {
+std::size_t _replace_all(std::string& inout, std::string_view what, std::string_view with) {
 	std::size_t count{};
 	for (std::string::size_type pos{};
 		 inout.npos != (pos = inout.find(what.data(), pos, what.length()));
@@ -40,8 +40,8 @@ std::size_t replace_all(std::string& inout, std::string_view what, std::string_v
 
 std::string sanitize_path(const char* c_path) {
 	std::string str(c_path);
-	replace_all(str, "\\ ", " ");
-	replace_all(str, "ö", "ö"); // force replace special ö inserted my macos
+	_replace_all(str, "\\ ", " ");
+	_replace_all(str, "ö", "ö"); // force replace special ö inserted my macos
 
 	return str;
 }
@@ -84,17 +84,18 @@ static int ffs_fgetattr(const char* c_path, struct stat* stat_struct, struct fus
 }
 
 static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
-	auto path = sanitize_path(c_path);
-	std::cout << "ffs_readir " << path << std::endl;
+	std::cout << "ffs_readir " << c_path << std::endl;
 
-	auto dir = FFS::FS::read_dir(path);
+	auto inode = FFS::FileHandle::inode(fi->fh);
+	auto dir = FFS::FS::get_dir(inode);
+
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
 	for(auto entry: *dir->entries) {
 		filler(buf, entry.first.c_str(), NULL, 0);
 	}
 
-	std::cout << "End of ffs_readir " << path << std::endl << std::endl;
+	std::cout << "End of ffs_readir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
@@ -401,25 +402,33 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 }
 
 static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
+	std::cout << "open dir " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
+	std::cout << "end of open dir" << std::endl;
 	return 0;
 }
 
 
 static int ffs_open(const char* path, struct fuse_file_info* fi) {
+	std::cout << "open file " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
-	return 0;
-}
-
-static int ffs_release(const char* path, struct fuse_file_info *fi) {
-	FFS::FileHandle::close(fi->fh);
+	std::cout << "end of open file" << std::endl;
 	return 0;
 }
 
 static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
+	std::cout << "close dir " << path << std::endl;
 	FFS::FileHandle::close(fi->fh);
+	std::cout << "end of close dir" << std::endl;
+	return 0;
+}
+
+static int ffs_release(const char* path, struct fuse_file_info *fi) {
+	std::cout << "close file " << path << std::endl;
+	FFS::FileHandle::close(fi->fh);
+	std::cout << "end of close file" << std::endl;
 	return 0;
 }
 

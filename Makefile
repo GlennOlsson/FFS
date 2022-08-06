@@ -23,7 +23,7 @@ $(out_dir):
 	@mkdir $(out_dir)
 
 all: | $(out_dir)
-	@$(CC) $(all_flags) src/main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out
+	@$(CC) $(all_flags) src/main.cpp $(patsubst $(@F).cpp, $(out_dir)/%.o, $(files)) -o $(out_dir)/main.out  || notify_err FFS compile failed
 	@notify FFS compile is done
 
 # Keep alive (-f), disable multi-threading (-s), debugging (-d)

@@ -78,12 +78,12 @@ std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream
 
 		std::string name = name_stream.str();
 
-		uint32_t inode_t;
+		FFS::inode_t inode_id;
 
 		// Write inode id
-		FFS::read_i(stream, inode_t);
+		FFS::read_i(stream, inode_id);
 
-		entries->insert({name, inode_t});
+		entries->insert({name, inode_id});
 	}
 
 	return std::make_shared<FFS::Directory>(entries);
