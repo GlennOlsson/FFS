@@ -255,13 +255,14 @@ void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream
 
 	// If stream is nullptr, create as empty file in inode table. Means that is does not have to be uploaded
 	std::shared_ptr<std::__1::vector<FFS::post_id>> posts = nullptr;
+	size_t stream_length = 0;
 	if(stream != nullptr) {
+		stream_length = FFS::stream_size(*stream);
 		auto blobs = FFS::encode(*stream);
 		posts = FFS::Storage::upload_file(blobs);
 	}
 
 	auto inode_table = FFS::State::get_inode_table();
-	auto stream_length = stream == nullptr ? 0 : FFS::stream_size(*stream);
 	auto inode_id = inode_table->new_file(posts, stream_length, false);
 
 	parent_dir->add_entry(filename, inode_id);

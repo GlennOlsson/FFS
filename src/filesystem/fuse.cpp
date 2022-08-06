@@ -99,7 +99,7 @@ static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, of
 
 static int ffs_read(const char* c_path, char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
 	auto path = sanitize_path(c_path);
-	std::cout << "read " << path << std::endl;
+	std::cout << "read " << path << ", size: " << size << ", offset: " << offset << std::endl;
 	
 	if(!FFS::FS::exists(path)) 
 		return -ENOENT;
@@ -132,7 +132,7 @@ static int ffs_write(const char* c_path, const char* buf, size_t size, off_t off
 
 	// Create stream for new file content
 	std::stringbuf new_string_buf;
-	std::basic_iostream new_stream(&new_string_buf);
+	auto new_stream = std::make_shared<std::basic_iostream<char>>(&new_string_buf);
 
 	// If offset > 0, read current file and add up until offset before
 	if(offset > 0) {
@@ -143,19 +143,21 @@ static int ffs_write(const char* c_path, const char* buf, size_t size, off_t off
 		
 		int i = 0;
 		while(i++ < offset) {
-			new_stream.put(curr_stream.get());
+			new_stream->put(curr_stream.get());
 		}
 	}
 
 	// Add new content
 	size_t index = 0;
 	while(index < size) {
-		FFS::write_c(new_stream, buf[index++]);
+		FFS::write_c(*new_stream, buf[index++]);
 	}
 
+    new_stream->flush();
+
 	FFS::FS::remove(path);
-	auto ptr = std::make_shared<std::istream>(new_stream.rdbuf());
-	FFS::FS::create_file(path, ptr);
+
+	FFS::FS::create_file(path, new_stream);
 
 	FFS::FS::sync_inode_table();
 
@@ -550,12 +552,12 @@ int FFS::FUSE::start(int argc, char *argv[]) {
 	auto fuse_ret = fuse_main(argc, argv, &ffs_operations, NULL);
 
 	std::cout << "+ ----------------------- +" << std::endl;
-	std::cout << "|							|" << std::endl;
-	std::cout << "| 		FFS is			|" << std::endl;
-	std::cout << "| 	unmounting safely.	|" << std::endl;
 	std::cout << "|                         |" << std::endl;
-	std::cout << "| 	Do NOT force the	|" << std::endl;
-	std::cout << "|   program to shut down	|" << std::endl;
+	std::cout << "|         FFS is          |" << std::endl;
+	std::cout << "|    unmounting safely.   |" << std::endl;
+	std::cout << "|                         |" << std::endl;
+	std::cout << "|     Do NOT force the    |" << std::endl;
+	std::cout << "|   program to shut down  |" << std::endl;
 	std::cout << "|                         |" << std::endl;
 	std::cout << "+ ----------------------- +" << std::endl;
 
