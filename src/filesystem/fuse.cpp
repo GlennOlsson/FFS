@@ -7,6 +7,7 @@
 #include "storage.h"
 #include "inode_table.h"
 #include "directory.h"
+#include "file_handle.h"
 
 #include "../system/state.h"
 
@@ -399,6 +400,29 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 	return 0;
 }
 
+static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
+	auto fh = FFS::FileHandle::open(path);
+	fi->fh = fh;
+	return 0;
+}
+
+
+static int ffs_open(const char* path, struct fuse_file_info* fi) {
+	auto fh = FFS::FileHandle::open(path);
+	fi->fh = fh;
+	return 0;
+}
+
+static int ffs_release(const char* path, struct fuse_file_info *fi) {
+	FFS::FileHandle::close(fi->fh);
+	return 0;
+}
+
+static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
+	FFS::FileHandle::close(fi->fh);
+	return 0;
+}
+
 // --- UNIMPLEMENTED ---
 static int ffs_flush(const char* path, struct fuse_file_info* fi) {
 	// Do nothing interesting, but don't return error
@@ -409,11 +433,6 @@ static int ffs_readlink(const char* path, char* buf, size_t size) {
 	std::cerr << "UNIMPLEMENTED: readlink" << std::endl;
 	return -EPERM;
 }
-
-//static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
-//	std::cerr << "UNIMPLEMENTED: opendir" << std::endl;
-//	return -EPERM;
-//}
 
 static int ffs_symlink(const char* to, const char* from) {
 	std::cerr << "UNIMPLEMENTED: symlink" << std::endl;
@@ -434,24 +453,6 @@ static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 	std::cerr << "UNIMPLEMENTED: chown" << std::endl;
 	return -EPERM;
 }
-
-
-static int ffs_open(const char* path, struct fuse_file_info* fi) {
-	std::cerr << "UNIMPLEMENTED: open " << path << std::endl;
-	return 0;
-	// return -EPERM;
-}
-
-static int ffs_release(const char* path, struct fuse_file_info *fi) {
-	std::cerr << "UNIMPLEMENTED: release " << path << std::endl;
-	return 0;
-	// return -EPERM;
-}
-
-//static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
-//	std::cerr << "UNIMPLEMENTED: releasedir" << std::endl;
-//	return -EPERM;
-//}
 
 static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
 	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
@@ -516,18 +517,18 @@ static struct fuse_operations ffs_operations = {
 	.statfs		= ffs_statfs,
 	.access		= ffs_access,
 	.utimens	= ffs_utimens,
+	.open		= ffs_open,
+	.release	= ffs_release,
+	.opendir	= ffs_opendir,
+	.releasedir	= ffs_releasedir,
 
 	// -- UNIMPLEMENTED -- 
 	.flush		= ffs_flush,
 	.readlink	= ffs_readlink,
-	//.opendir	= ffs_opendir,
 	.symlink	= ffs_symlink,
 	.link		= ffs_link,
 	.chmod		= ffs_chmod,
 	.chown		= ffs_chown,
-	.open		= ffs_open,
-	.release	= ffs_release,
-	//.releasedir	= ffs_releasedir,
 	.fsync		= ffs_fsync,
 	.fsyncdir	= ffs_fsyncdir,
 	//.lock		= ffs_lock,
