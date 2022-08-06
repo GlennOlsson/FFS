@@ -50,13 +50,6 @@ std::vector<std::string> path_parts(std::string path) {
 
 	return v;
 }
-struct Traverser {
-	std::shared_ptr<FFS::Directory> parent_dir;
-	FFS::inode_id parent_inode;
-	std::string filename;
-
-    std::string full_path;
-};
 
 std::shared_ptr<FFS::Directory> get_root_dir() {
 	auto cached_root = FFS::Cache::get_root();
@@ -80,7 +73,7 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 // with the filename (could be a directory name too).
 //
 // No check is made if the file exists in the specified path
-std::shared_ptr<Traverser> traverse_path(std::string path) {
+std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 	std::vector<std::string> dirs = path_parts(path);
 	std::string filename = dirs.back();
 	dirs.pop_back(); // Removes last element == filename
@@ -103,18 +96,18 @@ std::shared_ptr<Traverser> traverse_path(std::string path) {
 		dir = FFS::Storage::dir_from_blobs(blobs);
 	}
 
-	return std::make_shared<Traverser>(Traverser({dir, inode_id, filename, path}));
+	return std::make_shared<FFS::FS::Traverser>(FFS::FS::Traverser({dir, inode_id, filename, path}));
 }
 
 // Check if file is in the parent directory of a traverser object. Throws BadFFSPath if not in
-void verify_file_in(std::shared_ptr<Traverser> tr) {
+void FFS::FS::verify_file_in(std::shared_ptr<FFS::FS::Traverser> tr) {
     if(!tr->parent_dir->entries->contains(tr->filename)) {
         throw FFS::BadFFSPath(tr->full_path, tr->filename);
     }
 }
 
 // Check that file is not in the parent directory of a traverser object. Throws BadFFSPath if not in
-void verify_not_in(std::shared_ptr<Traverser> tr) {
+void FFS::FS::verify_not_in(std::shared_ptr<FFS::FS::Traverser> tr) {
     if(tr->parent_dir->entries->contains(tr->filename)) {
         throw FFS::FileAlreadyExists(tr->filename);
     }
@@ -134,7 +127,7 @@ FFS::inode_id inode_from_path(std::string path) {
 
 	remove_trailing_slash(path);
 
-	auto traverser = traverse_path(path);
+	auto traverser = FFS::FS::traverse_path(path);
     verify_file_in(traverser);
 
 	auto filename = traverser->filename;

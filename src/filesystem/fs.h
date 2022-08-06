@@ -9,6 +9,21 @@
 #include <memory>
 
 namespace FFS::FS {
+    struct Traverser {
+        std::shared_ptr<FFS::Directory> parent_dir;
+        FFS::inode_id parent_inode;
+        std::string filename;
+
+        std::string full_path;
+    };
+
+    // Traverse path and return Traverser struct
+    std::shared_ptr<Traverser> traverse_path(std::string);
+    // Verify filename of traverser is in directory
+    void verify_file_in(std::shared_ptr<Traverser>);
+    // Verify filename of traverser is NOT in directory
+    void verify_not_in(std::shared_ptr<Traverser>);
+
     // Return the directory at path. Throws NoFileWithName if path does not exist
     std::shared_ptr<FFS::Directory> read_dir(std::string);
     // Return the directory with specified inode entry
