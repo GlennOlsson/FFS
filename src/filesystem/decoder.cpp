@@ -85,7 +85,7 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	delete[] (char*) decryption.ptr;
 }
 
-void FFS::decode(const std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs, std::ostream& file_stream){
+void FFS::decode(const FFS::blobs_t blobs, std::ostream& file_stream){
 
 	Magick::Image image;
 	// std::string filename;

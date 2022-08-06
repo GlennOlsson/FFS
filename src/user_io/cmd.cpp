@@ -126,17 +126,17 @@ void print_root_dir() {
 }
 
 void print_inode_content() {
-	FFS::inode_t inode_id;
+	FFS::inode_t inode;
 	cout << "Enter inode id to read: ";
-	cin >> inode_id;
+	cin >> inode;
 
 	auto table = FFS::State::get_inode_table();
-	if(!table->entries->contains(inode_id)) {
-		cout << "No entry with inode " << inode_id << endl;
+	if(!table->entries->contains(inode)) {
+		cout << "No entry with inode " << inode << endl;
 		return;
 	}
 
-	auto inode_entry = table->entry(inode_id);
+	auto inode_entry = table->entry(inode);
 	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 	if(inode_entry->is_dir) {
 		auto dir = FFS::Storage::dir_from_blobs(blobs);

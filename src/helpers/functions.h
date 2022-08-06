@@ -45,4 +45,6 @@ namespace FFS {
 
 	// Get the number of characters in a stream
 	size_t stream_size(std::istream&);
+
+	uint64_t curr_milliseconds();
 }

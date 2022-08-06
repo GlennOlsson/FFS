@@ -23,13 +23,10 @@ void save_header(char* data, uint32_t length) {
 
 	data[3] = FFS_FILE_VERSION;
 
-	const auto timestamp = std::chrono::system_clock::now();
-	uint64_t nanos_since_epoch = std::chrono::duration_cast<std::chrono::nanoseconds>(
-		timestamp.time_since_epoch()
-	).count();
+	uint64_t curr_millis = FFS::curr_milliseconds();
 
 	// Interpret data[4] as a uint64_t pointer, and save timestamp
-	*((uint64_t*) &data[4]) = nanos_since_epoch;
+	*((uint64_t*) &data[4]) = curr_millis;
 
 	// Interpret data[12] as a uint32_t pointer, and save length
 	*((uint32_t*) &data[12]) = length;
@@ -128,7 +125,7 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 	return blob;
 }
 
-std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::istream& file_stream) {
+FFS::blobs_t FFS::encode(std::istream& file_stream) {
 	int length = FFS::stream_size(file_stream);
 
 	uint32_t out_file_index = 0;
@@ -148,7 +145,7 @@ std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::ist
 	return blobs;
 }
 
-std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> FFS::encode(std::string input_path) {
+FFS::blobs_t FFS::encode(std::string input_path) {
 	std::ifstream file_stream(input_path, std::ifstream::binary);
 	if (!file_stream) {
 		std::cerr << "no file " << input_path << std::endl;

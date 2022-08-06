@@ -31,6 +31,8 @@ namespace FFS::FS {
     // Return the directory with specified inode
     std::shared_ptr<FFS::Directory> get_dir(FFS::inode_t inode);
 
+    // Writes to the stream with the content of the file with inode. Throws NoFileWithInode if file does not exist
+    void read_file(FFS::inode_t inode, std::ostream& stream);
     // Writes to the stream with the content of the file at path. Throws NoFileWithName if path does not exist
     void read_file(std::string, std::ostream&);
 
@@ -43,6 +45,8 @@ namespace FFS::FS {
     // Create an empty directory on path. Throws NoFileWithName if path up until directory does not exist
     void create_dir(std::string);
     
+    // Update existing file with new content. Does not upload new blobs
+    FFS::blobs_t update_file(FFS::inode_t, std::istream&);
     // Create a file at path, with content of stream. Throws NoFileWithName if path up until file does not exist
     void create_file(std::string, std::shared_ptr<std::istream>);
 

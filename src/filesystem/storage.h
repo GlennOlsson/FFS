@@ -17,10 +17,10 @@ namespace FFS::Storage {
 	 * 
 	 * @return Magick::Blob* 
 	 */
-	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs(Directory&);
-	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs(InodeTable&);
+	FFS::blobs_t blobs(Directory&);
+	FFS::blobs_t blobs(InodeTable&);
 
-	std::shared_ptr<Directory> dir_from_blobs(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blob);
+	std::shared_ptr<Directory> dir_from_blobs(FFS::blobs_t blob);
 	std::shared_ptr<InodeTable> itable_from_blob(std::shared_ptr<Magick::Blob> blob);
 	
 	// Update existing directory with new blocks and save inode table
@@ -29,11 +29,11 @@ namespace FFS::Storage {
 	// Upload blob and return post_id_t. Blob is cached
 	FFS::post_id_t upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode = false);
 	// Upload blobs but don't save to the inode table
-	std::shared_ptr<std::vector<FFS::post_id_t>> upload_file(std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs);
+	std::shared_ptr<std::vector<FFS::post_id_t>> upload_file(FFS::blobs_t blobs);
 
 	// Get file from service
 	std::shared_ptr<Magick::Blob> get_file(post_id_t id);
-	std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> get_file(std::shared_ptr<std::vector<post_id_t>> ids);
+	FFS::blobs_t get_file(std::shared_ptr<std::vector<post_id_t>> ids);
 	
 	// Get the inode table from the storage medium
 	FFS::post_id_t get_inode_table();

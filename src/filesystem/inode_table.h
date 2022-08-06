@@ -42,7 +42,6 @@ public:
 	InodeEntry(uint32_t length, post_id_t post, uint8_t is_dir);
 	~InodeEntry();
 
-	
 	/**
 	 * @brief Returns the size of the object in terms of bytes
 	 * 

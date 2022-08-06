@@ -91,10 +91,10 @@ std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 	std::shared_ptr<FFS::InodeEntry> dir_entry = nullptr;
 
-	FFS::inode_t inode_id = FFS_ROOT_INODE;
+	FFS::inode_t inode = FFS_ROOT_INODE;
 	for(std::string dir_name: dirs) {
-        inode_id = dir->get_file(dir_name);
-		dir_entry = table->entry(inode_id);
+        inode = dir->get_file(dir_name);
+		dir_entry = table->entry(inode);
 		if(!dir_entry->is_dir) {
 			throw FFS::BadFFSPath(path, dir_name);
 		}
@@ -102,17 +102,17 @@ std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 		dir = FFS::Storage::dir_from_blobs(blobs);
 	}
 
-	return std::make_shared<FFS::FS::Traverser>(FFS::FS::Traverser({dir, inode_id, filename, path}));
+	return std::make_shared<FFS::FS::Traverser>(FFS::FS::Traverser({dir, inode, filename, path}));
 }
 
-// Check if file is in the parent directory of a traverser object. Throws BadFFSPath if not in
+// Check if file is in the parent directory of a traverser object. Throws NoPathWithName if not in
 void FFS::FS::verify_in(std::shared_ptr<FFS::FS::Traverser> tr) {
     if(!tr->parent_dir->entries->contains(tr->filename)) {
-        throw FFS::BadFFSPath(tr->full_path, tr->filename);
+        throw FFS::NoPathWithName(tr->full_path);
     }
 }
 
-// Check that file is not in the parent directory of a traverser object. Throws BadFFSPath if not in
+// Check that file is NOT in the parent directory of a traverser object. Throws FileAlreadyExists if not in
 void FFS::FS::verify_not_in(std::shared_ptr<FFS::FS::Traverser> tr) {
     if(tr->parent_dir->entries->contains(tr->filename)) {
         throw FFS::FileAlreadyExists(tr->filename);
@@ -183,9 +183,7 @@ std::shared_ptr<FFS::Directory> FFS::FS::get_dir(FFS::inode_t inode) {
 	return get_dir(inode_entry);
 }
 
-void FFS::FS::read_file(std::string path, std::ostream& stream) {
-	auto inode = inode_from_path(path);
-
+void FFS::FS::read_file(FFS::inode_t inode, std::ostream& stream) {
 	auto inode_entry = entry(inode);
 	// If is nullptr, empty file
 	if(inode_entry->post_blocks == nullptr)
@@ -194,6 +192,12 @@ void FFS::FS::read_file(std::string path, std::ostream& stream) {
     auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
 
 	FFS::decode(blobs, stream);
+}
+
+void FFS::FS::read_file(std::string path, std::ostream& stream) {
+	auto inode = inode_from_path(path);
+
+	read_file(inode, stream);
 }
 
 std::shared_ptr<std::pair<FFS::inode_t, std::shared_ptr<FFS::Directory>>> FFS::FS::parent_entry(std::string path) {
@@ -247,6 +251,24 @@ void FFS::FS::create_dir(std::string path) {
 	FFS::Storage::update(parent_dir, parent_inode);
 }
 
+FFS::blobs_t FFS::FS::update_file(FFS::inode_t inode, std::istream& stream) {
+	auto stream_length = FFS::stream_size(stream);
+	auto blobs = FFS::encode(stream);
+
+	auto inode_table = FFS::State::get_inode_table();
+	auto entry = inode_table->entry(inode);
+
+	//TODO: remove old posts
+
+	entry->length = stream_length;
+	
+	auto now = FFS::curr_milliseconds();
+	entry->time_modified = now;
+	entry->time_accessed = now;
+
+	return blobs;
+}
+
 void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream) {
 	remove_trailing_slash(path);
 	
@@ -267,9 +289,9 @@ void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream
 	}
 
 	auto inode_table = FFS::State::get_inode_table();
-	auto inode_id = inode_table->new_file(posts, stream_length, false);
+	auto inode = inode_table->new_file(posts, stream_length, false);
 
-	parent_dir->add_entry(filename, inode_id);
+	parent_dir->add_entry(filename, inode);
 
 	// Save new content of parent dir
 	FFS::Storage::update(parent_dir, parent_inode);

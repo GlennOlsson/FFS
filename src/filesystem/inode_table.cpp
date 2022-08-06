@@ -34,10 +34,10 @@ FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id
 	}
 
 	// Just created, so set as current time
-	auto now = std::chrono::system_clock::now().time_since_epoch();
-	this->time_created = std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
-	this->time_accessed = this->time_created;
-	this->time_modified = this->time_created;
+	auto now = FFS::curr_milliseconds();
+	this->time_created = now;
+	this->time_accessed = now;
+	this->time_modified = now;
 }
 
 FFS::InodeEntry::~InodeEntry() {
@@ -193,8 +193,10 @@ FFS::inode_t FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id_
 }
 
 std::shared_ptr<FFS::InodeEntry> FFS::InodeTable::entry(const FFS::inode_t& id) {
-	if(this->entries->contains(id))
+	if(this->entries->contains(id)) {
+		this->entries->at(id)->time_accessed = FFS::curr_milliseconds();
 		return this->entries->at(id);
+	}
 	
 	throw FFS::NoFileWithInode(id);
 }
