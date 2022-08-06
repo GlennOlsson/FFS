@@ -20,6 +20,12 @@ namespace FFS::FileHandle {
 
 	// Update blobs of file handle which should be uploaded on close
 	void update_blobs(FFS::file_handle_t, FFS::blobs_t);
+
+	// Get current blobs, not updated in storage
+	FFS::blobs_t get_blobs(FFS::file_handle_t);
+
+	// If the file or directory has been modified, i.e. if it has blobs to get
+	bool is_modified(FFS::file_handle_t);
 }
 
 #endif

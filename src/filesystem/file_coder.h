@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../helpers/types.h"
+
 #include <vector>
 #include <string>
 #include <Magick++.h>

@@ -1,11 +1,3 @@
-/* HOW
-- Store new blobs in file handler
-- Get those blobs when reading, in case it is updated but not uploaded
-- Not have to download the current blobs, not necessary if writing 0 bytes
-
-Want to keep track of what to update, and get this if needed to read current state of file/dir
-
-*/
 #define FUSE_USE_VERSION 26
 
 #include <fuse.h>
@@ -16,6 +8,7 @@ Want to keep track of what to update, and get this if needed to read current sta
 #include "inode_table.h"
 #include "directory.h"
 #include "file_handle.h"
+#include "file_coder.h"
 
 #include "../system/state.h"
 
@@ -131,7 +124,8 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
 	std::cout << "write " << path << std::endl;
 
-	auto inode = FFS::FileHandle::inode(fi->fh);
+	auto fh = fi->fh;
+	auto inode = FFS::FileHandle::inode(fh);
 
 	// Create stream for new file content
 	std::stringbuf new_string_buf;
@@ -142,7 +136,12 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 		std::stringbuf curr_string_buf;
 		std::basic_iostream curr_stream(&curr_string_buf);
 
-		FFS::FS::read_file(inode, curr_stream);
+		// If the file has been modified, i.e. is storing new blobs, read those as current file instead
+		if(FFS::FileHandle::is_modified(fh)) {
+			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+			FFS::decode(curr_blobs, curr_stream);
+		} else
+			FFS::FS::read_file(inode, curr_stream);
 		
 		int i = 0;
 		while(i++ < offset) {
@@ -159,7 +158,7 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
     new_stream.flush();
 
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
-	FFS::FileHandle::update_blobs(fi->fh, new_blobs);
+	FFS::FileHandle::update_blobs(fh, new_blobs);
 
 	std::cout << "End of write " << path << std::endl << std::endl;
 	return size;
