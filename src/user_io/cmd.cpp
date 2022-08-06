@@ -1,7 +1,3 @@
-// TODO:
-//			Handle remove of file
-//			Enable user to create only dir (mkdir)
-//			Enable user to remove dir (rmdir)
 
 #include "cmd.h"
 

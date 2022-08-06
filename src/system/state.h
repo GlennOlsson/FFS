@@ -10,7 +10,6 @@ public:
 	static std::shared_ptr<InodeTable> inode_table;
 	static post_id_t inode_table_id;
 
-//TODO: Set public here
 	// Check if has a inode table, else fetch from social media
 	static std::shared_ptr<InodeTable> get_inode_table();
 	// Remove current inode table from memory, requires re-fetch next time
