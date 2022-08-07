@@ -10,15 +10,14 @@
 #include <istream>
 #include <vector>
 
-// How many files and directories are cached by the system
-#define FILE_CACHE_SIZE 10
-#define DIRECTORY_CACHE_SIZE 10
-
 // How many megabytes can a cached file or directory
 #define MAX_CACHE_SIZE 5
 
+// How many posts can be cached by the system
+#define MAX_CACHE_CONTENT 50
+
 // Biggest possible cache, in megabytes
-#define CACHE_SIZE (MAX_CACHE_SIZE * (FILE_CACHE_SIZE + DIRECTORY_CACHE_SIZE))
+#define CACHE_SIZE (MAX_CACHE_SIZE * MAX_CACHE_CONTENT)
 
 namespace FFS::Cache {
 	// Cache the root dir

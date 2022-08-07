@@ -373,6 +373,9 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	// Filename can be up to 128 bytes (1028 bits)
 	stbuf->f_namemax = 128;
 
+	auto table = FFS::State::get_inode_table();
+	stbuf->f_files = table->entries->size();
+
 	return 0;
 }
 

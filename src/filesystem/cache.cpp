@@ -42,31 +42,31 @@ void FFS::Cache::invalidate_root() {
 	root_dir = nullptr;
 }
 
-void FFS::Cache::cache(FFS::post_id_t post_id_t, std::shared_ptr<Magick::Blob> blob) {
-	auto insert_result = post_cache->insert_or_assign(post_id_t, blob);
+void FFS::Cache::cache(FFS::post_id_t post_id, std::shared_ptr<Magick::Blob> blob) {
+	auto insert_result = post_cache->insert_or_assign(post_id, blob);
 	// If false, means that it was assigned, i.e. inode already existed before. Could be in cache
 	if(!insert_result.second) {
-		remove_if_in(post_cache_queue, post_id_t);
+		remove_if_in(post_cache_queue, post_id);
 	}
 
 	// Add inode to beginning of queue
-	post_cache_queue->push_front(post_id_t);
+	post_cache_queue->push_front(post_id);
 
 	// If queue is now full (should max be SIZE + 1), remove last element
-	if(post_cache_queue->size() > 50) {
+	if(post_cache_queue->size() > MAX_CACHE_CONTENT) {
 		auto rm_inode = post_cache_queue->back();
 		post_cache->erase(rm_inode);
 		post_cache_queue->pop_back();
 	}
 }
 
-std::shared_ptr<Magick::Blob> FFS::Cache::get(FFS::post_id_t post_id_t) {
-	return post_cache->contains(post_id_t) ? post_cache->at(post_id_t) : nullptr;
+std::shared_ptr<Magick::Blob> FFS::Cache::get(FFS::post_id_t post_id) {
+	return post_cache->contains(post_id) ? post_cache->at(post_id) : nullptr;
 }
 
-void FFS::Cache::invalidate(FFS::post_id_t post_id_t) {
-	remove_if_in(post_cache_queue, post_id_t);
-	post_cache->erase(post_id_t);
+void FFS::Cache::invalidate(FFS::post_id_t post_id) {
+	remove_if_in(post_cache_queue, post_id);
+	post_cache->erase(post_id);
 }
 
 void FFS::Cache::clear_cache() {
