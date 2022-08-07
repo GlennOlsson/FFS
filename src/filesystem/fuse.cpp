@@ -119,7 +119,7 @@ void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t 
 }
 
 static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
-	std::cout << "Begin ffs_getattr " << c_path << std::endl;
+	// std::cout << "Begin ffs_getattr " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
 	auto traverser = FFS::FS::traverse_path(path);
@@ -146,7 +146,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	
 	generic_getattr(entry, -1, stat_struct);
 
-	std::cout << "End ffs_getattr " << c_path << std::endl << std::endl;
+	// std::cout << "End ffs_getattr " << c_path << std::endl << std::endl;
 	return 0;
 }
 
@@ -207,7 +207,7 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 }
 
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_write " << path << std::endl;
+	std::cout << "Begin ffs_write " << path << ", offset: " << offset << ", size: " << size << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -223,27 +223,40 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 
 		// If the file has been modified, i.e. is storing new blobs, read those as current file instead
 		if(FFS::FileHandle::is_modified(fh)) {
+			std::cout << "is modified" << std::endl;
 			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+			std::cout << "blobs are null: " << (curr_blobs == nullptr) << std::endl;
 			if(curr_blobs != nullptr) 
 				FFS::decode(curr_blobs, curr_stream);
-		} else
+		} else {
+			std::cout << "not modified" << std::endl;
 			FFS::FS::read_file(inode, curr_stream);
+		}
 		
+		std::cout << "Writing old content to new stream" << std::endl;
+
 		int i = 0;
 		while(i++ < offset && curr_stream) {
 			new_stream.put(curr_stream.get());
 		}
+
+		std::cout << "Written old content" << std::endl;
 	}
 
+	std::cout << "Writing new content" << std::endl;
 	// Add new content
 	size_t index = 0;
 	while(index < size) {
 		FFS::write_c(new_stream, buf[index++]);
 	}
 
+	std::cout << "Written new content" << std::endl;
+
     new_stream.flush();
 
+	std::cout << "Update file" << std::endl;
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
+	std::cout << "Updated file" << std::endl;
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 	
 
@@ -430,7 +443,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 */
 
 static int ffs_statfs(const char* path, struct statvfs* stbuf) {
-	std::cout << "Begin ffs_statfs " << path << std::endl;
+	// std::cout << "Begin ffs_statfs " << path << std::endl;
 	// (Max) block size
 	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
 
@@ -458,7 +471,7 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	auto table = FFS::State::get_inode_table();
 	stbuf->f_files = table->entries->size();
 
-	std::cout << "End ffs_statfs " << path << std::endl << std::endl;
+	// std::cout << "End ffs_statfs " << path << std::endl << std::endl;
 	return 0;
 }
 

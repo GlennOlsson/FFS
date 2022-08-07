@@ -195,11 +195,15 @@ void FFS::FileHandle::update_blobs(FFS::file_handle_t fh, FFS::blobs_t blobs) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
 	open_file.set_blobs(blobs);
+
+	std::cout << "Updated blobs for " << &open_file << ", nullptr? " << (blobs == nullptr) << std::endl;
 }
 
 FFS::blobs_t FFS::FileHandle::get_blobs(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
+
+	std::cout << "Getting blobs for " << &open_file << ", nullptr? " << (open_file.get_blobs() == nullptr) << std::endl;
 	return open_file.get_blobs();
 }
 

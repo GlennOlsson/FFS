@@ -1,3 +1,5 @@
+#include "../config.h"
+
 #include "storage.h"
 
 #include "file_coder.h"
@@ -11,6 +13,10 @@
 
 #include "../api/flickr.h"
 #include "../api/curl.h"
+
+#ifdef DEBUG
+#include "../api/loopback.h"
+#endif
 
 #include "../exceptions/exceptions.h"
 
@@ -85,17 +91,21 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inod
 FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
 	// Write to temporary file, upload, and then remove temp file
 
+
 	auto tmp_filename = "/tmp/ffs_" + std::to_string(FFS::random_int());
 
 	Magick::Image img(*blob);
 	img.write(tmp_filename);
 
+#ifdef DEBUG
+	auto id = FFS::API::Loopback::save_file(tmp_filename, is_inode);
+#elif
 	std::string tag = "";
 	if(is_inode) {
 		tag = FFS_INODE_TABLE_TAG;
 	}
-
 	auto id = FFS::API::Flickr::post_image(tmp_filename, "", tag);
+#endif
 
 	std::filesystem::remove(tmp_filename);
 
@@ -119,8 +129,12 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
 	if(FFS::Cache::get(id) != nullptr)
 		return FFS::Cache::get(id);
 
+#ifdef DEBUG
+	auto file_stream = FFS::API::Loopback::get_file(id);
+#elif
 	auto source_url = FFS::API::Flickr::get_image(id);
 	auto file_stream = FFS::API::HTTP::get(source_url);
+#endif
 
 	// Read stream length
 	auto length = FFS::stream_size(*file_stream);
@@ -152,7 +166,12 @@ FFS::blobs_t FFS::Storage::get_file(posts_t ids) {
 FFS::post_id_t FFS::Storage::get_inode_table() {
 	std::string tag = FFS_INODE_TABLE_TAG;
 
+#ifdef DEBUG
+	auto post_id_t = FFS::API::Loopback::get_inode_post_id();
+#elif
 	auto post_id_t = FFS::API::Flickr::search_image(tag);
+#endif
+
 	return post_id_t;
 }
 
@@ -164,7 +183,11 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	
 	auto thread = std::thread([post_id] {
 		try {
+#ifdef DEBUG
+			FFS::API::Loopback::delete_file(post_id);
+#elif
 			FFS::API::Flickr::delete_image(post_id);
+#endif
 		} catch(FFS::FlickrException& e) {
 			std::cerr << "Could not delete post with id " << post_id << std::endl;
 		}

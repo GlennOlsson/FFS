@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "filesystem/file_coder.h"
 #include "filesystem/inode_table.h"
 #include "filesystem/directory.h"
