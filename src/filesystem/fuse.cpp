@@ -146,7 +146,7 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	return std::min((int) size, index);
 }
 
-static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) 
+static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
