@@ -85,8 +85,6 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inod
 FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
 	// Write to temporary file, upload, and then remove temp file
 
-	std::cout << "Upload file" << (is_inode ? ", is inode table" : "") << std::endl; 
-
 	auto tmp_filename = "/tmp/ffs_" + std::to_string(FFS::random_int());
 
 	Magick::Image img(*blob);
@@ -118,7 +116,6 @@ std::shared_ptr<std::vector<FFS::post_id_t>> FFS::Storage::upload_file(FFS::blob
 }
 
 std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
-	std::cout << "Get file with id " << id << std::endl; 
 	if(FFS::Cache::get(id) != nullptr)
 		return FFS::Cache::get(id);
 
