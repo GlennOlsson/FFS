@@ -126,7 +126,6 @@ FFS::InodeTable::InodeTable() {
 	// Root dir should specific inode id
 	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
 
-	// TODO: Update entries with root dir and its id
 	this->entries = std::move(empty_entries);
 }
 

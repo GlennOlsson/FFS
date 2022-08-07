@@ -258,7 +258,9 @@ FFS::blobs_t FFS::FS::update_file(FFS::inode_t inode, std::istream& stream) {
 	auto inode_table = FFS::State::get_inode_table();
 	auto entry = inode_table->entry(inode);
 
-	//TODO: remove old posts
+	// Remove old posts
+	auto old_posts = entry->post_blocks;
+	FFS::Storage::remove_posts(old_posts);
 
 	entry->length = stream_length;
 	
@@ -314,7 +316,7 @@ void FFS::FS::remove(std::string path) {
 	auto table = FFS::State::get_inode_table();
 	
 	// remove from storage device
-	auto blocks = *table->entry(inode)->post_blocks;
+	auto blocks = table->entry(inode)->post_blocks;
 	FFS::Storage::remove_posts(blocks);
 
 	table->remove_entry(inode);

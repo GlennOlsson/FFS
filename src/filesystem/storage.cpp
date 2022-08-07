@@ -78,7 +78,7 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inod
 
 
 	// remove old dir from storage device
-	FFS::Storage::remove_posts(*inode_entry->post_blocks);
+	FFS::Storage::remove_posts(inode_entry->post_blocks);
 	inode_entry->post_blocks = new_post_id_ts;
 }
 
@@ -156,20 +156,21 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 	return post_id_t;
 }
 
-void FFS::Storage::remove_post(FFS::post_id_t& post_id_t) {
-	std::thread([post_id_t] {
+void FFS::Storage::remove_post(FFS::post_id_t& post_id) {
+	std::thread([post_id] {
 		try {
-			FFS::API::Flickr::delete_image(post_id_t);
+			std::cout << "deleting " << post_id << std::endl;
+			FFS::API::Flickr::delete_image(post_id);
 		} catch(FFS::FlickrException& e) {
-			std::cerr << "Could not delete post with id " << post_id_t << std::endl;
+			std::cerr << "Could not delete post with id " << post_id << std::endl;
 		}
 	}).detach();
 
-	FFS::Cache::invalidate(post_id_t);
+	FFS::Cache::invalidate(post_id);
 }
 
-void FFS::Storage::remove_posts(std::vector<FFS::post_id_t>& posts) {
-	for(auto post_id_t: posts) {
-		remove_post(post_id_t);
+void FFS::Storage::remove_posts(std::shared_ptr<std::vector<FFS::post_id_t>> posts) {
+	for(auto post_id: *posts) {
+		remove_post(post_id);
 	}
 }

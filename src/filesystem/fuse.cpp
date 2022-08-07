@@ -461,12 +461,12 @@ static int ffs_link(const char* from, const char* to) {
 
 static int ffs_chmod(const char* path, mode_t mode) {
 	std::cerr << "UNIMPLEMENTED: chmod" << std::endl;
-	return -EPERM;
+	return 0;
 }
 
 static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 	std::cerr << "UNIMPLEMENTED: chown" << std::endl;
-	return -EPERM;
+	return 0;
 }
 
 static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {

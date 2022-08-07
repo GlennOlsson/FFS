@@ -42,5 +42,5 @@ namespace FFS::Storage {
 	void remove_post(FFS::post_id_t& post);
 
 	// Remove the posts from the storage media
-	void remove_posts(std::vector<FFS::post_id_t>& posts);
+	void remove_posts(std::shared_ptr<std::vector<FFS::post_id_t>> posts);
 };

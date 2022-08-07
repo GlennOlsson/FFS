@@ -153,8 +153,6 @@ FFS::file_handle_t FFS::FileHandle::create(std::string path) {
 void FFS::FileHandle::close(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
 
-	std::cout << "CLose " << fh << std::endl;
-
 	if(!open_files.contains(inode))
 		throw FFS::NoOpenFileWithFH(fh);
 
@@ -163,18 +161,14 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 	bool last_close = open_file.close();
 	if(last_close) {
 		if(open_file.is_modified()) {
-			std::cout << "Is modified, update " << std::endl;
 			// Save open file/dir, (parent dir?) and inode table
 			auto table = FFS::State::get_inode_table();
 
 			auto inode_entry = table->entry(inode);
 
-			std::cout << "Getting blobs " << std::endl;
 			auto blobs = open_file.get_blobs();
-			std::cout << "Got blobs, uploading blobs " << std::endl;
 			if(blobs != nullptr) {
 				auto posts = FFS::Storage::upload_file(blobs);
-				std::cout << "Uploaded to " << posts->size() << " posts" << std::endl;
 				inode_entry->post_blocks = posts;
 			}
 
