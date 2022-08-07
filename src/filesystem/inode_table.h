@@ -36,9 +36,9 @@ public:
 	/**
 	* @brief A list representing the posts of the file or directory. 
 	*/
-	std::shared_ptr<std::vector<post_id_t>> post_blocks;
+	posts_t post_ids;
 
-	InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id_t>> post_blocks, uint8_t is_dir);
+	InodeEntry(uint32_t length, posts_t post_ids, uint8_t is_dir);
 	InodeEntry(uint32_t length, post_id_t post, uint8_t is_dir);
 	~InodeEntry();
 
@@ -53,7 +53,7 @@ public:
 	 * @brief serializes the entry into the stream as bytes in the following manner
 	 * byte 0-3: length attribute (int)
 	 * byte 4-7: n = amount of post blocks (int)
-	 * byte 8-...: 8 bytes per element, n elements (post_blocks attribute)
+	 * byte 8-...: 8 bytes per element, n elements (post_ids attribute)
 	 *
 	 * 
 	 * With 4 bytes representing the amount of blocks we can achieve a theoretical
@@ -116,7 +116,7 @@ public:
 	static std::shared_ptr<InodeTable> deserialize(std::istream& stream);
 
 	// TODO: Test these methods
-	inode_t new_file(std::shared_ptr<std::vector<post_id_t>> posts, uint32_t length, uint8_t is_dir);
+	inode_t new_file(posts_t posts, uint32_t length, uint8_t is_dir);
 	std::shared_ptr<InodeEntry> entry(const inode_t& id);
 	void remove_entry(inode_t);
 

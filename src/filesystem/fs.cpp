@@ -60,7 +60,7 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 	// Root dir entry
 	auto dir_entry = table->entry(FFS_ROOT_INODE);
 
-	auto blobs = FFS::Storage::get_file(dir_entry->post_blocks);
+	auto blobs = FFS::Storage::get_file(dir_entry->post_ids);
 
 	auto dir = FFS::Storage::dir_from_blobs(blobs);
 
@@ -98,7 +98,7 @@ std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 		if(!dir_entry->is_dir) {
 			throw FFS::BadFFSPath(path, dir_name);
 		}
-		blobs = FFS::Storage::get_file(dir_entry->post_blocks);
+		blobs = FFS::Storage::get_file(dir_entry->post_ids);
 		dir = FFS::Storage::dir_from_blobs(blobs);
 	}
 
@@ -168,10 +168,10 @@ std::shared_ptr<FFS::Directory> FFS::FS::read_dir(std::string path) {
 
 std::shared_ptr<FFS::Directory> FFS::FS::get_dir(std::shared_ptr<FFS::InodeEntry> inode_entry) {
 	// If there are no post blocks it is an empty directory
-	if(inode_entry->post_blocks == nullptr)
+	if(inode_entry->post_ids == nullptr)
 		return std::make_shared<FFS::Directory>();
 
-	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+	auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
 	
 	auto dir = FFS::Storage::dir_from_blobs(blobs);
     
@@ -186,10 +186,10 @@ std::shared_ptr<FFS::Directory> FFS::FS::get_dir(FFS::inode_t inode) {
 void FFS::FS::read_file(FFS::inode_t inode, std::ostream& stream) {
 	auto inode_entry = entry(inode);
 	// If is nullptr, empty file
-	if(inode_entry->post_blocks == nullptr)
+	if(inode_entry->post_ids == nullptr)
 		return;
 
-    auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+    auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
 
 	FFS::decode(blobs, stream);
 }
@@ -204,7 +204,7 @@ std::shared_ptr<std::pair<FFS::inode_t, std::shared_ptr<FFS::Directory>>> FFS::F
 	auto table = FFS::State::get_inode_table();
 
 	if(path == "/") {
-		auto blobs = FFS::Storage::get_file(table->entry(FFS_ROOT_INODE)->post_blocks);
+		auto blobs = FFS::Storage::get_file(table->entry(FFS_ROOT_INODE)->post_ids);
 
 		return std::make_shared<std::pair<FFS::inode_t, std::shared_ptr<FFS::Directory>>>
 			(FFS_ROOT_INODE, FFS::Storage::dir_from_blobs(blobs));
@@ -259,7 +259,7 @@ FFS::blobs_t FFS::FS::update_file(FFS::inode_t inode, std::istream& stream) {
 	auto entry = inode_table->entry(inode);
 
 	// Remove old posts
-	auto old_posts = entry->post_blocks;
+	auto old_posts = entry->post_ids;
 	FFS::Storage::remove_posts(old_posts);
 
 	entry->length = stream_length;
@@ -299,6 +299,29 @@ void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream
 	FFS::Storage::update(parent_dir, parent_inode);
 }
 
+// Traverse through all sub directories and add all posts to fill_v, and remove all inodes from inode table
+void remove_sub_files(FFS::posts_t fill_v, std::shared_ptr<FFS::Directory> dir) {
+	auto table = FFS::State::get_inode_table();
+
+	for(auto dir_entry: *dir->entries) {
+		auto file_inode = dir_entry.second;
+		auto file_entry = table->entry(file_inode);
+		auto file_posts = file_entry->post_ids;
+
+		if(file_entry->is_dir) {
+			auto blobs = FFS::Storage::get_file(file_posts);
+			auto dir = FFS::Storage::dir_from_blobs(blobs);
+
+			remove_sub_files(fill_v, dir);
+		}
+		
+		table->remove_entry(file_inode);
+
+		// Insert new posts to be removed
+		fill_v->insert(fill_v->begin(), file_posts->begin(), file_posts->end());
+	}
+}
+
 void FFS::FS::remove(std::string path) {
 	remove_trailing_slash(path);
 	
@@ -311,13 +334,24 @@ void FFS::FS::remove(std::string path) {
 
 	auto inode = parent_dir->remove_entry(filename);
 
-	FFS::Storage::update(parent_dir, parent_inode);
+	// Update parent on other thread
+	std::thread([parent_dir, parent_inode] {
+		FFS::Storage::update(parent_dir, parent_inode);
+	}).detach();
 	
 	auto table = FFS::State::get_inode_table();
 	
-	// remove from storage device
-	auto blocks = table->entry(inode)->post_blocks;
-	FFS::Storage::remove_posts(blocks);
+	auto entry = table->entry(inode);
+	auto posts_to_remove = entry->post_ids;
+
+	if(entry->is_dir) {
+		auto blobs = FFS::Storage::get_file(posts_to_remove);
+		auto dir = FFS::Storage::dir_from_blobs(blobs);
+		remove_sub_files(posts_to_remove, dir);
+	}
+
+	// remove from storage device. Made on different thread
+	FFS::Storage::remove_posts(posts_to_remove);
 
 	table->remove_entry(inode);
 }

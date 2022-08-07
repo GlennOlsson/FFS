@@ -78,8 +78,8 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inod
 
 
 	// remove old dir from storage device
-	FFS::Storage::remove_posts(inode_entry->post_blocks);
-	inode_entry->post_blocks = new_post_id_ts;
+	FFS::Storage::remove_posts(inode_entry->post_ids);
+	inode_entry->post_ids = new_post_id_ts;
 }
 
 FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode) {
@@ -104,7 +104,7 @@ FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, boo
 	return id;
 }
 
-std::shared_ptr<std::vector<FFS::post_id_t>> FFS::Storage::upload_file(FFS::blobs_t blobs) {
+FFS::posts_t FFS::Storage::upload_file(FFS::blobs_t blobs) {
 	auto posts = std::make_shared<std::vector<FFS::post_id_t>>();
 
 	for(auto blob: *blobs) {
@@ -141,7 +141,7 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
 	return blob;
 }
 
-FFS::blobs_t FFS::Storage::get_file(std::shared_ptr<std::vector<FFS::post_id_t>> ids) {
+FFS::blobs_t FFS::Storage::get_file(posts_t ids) {
 	auto v = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 	for(auto id: *ids) {
 		v->push_back(get_file(id));
@@ -156,20 +156,25 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 	return post_id_t;
 }
 
-void FFS::Storage::remove_post(FFS::post_id_t& post_id) {
-	std::thread([post_id] {
+void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool join) {
+	auto thread = std::thread([post_id] {
 		try {
-			std::cout << "deleting " << post_id << std::endl;
 			FFS::API::Flickr::delete_image(post_id);
 		} catch(FFS::FlickrException& e) {
 			std::cerr << "Could not delete post with id " << post_id << std::endl;
 		}
-	}).detach();
+	});
+
+	// If join is true, wait until removed until returning from function
+	if(join)
+		thread.join();
+	else
+		thread.detach();
 
 	FFS::Cache::invalidate(post_id);
 }
 
-void FFS::Storage::remove_posts(std::shared_ptr<std::vector<FFS::post_id_t>> posts) {
+void FFS::Storage::remove_posts(posts_t posts) {
 	for(auto post_id: *posts) {
 		remove_post(post_id);
 	}

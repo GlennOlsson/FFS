@@ -25,12 +25,12 @@
 
 // Inode Entry...
 
-FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id_t>> post_blocks, uint8_t is_dir = false) {
+FFS::InodeEntry::InodeEntry(uint32_t length, posts_t post_ids, uint8_t is_dir = false) {
 	this->length = length;
 	this->is_dir = is_dir;
-	this->post_blocks = std::move(post_blocks);
-	if(this->post_blocks == nullptr) {
-		this->post_blocks = std::make_shared<std::vector<post_id_t>>();
+	this->post_ids = std::move(post_ids);
+	if(this->post_ids == nullptr) {
+		this->post_ids = std::make_shared<std::vector<post_id_t>>();
 	}
 
 	// Just created, so set as current time
@@ -41,7 +41,7 @@ FFS::InodeEntry::InodeEntry(uint32_t length, std::shared_ptr<std::vector<post_id
 }
 
 FFS::InodeEntry::~InodeEntry() {
-	this->post_blocks.reset();
+	this->post_ids.reset();
 }
 
 uint32_t FFS::InodeEntry::size() {
@@ -49,7 +49,7 @@ uint32_t FFS::InodeEntry::size() {
 	value += sizeof(uint32_t); // length
 	value += sizeof(uint8_t); // is_dir
 	value += sizeof(uint32_t); // amount of post blocks
-	value += this->post_blocks->size() * sizeof(uint64_t); // per post block
+	value += this->post_ids->size() * sizeof(uint64_t); // per post block
 
 	return value;
 }
@@ -62,13 +62,13 @@ void FFS::InodeEntry::serialize(std::ostream& stream) {
 	FFS::write_l(stream, this->time_modified);
 
 	// If has no posts, just write 0 and return
-	if(this->post_blocks == nullptr) {
+	if(this->post_ids == nullptr) {
 		FFS::write_i(stream, 0);
 		return;
 	}
 
-	FFS::write_i(stream, this->post_blocks->size());
-	for (post_id_t entry : *post_blocks) {
+	FFS::write_i(stream, this->post_ids->size());
+	for (post_id_t entry : *post_ids) {
 		FFS::write_str(stream, entry);
 	}
 }
@@ -107,7 +107,7 @@ bool FFS::InodeEntry::operator==(const FFS::InodeEntry& rhs) const {
 	// Equal if same amount of blocks, and the blocks array is equal (order
 	// matters!!)
 	return this->length == rhs.length &&
-		   (*this->post_blocks) == (*rhs.post_blocks);
+		   (*this->post_ids) == (*rhs.post_ids);
 }
 
 // Inode Table...
@@ -121,7 +121,7 @@ FFS::InodeTable::InodeTable() {
 	std::shared_ptr<std::map<inode_t, std::shared_ptr<InodeEntry>>> empty_entries = std::make_shared<std::map<inode_t, std::shared_ptr<InodeEntry>>>();
 
 	// Create root dir entry of base size, but no entries
-	std::shared_ptr<std::vector<post_id_t>> no_posts = nullptr;
+	posts_t no_posts = nullptr;
 	auto entry = std::make_shared<InodeEntry>(0, no_posts, true);
 	// Root dir should specific inode id
 	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
@@ -172,7 +172,7 @@ std::shared_ptr<FFS::InodeTable> FFS::InodeTable::deserialize(std::istream& stre
 	return std::make_shared<InodeTable>(entries);
 }
 
-FFS::inode_t FFS::InodeTable::new_file(std::shared_ptr<std::vector<FFS::post_id_t>> posts, uint32_t length, uint8_t is_dir) {
+FFS::inode_t FFS::InodeTable::new_file(posts_t posts, uint32_t length, uint8_t is_dir) {
 	auto entry = std::make_shared<InodeEntry>(length, posts, is_dir);
 	
 	// Find next inode id to use

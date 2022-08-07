@@ -29,18 +29,18 @@ namespace FFS::Storage {
 	// Upload blob and return post_id_t. Blob is cached
 	FFS::post_id_t upload_file(std::shared_ptr<Magick::Blob> blob, bool is_inode = false);
 	// Upload blobs but don't save to the inode table
-	std::shared_ptr<std::vector<FFS::post_id_t>> upload_file(FFS::blobs_t blobs);
+	posts_t upload_file(FFS::blobs_t blobs);
 
 	// Get file from service
 	std::shared_ptr<Magick::Blob> get_file(post_id_t id);
-	FFS::blobs_t get_file(std::shared_ptr<std::vector<post_id_t>> ids);
+	FFS::blobs_t get_file(posts_t ids);
 	
 	// Get the inode table from the storage medium
 	FFS::post_id_t get_inode_table();
 
-	// Remove a post from the storage media
-	void remove_post(FFS::post_id_t& post);
+	// Remove a post from the storage media. Set _wait_ if should wait for delete to finish before returning
+	void remove_post(FFS::post_id_t& post, bool wait = false);
 
 	// Remove the posts from the storage media
-	void remove_posts(std::shared_ptr<std::vector<FFS::post_id_t>> posts);
+	void remove_posts(posts_t posts);
 };

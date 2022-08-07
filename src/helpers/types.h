@@ -12,4 +12,6 @@ namespace FFS {
 	typedef uint64_t file_handle_t;
 
 	typedef std::shared_ptr<std::vector<std::shared_ptr<Magick::Blob>>> blobs_t;
+
+	typedef std::shared_ptr<std::vector<FFS::post_id_t>> posts_t;
 }

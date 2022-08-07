@@ -60,5 +60,5 @@ void FFS::State::save_table() {
 
 	// If old id existed, remove old post
 	if(old_id.size() > 2)
-		FFS::Storage::remove_post(old_id);
+		FFS::Storage::remove_post(old_id, true);
 }

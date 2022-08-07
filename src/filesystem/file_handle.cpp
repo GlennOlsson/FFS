@@ -169,7 +169,7 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 			auto blobs = open_file.get_blobs();
 			if(blobs != nullptr) {
 				auto posts = FFS::Storage::upload_file(blobs);
-				inode_entry->post_blocks = posts;
+				inode_entry->post_ids = posts;
 			}
 
 			FFS::FS::sync_inode_table();

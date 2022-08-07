@@ -111,7 +111,7 @@ void print_table() {
 		bool is_dir = entry_obj->is_dir;
 		ss << (is_dir ? "directory" : "file") << " of " << entry_obj->length << " bytes at ";
 
-		for(auto post_id_t: *entry_obj->post_blocks) {
+		for(auto post_id_t: *entry_obj->post_ids) {
 			ss << post_id_t << ", ";
 		}
 
@@ -137,7 +137,7 @@ void print_inode_content() {
 	}
 
 	auto inode_entry = table->entry(inode);
-	auto blobs = FFS::Storage::get_file(inode_entry->post_blocks);
+	auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
 	if(inode_entry->is_dir) {
 		auto dir = FFS::Storage::dir_from_blobs(blobs);
 		print_dir(dir, cout);
