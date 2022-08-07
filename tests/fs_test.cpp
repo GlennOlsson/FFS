@@ -60,7 +60,8 @@ void init_fs() {
     FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_2);
     FFS::FS::create_dir(TEST_PATH_EMPTY_DIR);
 
-    FFS::State::save_table();
+    // Not necessary to upload to storage? Just keep in memory
+    // FFS::State::save_table();
 }
 
 // Create files used in fs

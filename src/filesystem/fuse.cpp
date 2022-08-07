@@ -330,6 +330,8 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 
 	std::cout << "End of ftruncate " << path << std::endl << std::endl;
+
+	return 0;
 }
 
 /*

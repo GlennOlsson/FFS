@@ -116,7 +116,7 @@ FFS::file_handle_t FFS::FileHandle::open(std::string path) {
 
 	// If call to already open file
 	if(open_files.contains(inode)) {
-		auto file_handler = get_open_file(inode);
+		auto& file_handler = get_open_file(inode);
 		file_handler.open();
 	} else { // If call to un-opened file
 		auto parent_inode = traverser->parent_inode;
@@ -178,7 +178,7 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 				inode_entry->post_blocks = posts;
 			}
 
-			FFS::State::save_table();
+			FFS::FS::sync_inode_table();
 		}
 
 		open_files.erase(inode);
@@ -196,18 +196,18 @@ FFS::inode_t FFS::FileHandle::parent(FFS::file_handle_t fh) {
 
 void FFS::FileHandle::update_blobs(FFS::file_handle_t fh, FFS::blobs_t blobs) {
 	auto inode = FFS::FileHandle::inode(fh);
-	auto open_file = get_open_file(inode);
+	auto& open_file = get_open_file(inode);
 	open_file.set_blobs(blobs);
 }
 
 FFS::blobs_t FFS::FileHandle::get_blobs(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
-	auto open_file = get_open_file(inode);
+	auto& open_file = get_open_file(inode);
 	return open_file.get_blobs();
 }
 
 bool FFS::FileHandle::is_modified(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
-	auto open_file = get_open_file(inode);
+	auto& open_file = get_open_file(inode);
 	return open_file.is_modified();
 }
