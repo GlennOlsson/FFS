@@ -38,9 +38,9 @@ namespace FFS::Storage {
 	// Get the inode table from the storage medium
 	FFS::post_id_t get_inode_table();
 
-	// Remove a post from the storage media. Set _wait_ if should wait for delete to finish before returning
-	void remove_post(FFS::post_id_t& post, bool wait = false);
+	// Remove a post from the storage media. Unset _multithread_ if should wait for delete to finish before returning
+	void remove_post(FFS::post_id_t& post, bool multithread = true);
 
-	// Remove the posts from the storage media
-	void remove_posts(posts_t posts);
+	// Remove the posts from the storage media. Unset _multithread_ if should wait for delete to finish before returning
+	void remove_posts(posts_t posts, bool multithread = true);
 };

@@ -51,7 +51,7 @@ namespace FFS::FS {
     void create_file(std::string, std::shared_ptr<std::istream>);
 
     // Remove file or directory at path. Throws NoFileWithName if path does not exist
-    void remove(std::string);
+    void remove(std::string, bool multithread = true);
 
     // Does the given path point to an existing file
     bool exists(std::string);

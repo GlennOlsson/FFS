@@ -322,7 +322,7 @@ void remove_sub_files(FFS::posts_t fill_v, std::shared_ptr<FFS::Directory> dir) 
 	}
 }
 
-void FFS::FS::remove(std::string path) {
+void FFS::FS::remove(std::string path, bool multithread) {
 	remove_trailing_slash(path);
 	
 	auto traverser = traverse_path(path);
@@ -335,10 +335,14 @@ void FFS::FS::remove(std::string path) {
 	auto inode = parent_dir->remove_entry(filename);
 
 	// Update parent on other thread
-	std::thread([parent_dir, parent_inode] {
+	auto thread = std::thread([parent_dir, parent_inode] {
 		FFS::Storage::update(parent_dir, parent_inode);
-	}).detach();
-	
+	});
+	if(multithread)
+		thread.detach();
+	else
+		thread.join();
+
 	auto table = FFS::State::get_inode_table();
 	
 	auto entry = table->entry(inode);
@@ -351,7 +355,7 @@ void FFS::FS::remove(std::string path) {
 	}
 
 	// remove from storage device. Made on different thread
-	FFS::Storage::remove_posts(posts_to_remove);
+	FFS::Storage::remove_posts(posts_to_remove, multithread);
 
 	table->remove_entry(inode);
 }

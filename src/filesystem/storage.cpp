@@ -156,7 +156,7 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 	return post_id_t;
 }
 
-void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool join) {
+void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	auto thread = std::thread([post_id] {
 		try {
 			FFS::API::Flickr::delete_image(post_id);
@@ -165,17 +165,17 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool join) {
 		}
 	});
 
-	// If join is true, wait until removed until returning from function
-	if(join)
-		thread.join();
-	else
+	// If multithread is true, detach. Else, wait until done
+	if(multithread)
 		thread.detach();
+	else
+		thread.join();
 
 	FFS::Cache::invalidate(post_id);
 }
 
-void FFS::Storage::remove_posts(posts_t posts) {
+void FFS::Storage::remove_posts(posts_t posts, bool multithread) {
 	for(auto post_id: *posts) {
-		remove_post(post_id);
+		remove_post(post_id, multithread);
 	}
 }

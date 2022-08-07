@@ -174,8 +174,8 @@ TEST_CASE("Can remove directory and created file, but nothing else is removed", 
     create_files();
 
     // remove txt and level-2 dir (and all under it)
-    FFS::FS::remove(TEST_PATH_TXT);
-    FFS::FS::remove(TEST_PATH_DIR_LEVEL_2);
+    FFS::FS::remove(TEST_PATH_TXT, false);
+    FFS::FS::remove(TEST_PATH_DIR_LEVEL_2, false);
 
     // Assert what is removed is removed
     REQUIRE_FALSE(FFS::FS::exists(TEST_PATH_TXT));
