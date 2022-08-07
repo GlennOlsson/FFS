@@ -208,6 +208,11 @@ FFS::blobs_t FFS::FileHandle::get_blobs(FFS::file_handle_t fh) {
 
 bool FFS::FileHandle::is_modified(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
+
+	// Special case if it does not contain, simply has not been modified
+	if(!open_files.contains(inode))
+		return false;
+
 	auto& open_file = get_open_file(inode);
 	return open_file.is_modified();
 }

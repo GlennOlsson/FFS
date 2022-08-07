@@ -47,16 +47,15 @@ std::string sanitize_path(const char* c_path) {
 	return str;
 }
 
-static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
-	auto path = sanitize_path(c_path);
-	std::cout << "ffs_getattr " << path << std::endl;
-
-	if(!FFS::FS::exists(path))
-		return -ENOENT;
-
-	auto entry = FFS::FS::entry(path);
+void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t fh, struct stat* stat_struct) {
 	if(entry->is_dir) {
-		auto dir = FFS::FS::get_dir(entry);
+		std::shared_ptr<FFS::Directory> dir;
+		if(FFS::FileHandle::is_modified(fh)) {
+			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+			dir = FFS::Storage::dir_from_blobs(curr_blobs);
+		} else {
+			dir = FFS::FS::get_dir(entry);
+		}
 
 		stat_struct->st_mode = S_IFDIR | FULL_PERMISSIONS;
 		stat_struct->st_nlink = 2 + dir->entries->size(); // ., .. and all entries
@@ -75,13 +74,48 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		stat_struct->st_mtimespec.tv_nsec = entry->time_modified;
 		stat_struct->st_mtimespec.tv_sec = entry->time_modified / 1000;
 	}
+}
+
+static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
+	auto path = sanitize_path(c_path);
+	std::cout << "ffs_getattr " << path << std::endl;
+
+	auto traverser = FFS::FS::traverse_path(path);
+
+	auto table = FFS::State::get_inode_table();
+
+	if(path == "/") {
+		FFS::inode_t inode = FFS_ROOT_INODE;
+		auto entry = table->entry(inode);
+		generic_getattr(entry, -1, stat_struct);
+		return 0;
+	}
+
+	try {
+		FFS::FS::verify_in(traverser);
+	} catch(FFS::NoPathWithName) {
+		return -ENOENT;
+	}
+	
+	auto inode = traverser->parent_dir->get_file(traverser->filename);
+	auto entry = table->entry(inode);
+	
+	generic_getattr(entry, -1, stat_struct);
 
 	std::cout << "End of ffs_getattr " << path << std::endl << std::endl;
 	return 0;
 }
 
-static int ffs_fgetattr(const char* c_path, struct stat* stat_struct, struct fuse_file_info* fi) {
-	return ffs_getattr(c_path, stat_struct);
+static int ffs_fgetattr(const char* path, struct stat* stat_struct, struct fuse_file_info* fi) {
+	std::cout << "Start of ffs_fgetattr " << path << std::endl << std::endl;
+	auto inode = FFS::FileHandle::inode(fi->fh);
+
+	auto entry = FFS::FS::entry(inode);
+
+	generic_getattr(entry, fi->fh, stat_struct);
+	
+	std::cout << "End of ffs_fgetattr " << path << std::endl << std::endl;
+	return 0;
 }
 
 static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
@@ -414,7 +448,7 @@ static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
 	std::cout << "open dir " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
-	std::cout << "end of open dir" << std::endl;
+	std::cout << "end of open dir" << std::endl << std::endl;
 	return 0;
 }
 
@@ -423,21 +457,21 @@ static int ffs_open(const char* path, struct fuse_file_info* fi) {
 	std::cout << "open file " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
-	std::cout << "end of open file" << std::endl;
+	std::cout << "end of open file" << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
 	std::cout << "close dir " << path << std::endl;
 	FFS::FileHandle::close(fi->fh);
-	std::cout << "end of close dir" << std::endl;
+	std::cout << "end of close dir" << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_release(const char* path, struct fuse_file_info *fi) {
 	std::cout << "close file " << path << std::endl;
 	FFS::FileHandle::close(fi->fh);
-	std::cout << "end of close file" << std::endl;
+	std::cout << "end of close file" << std::endl << std::endl;
 	return 0;
 }
 
@@ -474,12 +508,12 @@ static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 
 static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
 	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
-	return -EPERM;
+	return 0;
 }
 
 static int ffs_fsyncdir(const char* path, int isdatasync, struct fuse_file_info* fi) {
 	std::cerr << "UNIMPLEMENTED: fsyncdir" << std::endl;
-	return -EPERM;
+	return 0;
 }
 
 

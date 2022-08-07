@@ -139,8 +139,8 @@ FFS::inode_t inode_from_path(std::string path) {
 	auto filename = traverser->filename;
     auto dir = traverser->parent_dir;
 
-	auto inode_entry = dir->get_file(filename);
-	return inode_entry;
+	auto inode = dir->get_file(filename);
+	return inode;
 }
 
 std::shared_ptr<FFS::InodeEntry> FFS::FS::entry(FFS::inode_t inode) {
