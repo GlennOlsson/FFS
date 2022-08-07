@@ -15,6 +15,10 @@ public:
 	// Remove current inode table from memory, requires re-fetch next time
 	static void clear_inode_table();
 	static void save_table();
+
+	static void deleting(FFS::post_id_t);
+	static bool is_deleting(FFS::post_id_t);
+	static void deleted(FFS::post_id_t);
 };
 }
 

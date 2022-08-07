@@ -47,12 +47,50 @@ std::string sanitize_path(const char* c_path) {
 	return str;
 }
 
+
+static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
+	std::cout << "Begin ffs_opendir " << path << std::endl;
+	auto fh = FFS::FileHandle::open(path);
+	fi->fh = fh;
+	std::cout << "End ffs_opendir " << path << std::endl << std::endl;
+	return 0;
+}
+
+
+static int ffs_open(const char* path, struct fuse_file_info* fi) {
+	std::cout << "Begin ffs_open " << path << std::endl;
+	auto fh = FFS::FileHandle::open(path);
+	fi->fh = fh;
+
+	std::cout << "End ffs_open " << path << std::endl << std::endl;
+	return 0;
+}
+
+static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
+	std::cout << "Begin ffs_releasedir " << path << std::endl;
+	FFS::FileHandle::close(fi->fh);
+
+	std::cout << "End ffs_releasedir " << path << std::endl << std::endl;
+	return 0;
+}
+
+static int ffs_release(const char* path, struct fuse_file_info *fi) {
+	std::cout << "Begin ffs_release " << path << std::endl;
+	FFS::FileHandle::close(fi->fh);
+
+	std::cout << "End ffs_release " << path << std::endl << std::endl;
+	return 0;
+}
+
 void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t fh, struct stat* stat_struct) {
 	if(entry->is_dir) {
 		std::shared_ptr<FFS::Directory> dir;
 		if(FFS::FileHandle::is_modified(fh)) {
 			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-			dir = FFS::Storage::dir_from_blobs(curr_blobs);
+			if(curr_blobs != nullptr) 
+				dir = FFS::Storage::dir_from_blobs(curr_blobs);
+			else
+				dir = std::make_shared<FFS::Directory>();
 		} else {
 			dir = FFS::FS::get_dir(entry);
 		}
@@ -63,20 +101,25 @@ void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t 
 		stat_struct->st_mode = S_IFREG | FULL_PERMISSIONS;
 
 		stat_struct->st_nlink = 1;
-		stat_struct->st_size = entry->length;
-
-		stat_struct->st_birthtimespec.tv_nsec = entry->time_created;
-		stat_struct->st_birthtimespec.tv_sec = entry->time_created / 1000;
-
-		stat_struct->st_atimespec.tv_nsec = entry->time_accessed;
-		stat_struct->st_atimespec.tv_sec = entry->time_accessed / 1000;
-
-		stat_struct->st_mtimespec.tv_nsec = entry->time_modified;
-		stat_struct->st_mtimespec.tv_sec = entry->time_modified / 1000;
 	}
+	
+	std::cout << "genereic " << entry->length << " entry posts == nullptr? " << (entry->post_ids == nullptr) << std::endl;
+	stat_struct->st_size = entry->length;
+	stat_struct->st_blocks = entry->post_ids == nullptr ? 0 : entry->post_ids->size();
+	stat_struct->st_blksize = FFS_MAX_FILE_SIZE;
+
+	stat_struct->st_birthtimespec.tv_nsec = entry->time_created;
+	stat_struct->st_birthtimespec.tv_sec = entry->time_created / 1000;
+
+	stat_struct->st_atimespec.tv_nsec = entry->time_accessed;
+	stat_struct->st_atimespec.tv_sec = entry->time_accessed / 1000;
+
+	stat_struct->st_mtimespec.tv_nsec = entry->time_modified;
+	stat_struct->st_mtimespec.tv_sec = entry->time_modified / 1000;
 }
 
 static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
+	std::cout << "Begin ffs_getattr " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
 	auto traverser = FFS::FS::traverse_path(path);
@@ -87,12 +130,14 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		FFS::inode_t inode = FFS_ROOT_INODE;
 		auto entry = table->entry(inode);
 		generic_getattr(entry, -1, stat_struct);
+		std::cout << "end ffs_getattr early: " << c_path << std::endl << std::endl;
 		return 0;
 	}
 
 	try {
 		FFS::FS::verify_in(traverser);
 	} catch(FFS::NoPathWithName) {
+		std::cout << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
 		return -ENOENT;
 	}
 	
@@ -100,20 +145,25 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	auto entry = table->entry(inode);
 	
 	generic_getattr(entry, -1, stat_struct);
+
+	std::cout << "End ffs_getattr " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_fgetattr(const char* path, struct stat* stat_struct, struct fuse_file_info* fi) {
+	std::cout << "Begin ffs_fgetattr " << path << std::endl;
 	auto inode = FFS::FileHandle::inode(fi->fh);
 
 	auto entry = FFS::FS::entry(inode);
 
 	generic_getattr(entry, fi->fh, stat_struct);
 	
+	std::cout << "End ffs_fgetattr " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
+	std::cout << "Begin ffs_readdir " << c_path << std::endl;
 
 	auto inode = FFS::FileHandle::inode(fi->fh);
 	auto dir = FFS::FS::get_dir(inode);
@@ -124,29 +174,40 @@ static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, of
 		filler(buf, entry.first.c_str(), NULL, 0);
 	}
 
+	std::cout << "End ffs_readdir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_read(const char* path, char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
+	std::cout << "Begin ffs_read " << path << std::endl;
 
-	auto inode = FFS::FileHandle::inode(fi->fh);
+	auto fh = fi->fh;
+	auto inode = FFS::FileHandle::inode(fh);
 	
 	std::stringbuf string_buf;
 	std::basic_iostream stream(&string_buf);
-	FFS::FS::read_file(inode, stream);
+
+	if(FFS::FileHandle::is_modified(fh)) {
+		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+		if(curr_blobs != nullptr) 
+			FFS::decode(curr_blobs, stream);
+	} else
+		FFS::FS::read_file(inode, stream);
 	
 	stream.seekg(offset);
 	int index = 0;
 	// Read as many bytes as requested, or until end of stream
-	while(index < size && !stream.eof()) {
+	while(index < size && stream) {
 		FFS::read_c(stream, buf[index++]);
 	}
 
+	std::cout << "End read " << path << std::endl << std::endl;
 	// Return either the amount of bytes requested, or the amount read if its lower
 	return std::min((int) size, index);
 }
 
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
+	std::cout << "Begin ffs_write " << path << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -163,12 +224,13 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 		// If the file has been modified, i.e. is storing new blobs, read those as current file instead
 		if(FFS::FileHandle::is_modified(fh)) {
 			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-			FFS::decode(curr_blobs, curr_stream);
+			if(curr_blobs != nullptr) 
+				FFS::decode(curr_blobs, curr_stream);
 		} else
 			FFS::FS::read_file(inode, curr_stream);
 		
 		int i = 0;
-		while(i++ < offset) {
+		while(i++ < offset && curr_stream) {
 			new_stream.put(curr_stream.get());
 		}
 	}
@@ -183,57 +245,71 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
 	FFS::FileHandle::update_blobs(fh, new_blobs);
+	
+
+	std::cout << "End ffs_write " << path << std::endl << std::endl;
 	return size;
 }
 
 int ffs_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
+	std::cout << "Begin create " << path << std::endl;
 	
 	// Create empty file and update parent dir in storage medium
 	auto fh = FFS::FileHandle::create(path);
 	fi->fh = fh;
 
+	std::cout << "End ffs_create " << path << std::endl << std::endl;
 	return 0;
 }
 
 int ffs_mkdir(const char* c_path, mode_t mode) {
+	std::cout << "Begin ffs_mkdir " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	
 	FFS::FS::create_dir(path);
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End ffs_mkdir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_unlink(const char * c_path) {
+	std::cout << "Begin ffs_unlink " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	
 	try {
 		FFS::FS::remove(path);
 	} catch (FFS::Exception) {
+		std::cout << "Cannot remove: " << c_path << std::endl << std::endl;
 		return 1;
 	}
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End ffs_unlink " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_rmdir(const char * c_path) {
+	std::cout << "Begin ffs_rmdir " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
 	try {
 		FFS::FS::remove(path);
 	} catch (FFS::Exception) {
+		std::cout << "Cannot remove dir: " << c_path << std::endl << std::endl;
 		return 1;
 	}
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End ffs_rmdir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_rename(const char* c_from, const char* c_to) {
+	std::cout << "Begin ffs_rename " << c_from << " to " << c_to << std::endl;
 	auto from = sanitize_path(c_from);
 
 	auto to = sanitize_path(c_to);
@@ -260,18 +336,14 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End ffs_rename " << c_from << ", " << c_to << std::endl << std::endl;
 	return 0;
 }
 
 // truncate or extend file to be size bytes
 static int ffs_truncate(const char* c_path, off_t size) {
+	std::cout << "Begin ffs_truncate " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
-
-	if(!FFS::FS::exists(path)) 
-		return -ENOENT;
-	
-	if(FFS::FS::is_dir(path))
-		return -EISDIR;
 
 	std::stringbuf new_string_buf;
 	std::basic_iostream new_stream(&new_string_buf);
@@ -300,11 +372,13 @@ static int ffs_truncate(const char* c_path, off_t size) {
 
 	FFS::FS::sync_inode_table();
 	
+	std::cout << "End ffs_truncate " << c_path << std::endl << std::endl;
 	return size;
 }
 
 // Similar to above but uses file handle
 static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
+	std::cout << "Begin ffs_ftruncate " << path << std::endl;
 	
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -317,7 +391,8 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 
 	if(FFS::FileHandle::is_modified(fh)) {
 		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		FFS::decode(curr_blobs, curr_stream);
+		if(curr_blobs != nullptr) // If curr_blobs is nullptr, don't decode. Is no data
+			FFS::decode(curr_blobs, curr_stream);
 	} else
 		FFS::FS::read_file(inode, curr_stream);
 
@@ -336,6 +411,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 
+	std::cout << "End ffs_ftruncate " << path << std::endl << std::endl;
 	return 0;
 }
 
@@ -354,10 +430,12 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 */
 
 static int ffs_statfs(const char* path, struct statvfs* stbuf) {
+	std::cout << "Begin ffs_statfs " << path << std::endl;
 	// (Max) block size
 	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
 
 	stbuf->f_frsize = FFS_MAX_FILE_SIZE;
+	stbuf->f_bavail = 1000;
 
 	stbuf->f_blocks = 1000;
 
@@ -366,6 +444,7 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 
 	// Many free inodes, always
 	stbuf->f_ffree = 1000000;
+	stbuf->f_favail = 1000000;
 
 	// Filesystem ID, something with FFS
 	stbuf->f_fsid = (('F' < 5) | 'F') | 'S';
@@ -373,21 +452,28 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	// Filename can be up to 128 bytes (1028 bits)
 	stbuf->f_namemax = 128;
 
+	// Does not honor setuid/setgid
+	stbuf->f_flag = ST_NOSUID;
+
 	auto table = FFS::State::get_inode_table();
 	stbuf->f_files = table->entries->size();
 
+	std::cout << "End ffs_statfs " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_access(const char* c_path, int mask) {
+	std::cout << "Begin ffs_access " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
 
+	std::cout << "End ffs_access " << c_path << std::endl << std::endl;
 	return F_OK;
 }
 
 static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
+	std::cout << "Begin ffs_utimens " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
@@ -415,29 +501,7 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 	if(change_made)
 		FFS::FS::sync_inode_table();
 		
-	return 0;
-}
-
-static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
-	auto fh = FFS::FileHandle::open(path);
-	fi->fh = fh;
-	return 0;
-}
-
-
-static int ffs_open(const char* path, struct fuse_file_info* fi) {
-	auto fh = FFS::FileHandle::open(path);
-	fi->fh = fh;
-	return 0;
-}
-
-static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
-	FFS::FileHandle::close(fi->fh);
-	return 0;
-}
-
-static int ffs_release(const char* path, struct fuse_file_info *fi) {
-	FFS::FileHandle::close(fi->fh);
+	std::cout << "End ffs_utimens " << c_path << std::endl << std::endl;
 	return 0;
 }
 

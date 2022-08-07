@@ -313,7 +313,7 @@ void remove_sub_files(FFS::posts_t fill_v, std::shared_ptr<FFS::Directory> dir) 
 			auto dir = FFS::Storage::dir_from_blobs(blobs);
 
 			remove_sub_files(fill_v, dir);
-		}
+		} 
 		
 		table->remove_entry(file_inode);
 

@@ -139,7 +139,9 @@ FFS::file_handle_t FFS::FileHandle::create(std::string path) {
 	auto inode = table->new_file(nullptr, 0, false);
 
 	auto parent_inode = traverser->parent_inode;
-	open_files.insert({inode, FileHandler(filename, parent_inode)});
+	auto file_handle = FileHandler(filename, parent_inode);
+	file_handle.set_blobs(nullptr);
+	open_files.insert({inode, file_handle});
 
 	auto parent_dir = traverser->parent_dir;
 	parent_dir->add_entry(filename, inode);
@@ -167,10 +169,11 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 			auto inode_entry = table->entry(inode);
 
 			auto blobs = open_file.get_blobs();
+			posts_t posts = nullptr;
 			if(blobs != nullptr) {
-				auto posts = FFS::Storage::upload_file(blobs);
-				inode_entry->post_ids = posts;
+				posts = FFS::Storage::upload_file(blobs);
 			}
+			inode_entry->post_ids = posts;
 
 			FFS::FS::sync_inode_table();
 		}

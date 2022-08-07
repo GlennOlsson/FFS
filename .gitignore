@@ -5,3 +5,4 @@ out.nosync
 ffs
 .vscode
 src/secret.h
+ffs_bench.wks

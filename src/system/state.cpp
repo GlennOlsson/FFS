@@ -5,6 +5,7 @@
 #include "../exceptions/exceptions.h"
 
 #include <iostream>
+#include <set>
 
 std::shared_ptr<FFS::InodeTable> FFS::State::inode_table = nullptr;
 FFS::post_id_t FFS::State::inode_table_id = "";
@@ -61,4 +62,18 @@ void FFS::State::save_table() {
 	// If old id existed, remove old post
 	if(old_id.size() > 2)
 		FFS::Storage::remove_post(old_id, true);
+}
+
+std::set<FFS::post_id_t> deleting_posts;
+
+void FFS::State::deleting(FFS::post_id_t post_id) {
+	deleting_posts.insert(post_id);
+}
+
+bool FFS::State::is_deleting(FFS::post_id_t post_id) {
+	return deleting_posts.contains(post_id);
+}
+
+void FFS::State::deleted(FFS::post_id_t post_id) {
+	deleting_posts.erase(post_id);
 }

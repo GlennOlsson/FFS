@@ -157,12 +157,18 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 }
 
 void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
+	// Already deleting
+	if(FFS::State::is_deleting(post_id))
+		return;
+	FFS::State::deleting(post_id);
+	
 	auto thread = std::thread([post_id] {
 		try {
 			FFS::API::Flickr::delete_image(post_id);
 		} catch(FFS::FlickrException& e) {
 			std::cerr << "Could not delete post with id " << post_id << std::endl;
 		}
+		FFS::State::deleted(post_id);
 	});
 
 	// If multithread is true, detach. Else, wait until done
