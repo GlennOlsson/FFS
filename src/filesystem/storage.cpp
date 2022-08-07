@@ -15,7 +15,7 @@
 #include "../api/curl.h"
 
 #ifdef DEBUG
-#include "../api/loopback.h"
+#include "../api/local.h"
 #endif
 
 #include "../exceptions/exceptions.h"
@@ -98,7 +98,7 @@ FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, boo
 	img.write(tmp_filename);
 
 #ifdef DEBUG
-	auto id = FFS::API::Loopback::save_file(tmp_filename, is_inode);
+	auto id = FFS::API::Local::save_file(tmp_filename, is_inode);
 #elif
 	std::string tag = "";
 	if(is_inode) {
@@ -130,7 +130,7 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
 		return FFS::Cache::get(id);
 
 #ifdef DEBUG
-	auto file_stream = FFS::API::Loopback::get_file(id);
+	auto file_stream = FFS::API::Local::get_file(id);
 #elif
 	auto source_url = FFS::API::Flickr::get_image(id);
 	auto file_stream = FFS::API::HTTP::get(source_url);
@@ -167,7 +167,7 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 	std::string tag = FFS_INODE_TABLE_TAG;
 
 #ifdef DEBUG
-	auto post_id_t = FFS::API::Loopback::get_inode_post_id();
+	auto post_id_t = FFS::API::Local::get_inode_post_id();
 #elif
 	auto post_id_t = FFS::API::Flickr::search_image(tag);
 #endif
@@ -184,7 +184,7 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	auto thread = std::thread([post_id] {
 		try {
 #ifdef DEBUG
-			FFS::API::Loopback::delete_file(post_id);
+			FFS::API::Local::delete_file(post_id);
 #elif
 			FFS::API::Flickr::delete_image(post_id);
 #endif

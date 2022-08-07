@@ -1,7 +1,7 @@
 #include "../config.h"
 
 #ifdef DEBUG
-#include "loopback.h"
+#include "local.h"
 
 #include <filesystem>
 #include <string>
@@ -19,7 +19,7 @@ std::string path_of(const FFS::post_id_t& id) {
 	return "/tmp/ffs/" + id;
 }
 
-FFS::post_id_t FFS::API::Loopback::save_file(const std::string& from_path, bool is_inode_table) {
+FFS::post_id_t FFS::API::Local::save_file(const std::string& from_path, bool is_inode_table) {
 	auto id = is_inode_table ? INODE_POST_ID : std::to_string(FFS::random_int());
 	auto save_path = path_of(id);
 	
@@ -28,18 +28,18 @@ FFS::post_id_t FFS::API::Loopback::save_file(const std::string& from_path, bool 
 	return id;
 }
 
-std::shared_ptr<std::istream> FFS::API::Loopback::get_file(const FFS::post_id_t& post) {
+std::shared_ptr<std::istream> FFS::API::Local::get_file(const FFS::post_id_t& post) {
 	auto path = path_of(post);
 	if(!std::filesystem::exists(path))
 		throw FFS::NoPhotoWithID(post);
 	return std::make_shared<std::ifstream>(path);
 }
 
-FFS::post_id_t FFS::API::Loopback::get_inode_post_id() {
+FFS::post_id_t FFS::API::Local::get_inode_post_id() {
 	return INODE_POST_ID;
 }
 
-void FFS::API::Loopback::delete_file(const FFS::post_id_t& post) {
+void FFS::API::Local::delete_file(const FFS::post_id_t& post) {
 	auto path = path_of(post);
 	std::filesystem::remove(path);
 }
