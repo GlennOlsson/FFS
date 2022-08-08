@@ -177,13 +177,17 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 
 void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	// Already deleting
+	std::cout << "checking if deleing" << std::endl;
 	if(FFS::State::is_deleting(post_id))
 		return;
+	std::cout << "Not delteing" << std::endl;
 	FFS::State::deleting(post_id);
+	std::cout << "Marked deleing" << std::endl;
 	
 	auto thread = std::thread([post_id] {
 		try {
 #ifdef DEBUG
+			std::cout << "Deleting file" << std::endl;
 			FFS::API::Local::delete_file(post_id);
 #elif
 			FFS::API::Flickr::delete_image(post_id);
@@ -191,15 +195,17 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 		} catch(FFS::FlickrException& e) {
 			std::cerr << "Could not delete post with id " << post_id << std::endl;
 		}
+		std::cout << "Mark deleted" << std::endl;
 		FFS::State::deleted(post_id);
 	});
 
 	// If multithread is true, detach. Else, wait until done
 	if(multithread)
 		thread.detach();
-	else
+	else if(thread.joinable())
 		thread.join();
 
+	std::cout << "INvalidate cache" << std::endl;
 	FFS::Cache::invalidate(post_id);
 }
 

@@ -61,6 +61,7 @@ static int ffs_open(const char* path, struct fuse_file_info* fi) {
 	std::cout << "Begin ffs_open " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
+	fi->nonseekable = true;
 
 	std::cout << "End ffs_open " << path << std::endl << std::endl;
 	return 0;
@@ -130,14 +131,14 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		FFS::inode_t inode = FFS_ROOT_INODE;
 		auto entry = table->entry(inode);
 		generic_getattr(entry, -1, stat_struct);
-		std::cout << "end ffs_getattr early: " << c_path << std::endl << std::endl;
+		// std::cout << "end ffs_getattr early: " << c_path << std::endl << std::endl;
 		return 0;
 	}
 
 	try {
 		FFS::FS::verify_in(traverser);
 	} catch(FFS::NoPathWithName) {
-		std::cout << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
+		// std::cout << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
 		return -ENOENT;
 	}
 	
@@ -179,7 +180,7 @@ static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, of
 }
 
 static int ffs_read(const char* path, char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_read " << path << std::endl;
+	std::cout << "Begin ffs_read " << path << ", offset: " << offset << ", size: " << size << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -189,78 +190,132 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 
 	if(FFS::FileHandle::is_modified(fh)) {
 		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		if(curr_blobs != nullptr) 
+		std::cout << "reading modified, blobs: " << curr_blobs.get() << std::endl;
+		if(curr_blobs != nullptr)
 			FFS::decode(curr_blobs, stream);
-	} else
+		else
+			std::cout << "++ READING NULL FILE!!" << std::endl;
+	} else {
+		std::cout << "is not modified, reading from post blocks" << std::endl;
 		FFS::FS::read_file(inode, stream);
+	}
 	
 	stream.seekg(offset);
 	int index = 0;
 	// Read as many bytes as requested, or until end of stream
 	while(index < size && stream) {
-		FFS::read_c(stream, buf[index++]);
+		FFS::read_c(stream, buf[index]);
+		std::cout << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
+		index++;
+	}
+	std::cout << std::endl;
+	std::cout << std::endl;
+	// If stream is less than size, fill with NULL
+	while(index < size) {
+		buf[index++] = '\0';
 	}
 
-	std::cout << "End read " << path << std::endl << std::endl;
+	std::cout << "End read " << path << ", read "<< index << " bytes "<< std::endl << std::endl;
 	// Return either the amount of bytes requested, or the amount read if its lower
-	return std::min((int) size, index);
+	return size;
 }
 
 static int ffs_write(const char* path, const char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
+	/* Write from offset, size bytes from buf
+	If Offset is > 0
+		add bytes before offset in file, first 
+	If New size (offset + size) is greater than current filesize (previous filesize)
+		Simply return size
+	If New size (offset + size) is less than current filesize (previous filesize)
+		Append content of file until new filesize == current filesize (previous filesize)
+
+	*/
+
 	std::cout << "Begin ffs_write " << path << ", offset: " << offset << ", size: " << size << std::endl;
+
+	std::cout << "First elem in buf: " << std::hex << +buf[0] << std::dec << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
+	auto entry = FFS::FS::entry(inode);
+
+	// Stream for previous (current) file
+	std::stringbuf prev_string_buf;
+	std::basic_iostream prev_stream(&prev_string_buf);
 
 	// Create stream for new file content
 	std::stringbuf new_string_buf;
 	std::basic_iostream new_stream(&new_string_buf);
 
-	// If offset > 0, read current file and add up until offset before
-	if(offset > 0) {
-		std::stringbuf curr_string_buf;
-		std::basic_iostream curr_stream(&curr_string_buf);
+	size_t prev_file_size = entry->length;
 
-		// If the file has been modified, i.e. is storing new blobs, read those as current file instead
-		if(FFS::FileHandle::is_modified(fh)) {
-			std::cout << "is modified" << std::endl;
-			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-			std::cout << "blobs are null: " << (curr_blobs == nullptr) << std::endl;
-			if(curr_blobs != nullptr) 
-				FFS::decode(curr_blobs, curr_stream);
-		} else {
-			std::cout << "not modified" << std::endl;
-			FFS::FS::read_file(inode, curr_stream);
-		}
-		
-		std::cout << "Writing old content to new stream" << std::endl;
-
-		int i = 0;
-		while(i++ < offset && curr_stream) {
-			new_stream.put(curr_stream.get());
-		}
-
-		std::cout << "Written old content" << std::endl;
+	// If offset > 0, read current file and seek to offset
+	// If the file has been modified, i.e. is storing new blobs, read those as current file instead
+	if(FFS::FileHandle::is_modified(fh)) {
+		std::cout << "is modified" << std::endl;
+		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+		std::cout << "blobs are null?: " << (curr_blobs == nullptr) << std::endl;
+		if(curr_blobs != nullptr) 
+			FFS::decode(curr_blobs, prev_stream);
+		else
+			std::cout << "** WRITING TO CURRENTLY NULL FILE" << std::endl;
+	} else {
+		std::cout << "not modified" << std::endl;
+		FFS::FS::read_file(inode, prev_stream);
 	}
 
-	std::cout << "Writing new content" << std::endl;
+	if(offset > 0) {
+		std::cout << "Old file size: " << FFS::stream_size(prev_stream) << " (same as :"<<prev_file_size<<"), offset: " << offset << std::endl;
+		
+		// add content until offset - 1 (offset should be first new byte)
+		auto index = 0;
+		while(index < offset) {
+			new_stream.put(prev_stream.get());
+			index++;
+		}
+
+		std::cout << "Written old content, is ok? " << new_stream.eof() << "; " << new_stream.bad() << "; " << new_stream.fail() << std::endl;
+	}
+
+	std::cout << "Writing new content: " << std::endl;
 	// Add new content
 	size_t index = 0;
 	while(index < size) {
-		FFS::write_c(new_stream, buf[index++]);
+		FFS::write_c(new_stream, buf[index]);
+		std::cout << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
+		index++;
+	}
+	std::cout << std::endl;
+	std::cout << std::endl;
+
+	// Seek past offset + size. Will not throw unless we read from stream
+	prev_stream.seekg(offset + size);
+	auto new_file_size = FFS::stream_size(new_stream);
+	while(new_file_size < prev_file_size) {
+		new_stream.put(prev_stream.get());
+		new_file_size++;
 	}
 
 	std::cout << "Written new content" << std::endl;
 
-    new_stream.flush();
+	if (new_stream.bad())
+        std::cout << "I/O error while reading\n";
+    else if (new_stream.eof())
+        std::cout << "End of file reached successfully\n";
+    else if (new_stream.fail()) {
+        std::cout << "Non-integer data encountered\n";
+	}
+	else
+		std::cout << "No problems with stream" << std::endl;
+    // new_stream.flush();
 
-	std::cout << "Update file" << std::endl;
+	std::cout << "Update file, new size: " << FFS::stream_size(new_stream) << std::endl;
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
 	std::cout << "Updated file" << std::endl;
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 	
 
-	std::cout << "End ffs_write " << path << std::endl << std::endl;
+	std::cout << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
 }
 
@@ -476,12 +531,12 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 }
 
 static int ffs_access(const char* c_path, int mask) {
-	std::cout << "Begin ffs_access " << c_path << std::endl;
+	// std::cout << "Begin ffs_access " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
 
-	std::cout << "End ffs_access " << c_path << std::endl << std::endl;
+	// std::cout << "End ffs_access " << c_path << std::endl << std::endl;
 	return F_OK;
 }
 
@@ -624,8 +679,8 @@ static struct fuse_operations ffs_operations = {
 	.link		= ffs_link,
 	.chmod		= ffs_chmod,
 	.chown		= ffs_chown,
-	.fsync		= ffs_fsync,
-	.fsyncdir	= ffs_fsyncdir,
+	// .fsync		= ffs_fsync,
+	// .fsyncdir	= ffs_fsyncdir,
 	//.lock		= ffs_lock,
 	.bmap		= ffs_bmap,
 	//.setxattr	= ffs_setxattr,

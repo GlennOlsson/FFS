@@ -35,18 +35,18 @@ std::string FFS::random_str(uint32_t length) {
 	return ss.str();
 }
 
-void FFS::write_c(std::ostream& stream, uint8_t c) { stream.put(c); }
-void FFS::write_i(std::ostream& stream, uint32_t i) {
+void FFS::write_c(std::ostream& stream, const uint8_t c) { stream.put(c); }
+void FFS::write_i(std::ostream& stream, const uint32_t i) {
 	stream.put((i >> (3 * 8)) & 0xFF);
 	stream.put((i >> (2 * 8)) & 0xFF);
 	stream.put((i >> (1 * 8)) & 0xFF);
 	stream.put((i >> (0 * 8)) & 0xFF);
 }
-void FFS::write_l(std::ostream& stream, uint64_t l) {
+void FFS::write_l(std::ostream& stream, const uint64_t l) {
 	write_i(stream, l >> 4 * 8);
 	write_i(stream, l & 0xFFFFFFFF);
 }
-void FFS::write_str(std::ostream& stream, std::string s) {
+void FFS::write_str(std::ostream& stream, const std::string& s) {
 	for(auto c: s) {
 		write_c(stream, c);
 	}

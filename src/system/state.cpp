@@ -53,15 +53,23 @@ void FFS::State::save_table() {
 		std::cerr << "Cannot save table, nullptr" << std::endl;
 		return;
 	}
+	
+	std::cout << "saving table " << std::endl;
 
 	auto blobs = FFS::Storage::blobs(*table);
+
+	std::cout << "Got blobs " << std::endl;
 	
 	// DANGEROUS: Assuming only one blob for inode table, _should_ be fine!
 	FFS::State::inode_table_id = FFS::Storage::upload_file(blobs->front(), true);
 
+	std::cout << "Uploaded " << std::endl;
+
 	// If old id existed, remove old post
-	if(old_id.size() > 2)
+	if(old_id.size() > 2) {
+		std::cout << "Removing " << old_id << std::endl;
 		FFS::Storage::remove_post(old_id, true);
+	}
 }
 
 std::set<FFS::post_id_t> deleting_posts;

@@ -32,10 +32,10 @@ namespace FFS {
 	// Generate a string with length characters, only characters 0-9
 	std::string random_str(uint32_t length);
 
-	void write_c(std::ostream& stream, uint8_t c);
-	void write_i(std::ostream& stream, uint32_t i);
-	void write_l(std::ostream& stream, uint64_t l);
-	void write_str(std::ostream& stream, std::string s);
+	void write_c(std::ostream& stream, const uint8_t c);
+	void write_i(std::ostream& stream, const uint32_t i);
+	void write_l(std::ostream& stream, const uint64_t l);
+	void write_str(std::ostream& stream, const std::string& s);
 	
 	void read_c(std::istream& stream, char& c);
 	void read_c(std::istream& stream, uint8_t& c);
