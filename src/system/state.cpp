@@ -4,6 +4,8 @@
 
 #include "../exceptions/exceptions.h"
 
+#include "../helpers/logger.h"
+
 #include <iostream>
 #include <set>
 
@@ -50,24 +52,24 @@ void FFS::State::save_table() {
 
 	std::shared_ptr<FFS::InodeTable> table = get_inode_table();
 	if(table == nullptr) {
-		std::cerr << "Cannot save table, nullptr" << std::endl;
+		FFS::err << "Cannot save table, nullptr" << std::endl;
 		return;
 	}
 	
-	std::cout << "saving table " << std::endl;
+	FFS::log << "saving table " << std::endl;
 
 	auto blobs = FFS::Storage::blobs(*table);
 
-	std::cout << "Got blobs " << std::endl;
+	FFS::log << "Got blobs " << std::endl;
 	
 	// DANGEROUS: Assuming only one blob for inode table, _should_ be fine!
 	FFS::State::inode_table_id = FFS::Storage::upload_file(blobs->front(), true);
 
-	std::cout << "Uploaded " << std::endl;
+	FFS::log << "Uploaded " << std::endl;
 
 	// If old id existed, remove old post
 	if(old_id.size() > 2) {
-		std::cout << "Removing " << old_id << std::endl;
+		FFS::log << "Removing " << old_id << std::endl;
 		FFS::Storage::remove_post(old_id, true);
 	}
 }

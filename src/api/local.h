@@ -1,6 +1,6 @@
 #include "../config.h"
 
-#ifdef DEBUG
+#ifdef USE_LOCAL_STORAGE
 #ifndef FFS_LOCAL_API_H
 #define FFS_LOCAL_API_H
 
@@ -18,4 +18,4 @@ namespace FFS::API::Local {
 }
 
 #endif // FFS_LOCAL_API_H
-#endif // DEBUG
+#endif // USE_LOCAL_STORAGE

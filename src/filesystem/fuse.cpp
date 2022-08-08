@@ -14,6 +14,7 @@
 
 #include "../helpers/functions.h"
 #include "../helpers/constants.h"
+#include "../helpers/logger.h"
 
 #include "../exceptions/exceptions.h"
 
@@ -49,37 +50,37 @@ std::string sanitize_path(const char* c_path) {
 
 
 static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_opendir " << path << std::endl;
+	FFS::log << "Begin ffs_opendir " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
-	std::cout << "End ffs_opendir " << path << std::endl << std::endl;
+	FFS::log << "End ffs_opendir " << path << std::endl << std::endl;
 	return 0;
 }
 
 
 static int ffs_open(const char* path, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_open " << path << std::endl;
+	FFS::log << "Begin ffs_open " << path << std::endl;
 	auto fh = FFS::FileHandle::open(path);
 	fi->fh = fh;
 	fi->nonseekable = true;
 
-	std::cout << "End ffs_open " << path << std::endl << std::endl;
+	FFS::log << "End ffs_open " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
-	std::cout << "Begin ffs_releasedir " << path << std::endl;
+	FFS::log << "Begin ffs_releasedir " << path << std::endl;
 	FFS::FileHandle::close(fi->fh);
 
-	std::cout << "End ffs_releasedir " << path << std::endl << std::endl;
+	FFS::log << "End ffs_releasedir " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_release(const char* path, struct fuse_file_info *fi) {
-	std::cout << "Begin ffs_release " << path << std::endl;
+	FFS::log << "Begin ffs_release " << path << std::endl;
 	FFS::FileHandle::close(fi->fh);
 
-	std::cout << "End ffs_release " << path << std::endl << std::endl;
+	FFS::log << "End ffs_release " << path << std::endl << std::endl;
 	return 0;
 }
 
@@ -104,7 +105,7 @@ void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t 
 		stat_struct->st_nlink = 1;
 	}
 	
-	std::cout << "genereic " << entry->length << " entry posts == nullptr? " << (entry->post_ids == nullptr) << std::endl;
+	FFS::log << "genereic " << entry->length << " entry posts == nullptr? " << (entry->post_ids == nullptr) << std::endl;
 	stat_struct->st_size = entry->length;
 	stat_struct->st_blocks = entry->post_ids == nullptr ? 0 : entry->post_ids->size();
 	stat_struct->st_blksize = FFS_MAX_FILE_SIZE;
@@ -120,7 +121,7 @@ void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t 
 }
 
 static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
-	// std::cout << "Begin ffs_getattr " << c_path << std::endl;
+	// FFS::log << "Begin ffs_getattr " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
 	auto traverser = FFS::FS::traverse_path(path);
@@ -131,14 +132,14 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		FFS::inode_t inode = FFS_ROOT_INODE;
 		auto entry = table->entry(inode);
 		generic_getattr(entry, -1, stat_struct);
-		// std::cout << "end ffs_getattr early: " << c_path << std::endl << std::endl;
+		// FFS::log << "end ffs_getattr early: " << c_path << std::endl << std::endl;
 		return 0;
 	}
 
 	try {
 		FFS::FS::verify_in(traverser);
 	} catch(FFS::NoPathWithName) {
-		// std::cout << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
+		// FFS::log << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
 		return -ENOENT;
 	}
 	
@@ -147,24 +148,24 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	
 	generic_getattr(entry, -1, stat_struct);
 
-	// std::cout << "End ffs_getattr " << c_path << std::endl << std::endl;
+	// FFS::log << "End ffs_getattr " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_fgetattr(const char* path, struct stat* stat_struct, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_fgetattr " << path << std::endl;
+	FFS::log << "Begin ffs_fgetattr " << path << std::endl;
 	auto inode = FFS::FileHandle::inode(fi->fh);
 
 	auto entry = FFS::FS::entry(inode);
 
 	generic_getattr(entry, fi->fh, stat_struct);
 	
-	std::cout << "End ffs_fgetattr " << path << std::endl << std::endl;
+	FFS::log << "End ffs_fgetattr " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_readdir " << c_path << std::endl;
+	FFS::log << "Begin ffs_readdir " << c_path << std::endl;
 
 	auto inode = FFS::FileHandle::inode(fi->fh);
 	auto dir = FFS::FS::get_dir(inode);
@@ -175,12 +176,12 @@ static int ffs_readdir(const char* c_path, void* buf, fuse_fill_dir_t filler, of
 		filler(buf, entry.first.c_str(), NULL, 0);
 	}
 
-	std::cout << "End ffs_readdir " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_readdir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_read(const char* path, char* buf, size_t size, off_t offset, struct fuse_file_info* fi) {
-	std::cout << "Begin ffs_read " << path << ", offset: " << offset << ", size: " << size << std::endl;
+	FFS::log << "Begin ffs_read " << path << ", offset: " << offset << ", size: " << size << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -190,13 +191,13 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 
 	if(FFS::FileHandle::is_modified(fh)) {
 		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		std::cout << "reading modified, blobs: " << curr_blobs.get() << std::endl;
+		FFS::log << "reading modified, blobs: " << curr_blobs.get() << std::endl;
 		if(curr_blobs != nullptr)
 			FFS::decode(curr_blobs, stream);
 		else
-			std::cout << "++ READING NULL FILE!!" << std::endl;
+			FFS::log << "++ READING NULL FILE!!" << std::endl;
 	} else {
-		std::cout << "is not modified, reading from post blocks" << std::endl;
+		FFS::log << "is not modified, reading from post blocks" << std::endl;
 		FFS::FS::read_file(inode, stream);
 	}
 	
@@ -205,17 +206,17 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	// Read as many bytes as requested, or until end of stream
 	while(index < size && stream) {
 		FFS::read_c(stream, buf[index]);
-		std::cout << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
+		FFS::log << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
 		index++;
 	}
-	std::cout << std::endl;
-	std::cout << std::endl;
+	FFS::log << std::endl;
+	FFS::log << std::endl;
 	// If stream is less than size, fill with NULL
 	while(index < size) {
 		buf[index++] = '\0';
 	}
 
-	std::cout << "End read " << path << ", read "<< index << " bytes "<< std::endl << std::endl;
+	FFS::log << "End read " << path << ", read "<< index << " bytes "<< std::endl << std::endl;
 	// Return either the amount of bytes requested, or the amount read if its lower
 	return size;
 }
@@ -231,9 +232,9 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 
 	*/
 
-	std::cout << "Begin ffs_write " << path << ", offset: " << offset << ", size: " << size << std::endl;
+	FFS::log << "Begin ffs_write " << path << ", offset: " << offset << ", size: " << size << std::endl;
 
-	std::cout << "First elem in buf: " << std::hex << +buf[0] << std::dec << std::endl;
+	FFS::log << "First elem in buf: " << std::hex << +buf[0] << std::dec << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -252,20 +253,20 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new blobs, read those as current file instead
 	if(FFS::FileHandle::is_modified(fh)) {
-		std::cout << "is modified" << std::endl;
+		FFS::log << "is modified" << std::endl;
 		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		std::cout << "blobs are null?: " << (curr_blobs == nullptr) << std::endl;
+		FFS::log << "blobs are null?: " << (curr_blobs == nullptr) << std::endl;
 		if(curr_blobs != nullptr) 
 			FFS::decode(curr_blobs, prev_stream);
 		else
-			std::cout << "** WRITING TO CURRENTLY NULL FILE" << std::endl;
+			FFS::log << "** WRITING TO CURRENTLY NULL FILE" << std::endl;
 	} else {
-		std::cout << "not modified" << std::endl;
+		FFS::log << "not modified" << std::endl;
 		FFS::FS::read_file(inode, prev_stream);
 	}
 
 	if(offset > 0) {
-		std::cout << "Old file size: " << FFS::stream_size(prev_stream) << " (same as :"<<prev_file_size<<"), offset: " << offset << std::endl;
+		FFS::log << "Old file size: " << FFS::stream_size(prev_stream) << " (same as :"<<prev_file_size<<"), offset: " << offset << std::endl;
 		
 		// add content until offset - 1 (offset should be first new byte)
 		auto index = 0;
@@ -274,19 +275,19 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 			index++;
 		}
 
-		std::cout << "Written old content, is ok? " << new_stream.eof() << "; " << new_stream.bad() << "; " << new_stream.fail() << std::endl;
+		FFS::log << "Written old content, is ok? " << new_stream.eof() << "; " << new_stream.bad() << "; " << new_stream.fail() << std::endl;
 	}
 
-	std::cout << "Writing new content: " << std::endl;
+	FFS::log << "Writing new content: " << std::endl;
 	// Add new content
 	size_t index = 0;
 	while(index < size) {
 		FFS::write_c(new_stream, buf[index]);
-		std::cout << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
+		FFS::log << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
 		index++;
 	}
-	std::cout << std::endl;
-	std::cout << std::endl;
+	FFS::log << std::endl;
+	FFS::log << std::endl;
 
 	// Seek past offset + size. Will not throw unless we read from stream
 	prev_stream.seekg(offset + size);
@@ -296,88 +297,88 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 		new_file_size++;
 	}
 
-	std::cout << "Written new content" << std::endl;
+	FFS::log << "Written new content" << std::endl;
 
 	if (new_stream.bad())
-        std::cout << "I/O error while reading\n";
+        FFS::log << "I/O error while reading\n";
     else if (new_stream.eof())
-        std::cout << "End of file reached successfully\n";
+        FFS::log << "End of file reached successfully\n";
     else if (new_stream.fail()) {
-        std::cout << "Non-integer data encountered\n";
+        FFS::log << "Non-integer data encountered\n";
 	}
 	else
-		std::cout << "No problems with stream" << std::endl;
+		FFS::log << "No problems with stream" << std::endl;
     // new_stream.flush();
 
-	std::cout << "Update file, new size: " << FFS::stream_size(new_stream) << std::endl;
+	FFS::log << "Update file, new size: " << FFS::stream_size(new_stream) << std::endl;
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
-	std::cout << "Updated file" << std::endl;
+	FFS::log << "Updated file" << std::endl;
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 	
 
-	std::cout << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
+	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
 }
 
 int ffs_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
-	std::cout << "Begin create " << path << std::endl;
+	FFS::log << "Begin create " << path << std::endl;
 	
 	// Create empty file and update parent dir in storage medium
 	auto fh = FFS::FileHandle::create(path);
 	fi->fh = fh;
 
-	std::cout << "End ffs_create " << path << std::endl << std::endl;
+	FFS::log << "End ffs_create " << path << std::endl << std::endl;
 	return 0;
 }
 
 int ffs_mkdir(const char* c_path, mode_t mode) {
-	std::cout << "Begin ffs_mkdir " << c_path << std::endl;
+	FFS::log << "Begin ffs_mkdir " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	
 	FFS::FS::create_dir(path);
 
 	FFS::FS::sync_inode_table();
 	
-	std::cout << "End ffs_mkdir " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_mkdir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_unlink(const char * c_path) {
-	std::cout << "Begin ffs_unlink " << c_path << std::endl;
+	FFS::log << "Begin ffs_unlink " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	
 	try {
 		FFS::FS::remove(path);
 	} catch (FFS::Exception) {
-		std::cout << "Cannot remove: " << c_path << std::endl << std::endl;
+		FFS::log << "Cannot remove: " << c_path << std::endl << std::endl;
 		return 1;
 	}
 
 	FFS::FS::sync_inode_table();
 	
-	std::cout << "End ffs_unlink " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_unlink " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_rmdir(const char * c_path) {
-	std::cout << "Begin ffs_rmdir " << c_path << std::endl;
+	FFS::log << "Begin ffs_rmdir " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
 	try {
 		FFS::FS::remove(path);
 	} catch (FFS::Exception) {
-		std::cout << "Cannot remove dir: " << c_path << std::endl << std::endl;
+		FFS::log << "Cannot remove dir: " << c_path << std::endl << std::endl;
 		return 1;
 	}
 
 	FFS::FS::sync_inode_table();
 	
-	std::cout << "End ffs_rmdir " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_rmdir " << c_path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_rename(const char* c_from, const char* c_to) {
-	std::cout << "Begin ffs_rename " << c_from << " to " << c_to << std::endl;
+	FFS::log << "Begin ffs_rename " << c_from << " to " << c_to << std::endl;
 	auto from = sanitize_path(c_from);
 
 	auto to = sanitize_path(c_to);
@@ -404,13 +405,13 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	FFS::FS::sync_inode_table();
 	
-	std::cout << "End ffs_rename " << c_from << ", " << c_to << std::endl << std::endl;
+	FFS::log << "End ffs_rename " << c_from << ", " << c_to << std::endl << std::endl;
 	return 0;
 }
 
 // truncate or extend file to be size bytes
 static int ffs_truncate(const char* c_path, off_t size) {
-	std::cout << "Begin ffs_truncate " << c_path << std::endl;
+	FFS::log << "Begin ffs_truncate " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
 	std::stringbuf new_string_buf;
@@ -440,13 +441,13 @@ static int ffs_truncate(const char* c_path, off_t size) {
 
 	FFS::FS::sync_inode_table();
 	
-	std::cout << "End ffs_truncate " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_truncate " << c_path << std::endl << std::endl;
 	return size;
 }
 
 // Similar to above but uses file handle
 static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
-	std::cout << "Begin ffs_ftruncate " << path << std::endl;
+	FFS::log << "Begin ffs_ftruncate " << path << std::endl;
 	
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -479,7 +480,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 
-	std::cout << "End ffs_ftruncate " << path << std::endl << std::endl;
+	FFS::log << "End ffs_ftruncate " << path << std::endl << std::endl;
 	return 0;
 }
 
@@ -498,7 +499,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 */
 
 static int ffs_statfs(const char* path, struct statvfs* stbuf) {
-	// std::cout << "Begin ffs_statfs " << path << std::endl;
+	// FFS::log << "Begin ffs_statfs " << path << std::endl;
 	// (Max) block size
 	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
 
@@ -526,22 +527,22 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	auto table = FFS::State::get_inode_table();
 	stbuf->f_files = table->entries->size();
 
-	// std::cout << "End ffs_statfs " << path << std::endl << std::endl;
+	// FFS::log << "End ffs_statfs " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_access(const char* c_path, int mask) {
-	// std::cout << "Begin ffs_access " << c_path << std::endl;
+	// FFS::log << "Begin ffs_access " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
 
-	// std::cout << "End ffs_access " << c_path << std::endl << std::endl;
+	// FFS::log << "End ffs_access " << c_path << std::endl << std::endl;
 	return F_OK;
 }
 
 static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
-	std::cout << "Begin ffs_utimens " << c_path << std::endl;
+	FFS::log << "Begin ffs_utimens " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
@@ -569,7 +570,7 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 	if(change_made)
 		FFS::FS::sync_inode_table();
 		
-	std::cout << "End ffs_utimens " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_utimens " << c_path << std::endl << std::endl;
 	return 0;
 }
 

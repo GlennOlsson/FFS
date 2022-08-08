@@ -8,13 +8,14 @@
 #include "../helpers/types.h"
 #include "../helpers/functions.h"
 #include "../helpers/constants.h"
+#include "../helpers/logger.h"
 
 #include "../system/state.h"
 
 #include "../api/flickr.h"
 #include "../api/curl.h"
 
-#ifdef DEBUG
+#ifdef USE_LOCAL_STORAGE
 #include "../api/local.h"
 #endif
 
@@ -97,7 +98,7 @@ FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, boo
 	Magick::Image img(*blob);
 	img.write(tmp_filename);
 
-#ifdef DEBUG
+#ifdef USE_LOCAL_STORAGE
 	auto id = FFS::API::Local::save_file(tmp_filename, is_inode);
 #elif
 	std::string tag = "";
@@ -129,7 +130,7 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
 	if(FFS::Cache::get(id) != nullptr)
 		return FFS::Cache::get(id);
 
-#ifdef DEBUG
+#ifdef USE_LOCAL_STORAGE
 	auto file_stream = FFS::API::Local::get_file(id);
 #elif
 	auto source_url = FFS::API::Flickr::get_image(id);
@@ -166,7 +167,7 @@ FFS::blobs_t FFS::Storage::get_file(posts_t ids) {
 FFS::post_id_t FFS::Storage::get_inode_table() {
 	std::string tag = FFS_INODE_TABLE_TAG;
 
-#ifdef DEBUG
+#ifdef USE_LOCAL_STORAGE
 	auto post_id_t = FFS::API::Local::get_inode_post_id();
 #elif
 	auto post_id_t = FFS::API::Flickr::search_image(tag);
@@ -177,25 +178,25 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 
 void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	// Already deleting
-	std::cout << "checking if deleing" << std::endl;
+	FFS::log << "checking if deleing" << std::endl;
 	if(FFS::State::is_deleting(post_id))
 		return;
-	std::cout << "Not delteing" << std::endl;
+	FFS::log << "Not delteing" << std::endl;
 	FFS::State::deleting(post_id);
-	std::cout << "Marked deleing" << std::endl;
+	FFS::log << "Marked deleing" << std::endl;
 	
 	auto thread = std::thread([post_id] {
 		try {
-#ifdef DEBUG
-			std::cout << "Deleting file" << std::endl;
+#ifdef USE_LOCAL_STORAGE
+			FFS::log << "Deleting file" << std::endl;
 			FFS::API::Local::delete_file(post_id);
 #elif
 			FFS::API::Flickr::delete_image(post_id);
 #endif
 		} catch(FFS::FlickrException& e) {
-			std::cerr << "Could not delete post with id " << post_id << std::endl;
+			FFS::err << "Could not delete post with id " << post_id << std::endl;
 		}
-		std::cout << "Mark deleted" << std::endl;
+		FFS::log << "Mark deleted" << std::endl;
 		FFS::State::deleted(post_id);
 	});
 
@@ -203,12 +204,12 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	if(multithread)
 		thread.detach();
 	else if(thread.joinable()) {
-		std::cout << "joining" <<std::endl;
+		FFS::log << "joining" <<std::endl;
 		thread.join();
-		std::cout << "thread done" <<std::endl;
+		FFS::log << "thread done" <<std::endl;
 	}
 
-	std::cout << "INvalidate cache" << std::endl;
+	FFS::log << "INvalidate cache" << std::endl;
 	FFS::Cache::invalidate(post_id);
 }
 

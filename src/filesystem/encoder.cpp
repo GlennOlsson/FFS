@@ -2,6 +2,7 @@
 
 #include "../helpers/constants.h"
 #include "../helpers/functions.h"
+#include "../helpers/logger.h"
 
 #include "crypto.h"
 
@@ -148,7 +149,7 @@ FFS::blobs_t FFS::encode(std::istream& file_stream) {
 FFS::blobs_t FFS::encode(std::string input_path) {
 	std::ifstream file_stream(input_path, std::ifstream::binary);
 	if (!file_stream) {
-		std::cerr << "no file " << input_path << std::endl;
+		FFS::err << "no file " << input_path << std::endl;
 
 		auto empty_list = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
 		return empty_list;

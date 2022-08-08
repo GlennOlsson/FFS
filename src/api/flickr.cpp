@@ -13,6 +13,7 @@
 #include "curl.h"
 #include "../exceptions/exceptions.h"
 #include "../helpers/types.h"
+#include "../helpers/logger.h"
 
 #define FLICKR_USER_ID "me"
 #define FLICKR_ORIGINAL_SIZE_STR "Original"
@@ -83,7 +84,7 @@ FFS::post_id_t FFS::API::Flickr::post_image(std::string file_path, std::string p
 std::string FFS::API::Flickr::get_image(FFS::post_id_t id) {
 	auto fc = get_fc();
 
-	std::cout << "get size for id: ”" << id << "”" << std::endl;
+	FFS::log << "get size for id: ”" << id << "”" << std::endl;
 
 	auto sizes = flickcurl_photos_getSizes(fc, id.c_str());
 

@@ -1,6 +1,6 @@
 #include "../config.h"
 
-#ifdef DEBUG
+#ifdef USE_LOCAL_STORAGE
 #include "local.h"
 
 #include <filesystem>
