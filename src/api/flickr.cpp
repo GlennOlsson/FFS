@@ -51,6 +51,8 @@ flickcurl* get_fc() {
 }
 
 FFS::post_id_t FFS::API::Flickr::post_image(std::string file_path, std::string post_text, std::string tags) {
+	FFS::log << "FLICKR: Post image from path " << file_path << ", tag: " << tags << std::endl;
+
 	auto fc = get_fc();
 
 	flickcurl_upload_params params;
@@ -82,6 +84,7 @@ FFS::post_id_t FFS::API::Flickr::post_image(std::string file_path, std::string p
 }
 
 std::string FFS::API::Flickr::get_image(FFS::post_id_t id) {
+	FFS::log << "FLICKR: Getting image from  with id " << id << std::endl;
 	auto fc = get_fc();
 
 	FFS::log << "get size for id: ”" << id << "”" << std::endl;

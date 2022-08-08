@@ -164,7 +164,6 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 	bool last_close = open_file.close();
 	if(last_close) {
 		if(open_file.is_modified()) {
-			FFS::log << "closing and saving" << std::endl;
 			// Save open file/dir, (parent dir?) and inode table
 			auto table = FFS::State::get_inode_table();
 
@@ -172,10 +171,8 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 
 			auto blobs = open_file.get_blobs();
 			posts_t posts = nullptr;
-			if(blobs != nullptr) {
+			if(blobs != nullptr) 
 				posts = FFS::Storage::upload_file(blobs);
-				FFS::log << "updating, now " << posts->size() << " posts" << std::endl;
-			}
 			inode_entry->post_ids = posts;
 
 			FFS::FS::sync_inode_table();
@@ -198,16 +195,12 @@ void FFS::FileHandle::update_blobs(FFS::file_handle_t fh, FFS::blobs_t blobs) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
 	open_file.set_blobs(blobs);
-
-	FFS::log << "Updated blobs for " << &open_file << ", nullptr? " << (blobs == nullptr) << std::endl;
-	FFS::log << "Saved as " << blobs.get() << std::endl;
 }
 
 FFS::blobs_t FFS::FileHandle::get_blobs(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
-
-	FFS::log << "Getting blobs for " << &open_file << ", nullptr? " << (open_file.get_blobs() == nullptr) << std::endl;
+	
 	return open_file.get_blobs();
 }
 

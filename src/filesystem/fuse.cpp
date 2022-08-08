@@ -105,7 +105,6 @@ void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t 
 		stat_struct->st_nlink = 1;
 	}
 	
-	FFS::log << "genereic " << entry->length << " entry posts == nullptr? " << (entry->post_ids == nullptr) << std::endl;
 	stat_struct->st_size = entry->length;
 	stat_struct->st_blocks = entry->post_ids == nullptr ? 0 : entry->post_ids->size();
 	stat_struct->st_blksize = FFS_MAX_FILE_SIZE;
@@ -191,33 +190,22 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 
 	if(FFS::FileHandle::is_modified(fh)) {
 		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		FFS::log << "reading modified, blobs: " << curr_blobs.get() << std::endl;
 		if(curr_blobs != nullptr)
 			FFS::decode(curr_blobs, stream);
-		else
-			FFS::log << "++ READING NULL FILE!!" << std::endl;
-	} else {
-		FFS::log << "is not modified, reading from post blocks" << std::endl;
+	} else 
 		FFS::FS::read_file(inode, stream);
-	}
 	
 	stream.seekg(offset);
 	int index = 0;
 	// Read as many bytes as requested, or until end of stream
-	while(index < size && stream) {
-		FFS::read_c(stream, buf[index]);
-		FFS::log << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
-		index++;
-	}
-	FFS::log << std::endl;
-	FFS::log << std::endl;
+	while(index < size && stream)
+		FFS::read_c(stream, buf[index++]);
+
 	// If stream is less than size, fill with NULL
-	while(index < size) {
+	while(index < size)
 		buf[index++] = '\0';
-	}
 
 	FFS::log << "End read " << path << ", read "<< index << " bytes "<< std::endl << std::endl;
-	// Return either the amount of bytes requested, or the amount read if its lower
 	return size;
 }
 
@@ -233,8 +221,6 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	*/
 
 	FFS::log << "Begin ffs_write " << path << ", offset: " << offset << ", size: " << size << std::endl;
-
-	FFS::log << "First elem in buf: " << std::hex << +buf[0] << std::dec << std::endl;
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
@@ -253,69 +239,35 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new blobs, read those as current file instead
 	if(FFS::FileHandle::is_modified(fh)) {
-		FFS::log << "is modified" << std::endl;
 		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		FFS::log << "blobs are null?: " << (curr_blobs == nullptr) << std::endl;
 		if(curr_blobs != nullptr) 
 			FFS::decode(curr_blobs, prev_stream);
-		else
-			FFS::log << "** WRITING TO CURRENTLY NULL FILE" << std::endl;
-	} else {
-		FFS::log << "not modified" << std::endl;
+	} else
 		FFS::FS::read_file(inode, prev_stream);
-	}
 
 	if(offset > 0) {
-		FFS::log << "Old file size: " << FFS::stream_size(prev_stream) << " (same as :"<<prev_file_size<<"), offset: " << offset << std::endl;
 		
 		// add content until offset - 1 (offset should be first new byte)
 		auto index = 0;
-		while(index < offset) {
+		while(index++ < offset)
 			new_stream.put(prev_stream.get());
-			index++;
-		}
-
-		FFS::log << "Written old content, is ok? " << new_stream.eof() << "; " << new_stream.bad() << "; " << new_stream.fail() << std::endl;
 	}
 
-	FFS::log << "Writing new content: " << std::endl;
 	// Add new content
 	size_t index = 0;
-	while(index < size) {
-		FFS::write_c(new_stream, buf[index]);
-		FFS::log << std::hex << +(unsigned char)buf[index] << "("<< std::dec << (offset + index) << "), ";
-		index++;
-	}
-	FFS::log << std::endl;
-	FFS::log << std::endl;
+	while(index < size)
+		FFS::write_c(new_stream, buf[index++]);
 
-	// Seek past offset + size. Will not throw unless we read from stream
+	// Seek past offset + size. Will not throw unless we read from stream, which we wont unless 
+	//	prev_file is smaller than new seek point
 	prev_stream.seekg(offset + size);
 	auto new_file_size = FFS::stream_size(new_stream);
-	while(new_file_size < prev_file_size) {
+	while(new_file_size++ < prev_file_size)
 		new_stream.put(prev_stream.get());
-		new_file_size++;
-	}
 
-	FFS::log << "Written new content" << std::endl;
-
-	if (new_stream.bad())
-        FFS::log << "I/O error while reading\n";
-    else if (new_stream.eof())
-        FFS::log << "End of file reached successfully\n";
-    else if (new_stream.fail()) {
-        FFS::log << "Non-integer data encountered\n";
-	}
-	else
-		FFS::log << "No problems with stream" << std::endl;
-    // new_stream.flush();
-
-	FFS::log << "Update file, new size: " << FFS::stream_size(new_stream) << std::endl;
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
-	FFS::log << "Updated file" << std::endl;
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 	
-
 	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
 }
@@ -350,7 +302,7 @@ static int ffs_unlink(const char * c_path) {
 	try {
 		FFS::FS::remove(path);
 	} catch (FFS::Exception) {
-		FFS::log << "Cannot remove: " << c_path << std::endl << std::endl;
+		FFS::err << "Cannot remove: " << c_path << std::endl << std::endl;
 		return 1;
 	}
 
@@ -367,7 +319,7 @@ static int ffs_rmdir(const char * c_path) {
 	try {
 		FFS::FS::remove(path);
 	} catch (FFS::Exception) {
-		FFS::log << "Cannot remove dir: " << c_path << std::endl << std::endl;
+		FFS::err << "Cannot remove dir: " << c_path << std::endl << std::endl;
 		return 1;
 	}
 
