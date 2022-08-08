@@ -202,8 +202,11 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 	// If multithread is true, detach. Else, wait until done
 	if(multithread)
 		thread.detach();
-	else if(thread.joinable())
+	else if(thread.joinable()) {
+		std::cout << "joining" <<std::endl;
 		thread.join();
+		std::cout << "thread done" <<std::endl;
+	}
 
 	std::cout << "INvalidate cache" << std::endl;
 	FFS::Cache::invalidate(post_id);

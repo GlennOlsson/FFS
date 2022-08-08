@@ -13,7 +13,7 @@
 
 #include "../exceptions/exceptions.h"
 
-#define INODE_POST_ID std::string("inode")
+#define INODE_POST_ID std::string("i")
 
 std::string path_of(const FFS::post_id_t& id) {
 	return "/tmp/ffs/" + id;
