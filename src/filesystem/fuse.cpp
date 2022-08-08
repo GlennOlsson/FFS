@@ -454,10 +454,9 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	// FFS::log << "Begin ffs_statfs " << path << std::endl;
 	// (Max) block size
 	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
-
 	stbuf->f_frsize = FFS_MAX_FILE_SIZE;
-	stbuf->f_bavail = 1000;
 
+	stbuf->f_bavail = 1000;
 	stbuf->f_blocks = 1000;
 
 	// Always 1000 blocks available (infinite storage o_O)
@@ -665,9 +664,7 @@ int FFS::FUSE::start(int argc, char *argv[]) {
 	std::cout << "|                         |" << std::endl;
 	std::cout << "+ ----------------------- +" << std::endl;
 
-	FFS::FS::sync_inode_table();
-
-
+	// FFS::FS::sync_inode_table();
 
 	return fuse_ret;
 }

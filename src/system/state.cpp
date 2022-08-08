@@ -21,6 +21,7 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 			new_id = FFS::Storage::get_inode_table();	
 			blob = FFS::Storage::get_file(new_id);
 		} catch (FFS::Exception& e) {
+			FFS::log << "Error getting inode table: " << e.what() << std::endl;
 			blob = nullptr;
 		}
 

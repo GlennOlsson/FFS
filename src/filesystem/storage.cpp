@@ -29,7 +29,7 @@
 #include <chrono>
 #include <thread>
 
-#define FFS_INODE_TABLE_TAG "ffs_inode"
+#define FFS_INODE_TABLE_TAG "ffsinode"
 
 std::string path_of(FFS::post_id_t id) {
 	std::stringstream path_stream;
@@ -100,7 +100,8 @@ FFS::post_id_t FFS::Storage::upload_file(std::shared_ptr<Magick::Blob> blob, boo
 
 #ifdef USE_LOCAL_STORAGE
 	auto id = FFS::API::Local::save_file(tmp_filename, is_inode);
-#elif
+#endif
+#ifndef USE_LOCAL_STORAGE
 	std::string tag = "";
 	if(is_inode) {
 		tag = FFS_INODE_TABLE_TAG;
@@ -132,7 +133,8 @@ std::shared_ptr<Magick::Blob> FFS::Storage::get_file(FFS::post_id_t id) {
 
 #ifdef USE_LOCAL_STORAGE
 	auto file_stream = FFS::API::Local::get_file(id);
-#elif
+#endif
+#ifndef USE_LOCAL_STORAGE
 	auto source_url = FFS::API::Flickr::get_image(id);
 	auto file_stream = FFS::API::HTTP::get(source_url);
 #endif
@@ -169,7 +171,8 @@ FFS::post_id_t FFS::Storage::get_inode_table() {
 
 #ifdef USE_LOCAL_STORAGE
 	auto post_id_t = FFS::API::Local::get_inode_post_id();
-#elif
+#endif
+#ifndef USE_LOCAL_STORAGE
 	auto post_id_t = FFS::API::Flickr::search_image(tag);
 #endif
 
@@ -186,7 +189,8 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 		try {
 #ifdef USE_LOCAL_STORAGE
 			FFS::API::Local::delete_file(post_id);
-#elif
+#endif
+#ifndef USE_LOCAL_STORAGE
 			FFS::API::Flickr::delete_image(post_id);
 #endif
 		} catch(FFS::FlickrException& e) {
