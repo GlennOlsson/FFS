@@ -557,15 +557,15 @@ static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 	return 0;
 }
 
-static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
-	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
-	return 0;
-}
+// static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
+// 	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
+// 	return 0;
+// }
 
-static int ffs_fsyncdir(const char* path, int isdatasync, struct fuse_file_info* fi) {
-	std::cerr << "UNIMPLEMENTED: fsyncdir" << std::endl;
-	return 0;
-}
+// static int ffs_fsyncdir(const char* path, int isdatasync, struct fuse_file_info* fi) {
+// 	std::cerr << "UNIMPLEMENTED: fsyncdir" << std::endl;
+// 	return 0;
+// }
 
 
 //static int ffs_lock(const char* path, struct fuse_file_info* fi, int cmd, struct flock* locks) {
