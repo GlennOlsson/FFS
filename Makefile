@@ -3,10 +3,11 @@ compile_flags :=  -Wall --std=c++20 -O2
 magick_flags := `Magick++-config --cppflags --cxxflags --ldflags --libs`
 fuse_flags := `pkg-config --cflags --libs fuse`
 curl_flags := `pkg-config --cflags curlpp` -lcurlpp -lcurl
-flickr_flags := `flickcurl-config  --cflags` `flickcurl-config --libs`
+# flickr_flags := `flickcurl-config  --cflags` `flickcurl-config --libs`
 cryptpp_flags = -I /usr/local/include/cryptopp -L/usr/local/lib -lcryptopp
+oathflags = -L/usr/local/lib -loauthcpp -I/usr/local/include/lliboauthcpp
 
-all_flags := $(compile_flags) $(magick_flags) $(fuse_flags) $(curl_flags) $(flickr_flags) $(cryptpp_flags)
+all_flags := $(compile_flags) $(magick_flags) $(fuse_flags) $(curl_flags) $(oathflags) $(cryptpp_flags)
 
 out_dir := out.nosync
 test_dir := tests
