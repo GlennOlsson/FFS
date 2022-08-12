@@ -230,12 +230,6 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	std::stringbuf prev_string_buf;
 	std::basic_iostream prev_stream(&prev_string_buf);
 
-	// Create stream for new file content
-	std::stringbuf new_string_buf;
-	std::basic_iostream new_stream(&new_string_buf);
-
-	size_t prev_file_size = entry->length;
-
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new blobs, read those as current file instead
 	if(FFS::FileHandle::is_modified(fh)) {
@@ -245,27 +239,15 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	} else
 		FFS::FS::read_file(inode, prev_stream);
 
-	if(offset > 0) {
-		
-		// add content until offset - 1 (offset should be first new byte)
-		auto index = 0;
-		while(index++ < offset)
-			new_stream.put(prev_stream.get());
-	}
+	prev_stream.seekp(offset);
 
-	// Add new content
+	// Add new content. If larger than current stream, will overwrite all and expand
+	// Otherwise, will keep data further than seek-point
 	size_t index = 0;
 	while(index < size)
-		FFS::write_c(new_stream, buf[index++]);
+		FFS::write_c(prev_stream, buf[index++]);
 
-	// Seek past offset + size. Will not throw unless we read from stream, which we wont unless 
-	//	prev_file is smaller than new seek point
-	prev_stream.seekg(offset + size);
-	auto new_file_size = FFS::stream_size(new_stream);
-	while(new_file_size++ < prev_file_size)
-		new_stream.put(prev_stream.get());
-
-	auto new_blobs = FFS::FS::update_file(inode, new_stream);
+	auto new_blobs = FFS::FS::update_file(inode, prev_stream);
 	FFS::FileHandle::update_blobs(fh, new_blobs);
 	
 	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
