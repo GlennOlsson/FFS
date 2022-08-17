@@ -88,7 +88,7 @@ std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 	auto dir = get_root_dir();
 
 	auto table = FFS::State::get_inode_table();
-	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+	auto blobs = std::make_shared<std::vector<FFS::blob_t>>();
 	std::shared_ptr<FFS::InodeEntry> dir_entry = nullptr;
 
 	FFS::inode_t inode = FFS_ROOT_INODE;

@@ -94,4 +94,14 @@ public:
 	NoPhotoWithID(std::string id): FFS::FlickrException("Could not find any photos with id " + id) {}
 };
 
+class JSONException: public FFS::APIException {
+public:
+	JSONException(std::string why): FFS::APIException(why) {}
+};
+
+class JSONKeyNonexistant: public FFS::JSONException {
+public:
+	JSONKeyNonexistant(std::string key): FFS::JSONException("JSONValue has no key \"" + key + "\"") {}
+};
+
 };

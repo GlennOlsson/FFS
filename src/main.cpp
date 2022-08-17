@@ -54,7 +54,7 @@ int decode_main(int argc, char *argv[]){
 	Magick::InitializeMagick(*argv);
 
 	std::string filename;
-	auto input_list = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+	auto input_list = std::make_shared<std::vector<FFS::blob_t>>();
 	if(argc > 1) {
 		for(int i = 1; i < argc; i++) {
 			Magick::Image img = Magick::Image(argv[i]);

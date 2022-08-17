@@ -1,5 +1,6 @@
 #include "../api/json.h"
 #include "json.h"
+#include "../exceptions/exceptions.h"
 
 #include <memory>
 #include <iostream>
@@ -42,6 +43,9 @@ const T& as(JSONValue* val) {
 
 template<class T>
 const T& JSONObject::get(std::string key) const {
+	if(!this->content->contains(key))
+		throw FFS::JSONKeyNonexistant(key);
+		
 	auto val = this->content->at(key);
 	return as<T>(val);
 }

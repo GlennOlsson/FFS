@@ -41,7 +41,7 @@ void encode_data(std::istream& input_stream, uint32_t stream_len, char* data) {
 		FFS::read_c(input_stream, data[byte_index++]);
 }
 
-std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint32_t length) {
+FFS::blob_t FFS::create_image(std::istream& input_stream, uint32_t length) {
 	assert(QuantumRange == 65535);
 
 	// Bytes required for header and file
@@ -116,7 +116,7 @@ std::shared_ptr<Magick::Blob> FFS::create_image(std::istream& input_stream, uint
 
 	pixel_view.sync();
 
-	std::shared_ptr<Magick::Blob> blob = std::make_shared<Magick::Blob>();
+	FFS::blob_t blob = std::make_shared<Magick::Blob>();
 	image.write(blob.get());
 
 	delete[] data;
@@ -131,12 +131,12 @@ FFS::blobs_t FFS::encode(std::istream& file_stream) {
 
 	uint32_t out_file_index = 0;
 
-	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+	auto blobs = std::make_shared<std::vector<FFS::blob_t>>();
 
 	while(length > 0) {
 		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - FFS_HEADER_SIZE, (int) length);
 
-		std::shared_ptr<Magick::Blob> blob = create_image(file_stream, out_file_size);
+		FFS::blob_t blob = create_image(file_stream, out_file_size);
 		blobs->push_back(blob);
 
 		length -= out_file_size;
@@ -151,7 +151,7 @@ FFS::blobs_t FFS::encode(std::string input_path) {
 	if (!file_stream) {
 		FFS::err << "no file " << input_path << std::endl;
 
-		auto empty_list = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+		auto empty_list = std::make_shared<std::vector<FFS::blob_t>>();
 		return empty_list;
 	}
 

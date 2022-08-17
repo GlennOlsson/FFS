@@ -15,11 +15,12 @@ FFS::post_id_t FFS::State::inode_table_id = "";
 std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {
 		// try to load from storage, else create new
-		std::shared_ptr<Magick::Blob> blob;
-		FFS::post_id_t new_id = "";
+		FFS::blob_t blob;
+		FFS::post_id_t current_id = "";
 		try {
-			new_id = FFS::Storage::get_inode_table();	
-			blob = FFS::Storage::get_file(new_id);
+			auto pair = FFS::Storage::get_inode_table();
+			blob = pair.first;
+			current_id = pair.second;
 		} catch (FFS::Exception& e) {
 			FFS::log << "Error getting inode table: " << e.what() << std::endl;
 			blob = nullptr;
@@ -27,7 +28,7 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 
 		// If could get blob, save new post_id_t and inode table
 		if(blob != nullptr) {
-			FFS::State::inode_table_id = new_id;
+			FFS::State::inode_table_id = current_id;
 			State::inode_table = FFS::Storage::itable_from_blob(blob);
 		} else {
 			State::inode_table = std::make_shared<InodeTable>();
@@ -64,8 +65,12 @@ void FFS::State::save_table() {
 	FFS::State::inode_table_id = FFS::Storage::upload_file(blobs->front(), true);
 
 	// If old id existed, remove old post
-	if(old_id.size() > 2)
+	if(old_id.size() > 2) {
 		FFS::Storage::remove_post(old_id, true);
+		FFS::log << "Removing old table" << std::endl;
+	} else {
+		FFS::log << "Not removing old table, id = " << old_id << std::endl;
+	}
 }
 
 std::set<FFS::post_id_t> deleting_posts;

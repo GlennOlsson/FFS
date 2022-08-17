@@ -117,7 +117,7 @@ TEST_CASE("Ensure decoder throws when image is not FFS image", "[coders]") {
 
 	std::ofstream out_stream(OUTPUT_FILE_PATH);
 
-	auto blobs = std::make_shared<std::vector<std::shared_ptr<Magick::Blob>>>();
+	auto blobs = std::make_shared<std::vector<FFS::blob_t>>();
 
 	auto blob = std::make_shared<Magick::Blob>();
 	Magick::Image img(image_path);

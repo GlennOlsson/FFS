@@ -6,6 +6,12 @@
 #include "../helpers/types.h"
 
 namespace FFS::API::Flickr {
+
+	struct SearchResponse {
+		const std::string& url;
+		const FFS::post_id_t& post_id;
+	};
+
 	// Post image to flickr, stored at file_path. post_text and tags are optional, but can be posted along with the photo
 	FFS::post_id_t post_image(const std::string&, const std::string& tags = "");
 
@@ -13,7 +19,7 @@ namespace FFS::API::Flickr {
 	const std::string& get_image(const FFS::post_id_t&);
 
 	// Get the original url of the first image found with the tag, posted by the authenticated user. Will throw if no results are found
-	const std::string& search_image(const std::string&);
+	const SearchResponse search_image(const std::string&);
 
 	// Delete an image of flickr with specified post_id_t
 	void delete_image(const FFS::post_id_t&);

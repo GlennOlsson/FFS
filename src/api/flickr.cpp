@@ -98,22 +98,26 @@ const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
 
 	auto json = FFS::API::JSON::parse(*response_body);
 
-	auto& sizes_obj = json->get_obj("sizes");
-	auto& size_arr = sizes_obj.get_arr("size");
+	try {
+		auto& sizes_obj = json->get_obj("sizes");
+		auto& size_arr = sizes_obj.get_arr("size");
 
-	for(auto elem: size_arr) {
-		auto& size_obj = FFS::API::JSON::as_obj(elem);
-		auto label = size_obj.get_str("label");
-		if(label == FLICKR_ORIGINAL_SIZE_STR) {
-			auto& url = size_obj.get_str("source");
-			return url;
+		for(auto elem: size_arr) {
+			auto& size_obj = FFS::API::JSON::as_obj(elem);
+			auto label = size_obj.get_str("label");
+			if(label == FLICKR_ORIGINAL_SIZE_STR) {
+				auto& url = size_obj.get_str("source");
+				return url;
+			}
 		}
+	} catch(FFS::JSONKeyNonexistant) {
+		throw FFS::NoPhotoWithID(id);
 	}
 	// if not found
 	throw FFS::NoPhotoWithID(id);
 }
 
-const std::string& FFS::API::Flickr::search_image(const std::string& tag) {
+const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std::string& tag) {
 	std::string method = "flickr.photos.search";
 
 	auto full_params = BASE_REST_PARAMS + 
@@ -128,15 +132,22 @@ const std::string& FFS::API::Flickr::search_image(const std::string& tag) {
 
 	auto json = FFS::API::JSON::parse(*response_body);
 
-	auto& photos_obj = json->get_obj("photos");
-	auto& photo_arr = photos_obj.get_arr("photo");
-	if(photo_arr.size() < 1)
+	try {
+		auto& photos_obj = json->get_obj("photos");
+		auto& photo_arr = photos_obj.get_arr("photo");
+		if(photo_arr.size() < 1)
+			throw FFS::NoPhotoWithTag(tag);
+
+		auto& first_photo_obj = FFS::API::JSON::as_obj(photo_arr.front());
+		auto& o_url = first_photo_obj.get_str("url_o");
+		auto& id = first_photo_obj.get_str("id");
+
+		FFS::API::Flickr::SearchResponse sr = {o_url, id};
+
+		return sr;
+	} catch(FFS::JSONKeyNonexistant) {
 		throw FFS::NoPhotoWithTag(tag);
-
-	auto& first_photo_obj = FFS::API::JSON::as_obj(photo_arr.front());
-	auto& o_url = first_photo_obj.get_str("url_o");
-
-	return o_url;
+	}
 }
 
 void FFS::API::Flickr::delete_image(const FFS::post_id_t& id) {
@@ -144,9 +155,11 @@ void FFS::API::Flickr::delete_image(const FFS::post_id_t& id) {
 
 	auto full_params = BASE_REST_PARAMS + 
 		"&method=" + method + 
-		"photo_id=" + id;
+		"&photo_id=" + id;
 
 	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
 
-	FFS::API::HTTP::post(BASE_REST_URL, auth_str);
+
+	// For some reason problem if using post instead of get - but get works fine!!
+	FFS::API::HTTP::get(BASE_REST_URL, auth_str);
 }

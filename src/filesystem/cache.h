@@ -28,9 +28,9 @@ namespace FFS::Cache {
 	void invalidate_root();
 
 	// Cache a post
-	void cache(FFS::post_id_t, std::shared_ptr<Magick::Blob>);
+	void cache(FFS::post_id_t, FFS::blob_t);
 	// Get the cache of a post, or nullptr if not cached
-	std::shared_ptr<Magick::Blob> get(FFS::post_id_t);
+	FFS::blob_t get(FFS::post_id_t);
 	// Invalidate the cache of a post, remove from cache
 	void invalidate(FFS::post_id_t);
 
