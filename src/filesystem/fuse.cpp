@@ -123,10 +123,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	// FFS::log << "Begin ffs_getattr " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 
-	auto traverser = FFS::FS::traverse_path(path);
-
 	auto table = FFS::State::get_inode_table();
-
 	if(path == "/") {
 		FFS::inode_t inode = FFS_ROOT_INODE;
 		auto entry = table->entry(inode);
@@ -135,10 +132,14 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 		return 0;
 	}
 
+
 	try {
+		auto traverser = FFS::FS::traverse_path(path);
 		FFS::FS::verify_in(traverser);
 	} catch(FFS::NoPathWithName) {
 		// FFS::log << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
+		return -ENOENT;
+	} catch(FFS::NoPhotoWithID) {
 		return -ENOENT;
 	}
 	

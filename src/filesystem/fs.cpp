@@ -64,8 +64,10 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 	try {
 		dir = FFS::FS::get_dir(FFS_ROOT_INODE);
 	} catch(FFS::NoPhotoWithID) {
+		// if the root dir had error fetching, replace with new root dir in table
 		FFS::err << "Could not get root dir" << std::endl;
 		dir = std::make_shared<FFS::Directory>();
+		table->entries->insert_or_assign(FFS_ROOT_INODE, dir);
 	}
 
 	FFS::Cache::cache_root(dir);
@@ -173,14 +175,8 @@ std::shared_ptr<FFS::Directory> FFS::FS::get_dir(std::shared_ptr<FFS::InodeEntry
 	if(inode_entry->post_ids == nullptr)
 		return std::make_shared<FFS::Directory>();
 
-	std::shared_ptr<FFS::Directory> dir;
-	try {
-		auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
-		dir = FFS::Storage::dir_from_blobs(blobs);
-	} catch(FFS::NoPhotoWithID) {
-		FFS::err << "Could not get dir from inode entry" << std::endl;
-		dir = std::make_shared<FFS::Directory>();
-	}
+	auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
+	auto dir = FFS::Storage::dir_from_blobs(blobs);
     
 	return dir;
 }
@@ -196,13 +192,7 @@ void FFS::FS::read_file(FFS::inode_t inode, std::ostream& stream) {
 	if(inode_entry->post_ids == nullptr)
 		return;
 
-	FFS::blobs_t blobs;
-	try {
-		blobs = FFS::Storage::get_file(inode_entry->post_ids);
-	} catch(FFS::NoPhotoWithID) {
-		FFS::err << "Could not get file with inode " << inode << std::endl;
-		return;
-	}
+	auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
 
 	FFS::decode(blobs, stream);
 }
