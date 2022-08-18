@@ -9,6 +9,7 @@
 #include "../system/state.h"
 #include "../helpers/constants.h"
 #include "../helpers/functions.h"
+#include "../helpers/logger.h"
 #include "../exceptions/exceptions.h"
 
 #include <string>
@@ -57,12 +58,15 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 		return cached_root;
 
 	auto table = FFS::State::get_inode_table();
-	// Root dir entry
-	auto dir_entry = table->entry(FFS_ROOT_INODE);
 
-	auto blobs = FFS::Storage::get_file(dir_entry->post_ids);
+	std::shared_ptr<FFS::Directory> dir;
 
-	auto dir = FFS::Storage::dir_from_blobs(blobs);
+	try {
+		dir = FFS::FS::get_dir(FFS_ROOT_INODE);
+	} catch(FFS::NoPhotoWithID) {
+		FFS::err << "Could not get root dir" << std::endl;
+		dir = std::make_shared<FFS::Directory>();
+	}
 
 	FFS::Cache::cache_root(dir);
 
@@ -88,7 +92,6 @@ std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 	auto dir = get_root_dir();
 
 	auto table = FFS::State::get_inode_table();
-	auto blobs = std::make_shared<std::vector<FFS::blob_t>>();
 	std::shared_ptr<FFS::InodeEntry> dir_entry = nullptr;
 
 	FFS::inode_t inode = FFS_ROOT_INODE;
@@ -98,8 +101,7 @@ std::shared_ptr<FFS::FS::Traverser> FFS::FS::traverse_path(std::string path) {
 		if(!dir_entry->is_dir) {
 			throw FFS::BadFFSPath(path, dir_name);
 		}
-		blobs = FFS::Storage::get_file(dir_entry->post_ids);
-		dir = FFS::Storage::dir_from_blobs(blobs);
+		dir = FFS::FS::get_dir(inode);
 	}
 
 	return std::make_shared<FFS::FS::Traverser>(FFS::FS::Traverser({dir, inode, filename, path}));
@@ -171,9 +173,14 @@ std::shared_ptr<FFS::Directory> FFS::FS::get_dir(std::shared_ptr<FFS::InodeEntry
 	if(inode_entry->post_ids == nullptr)
 		return std::make_shared<FFS::Directory>();
 
-	auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
-	
-	auto dir = FFS::Storage::dir_from_blobs(blobs);
+	std::shared_ptr<FFS::Directory> dir;
+	try {
+		auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
+		dir = FFS::Storage::dir_from_blobs(blobs);
+	} catch(FFS::NoPhotoWithID) {
+		FFS::err << "Could not get dir from inode entry" << std::endl;
+		dir = std::make_shared<FFS::Directory>();
+	}
     
 	return dir;
 }
@@ -189,7 +196,13 @@ void FFS::FS::read_file(FFS::inode_t inode, std::ostream& stream) {
 	if(inode_entry->post_ids == nullptr)
 		return;
 
-    auto blobs = FFS::Storage::get_file(inode_entry->post_ids);
+	FFS::blobs_t blobs;
+	try {
+		blobs = FFS::Storage::get_file(inode_entry->post_ids);
+	} catch(FFS::NoPhotoWithID) {
+		FFS::err << "Could not get file with inode " << inode << std::endl;
+		return;
+	}
 
 	FFS::decode(blobs, stream);
 }
@@ -204,10 +217,10 @@ std::shared_ptr<std::pair<FFS::inode_t, std::shared_ptr<FFS::Directory>>> FFS::F
 	auto table = FFS::State::get_inode_table();
 
 	if(path == "/") {
-		auto blobs = FFS::Storage::get_file(table->entry(FFS_ROOT_INODE)->post_ids);
+		auto root_dir = get_root_dir();
 
 		return std::make_shared<std::pair<FFS::inode_t, std::shared_ptr<FFS::Directory>>>
-			(FFS_ROOT_INODE, FFS::Storage::dir_from_blobs(blobs));
+			(FFS_ROOT_INODE, root_dir);
 	}
 	
 	remove_trailing_slash(path);
@@ -310,8 +323,7 @@ void remove_sub_files(FFS::posts_t fill_v, std::shared_ptr<FFS::Directory> dir) 
 		auto file_posts = file_entry->post_ids;
 
 		if(file_entry->is_dir) {
-			auto blobs = FFS::Storage::get_file(file_posts);
-			auto dir = FFS::Storage::dir_from_blobs(blobs);
+			auto dir = FFS::FS::get_dir(file_inode);
 
 			remove_sub_files(fill_v, dir);
 		} 
@@ -350,8 +362,7 @@ void FFS::FS::remove(std::string path, bool multithread) {
 	auto posts_to_remove = entry->post_ids;
 
 	if(entry->is_dir) {
-		auto blobs = FFS::Storage::get_file(posts_to_remove);
-		auto dir = FFS::Storage::dir_from_blobs(blobs);
+		auto dir = FFS::FS::get_dir(inode);
 		remove_sub_files(posts_to_remove, dir);
 	}
 
