@@ -1,4 +1,5 @@
 #include "catch.hpp"
+#include "helpers.h"
 
 #include "../src/filesystem/fs.h"
 #include "../src/filesystem/directory.h"
@@ -77,14 +78,6 @@ void create_files() {
     FFS::FS::create_file(TEST_PATH_MOV, stream);
 
     FFS::State::save_table();
-}
-
-bool streams_eq(std::basic_istream<char>& a, std::basic_istream<char>& b) {
-	std::istreambuf_iterator<char> it1(a);
-    std::istreambuf_iterator<char> it2(b);
-	
-	//Second argument is end-of-range iterator
-	return std::equal(it1,std::istreambuf_iterator<char>(),it2); 
 }
 
 void assert_file_is_same(std::string real_path, std::string ffs_path) {

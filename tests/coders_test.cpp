@@ -1,4 +1,5 @@
 #include "catch.hpp"
+#include "helpers.h"
 
 #include "../src/filesystem/file_coder.h"
 
@@ -23,7 +24,7 @@ bool files_eq(const std::string& f1, const std::string& f2) {
     std::istreambuf_iterator<char> it2(s2);
 	
 	//Second argument is end-of-range iterator
-	return std::equal(it1,std::istreambuf_iterator<char>(),it2); 
+	return streams_eq(s1, s2);
 }
 
 void save_to_file(std::string& content, const std::string& file) {
