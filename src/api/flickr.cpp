@@ -29,6 +29,8 @@
 std::string oauth_key = FFS_FLICKR_ACCESS_TOKEN;
 std::string oauth_secret = FFS_FLICKR_ACCES_TOKEN_SECRET;
 
+int request_counter = 0;
+
 std::string get_auth_string(OAuth::Http::RequestType request_type, std::string full_url) {
 	OAuth::Consumer consumer(FFS_FLICKR_APP_CONSUMER_KEY, FFS_FLICKR_APP_CONSUMER_SECRET);
     OAuth::Token token(FFS_FLICKR_ACCESS_TOKEN, FFS_FLICKR_ACCES_TOKEN_SECRET);
@@ -80,6 +82,9 @@ FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path, const 
 	auto status = flickcurl_photos_upload_params(fc, &params);
 	auto uploaded_id = std::string(status->photoid);
 
+	request_counter++;
+	FFS::log << "Uploaded file, request counter: " << request_counter << std::endl;
+
 	flickcurl_free_upload_status(status);
 
 	flickcurl_free(fc);
@@ -95,6 +100,9 @@ const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
 	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
 
 	auto response_body = FFS::API::HTTP::get(BASE_REST_URL, auth_str);
+
+	request_counter++;
+	FFS::log << "Getting file sizes, request counter: " << request_counter << std::endl;
 
 	auto json = FFS::API::JSON::parse(*response_body);
 
@@ -130,6 +138,9 @@ const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std:
 
 	auto response_body = FFS::API::HTTP::get(BASE_REST_URL, auth_str);
 
+	request_counter++;
+	FFS::log << "Searched for photo, request counter: " << request_counter << std::endl;
+
 	auto json = FFS::API::JSON::parse(*response_body);
 
 	try {
@@ -162,4 +173,7 @@ void FFS::API::Flickr::delete_image(const FFS::post_id_t& id) {
 
 	// For some reason problem if using post instead of get - but get works fine!!
 	FFS::API::HTTP::get(BASE_REST_URL, auth_str);
+
+	request_counter++;
+	FFS::log << "Deleted file, request counter: " << request_counter << std::endl;
 }

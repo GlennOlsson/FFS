@@ -220,6 +220,9 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 }
 
 void FFS::Storage::remove_posts(posts_t posts, bool multithread) {
+	if(posts == nullptr)
+		return;
+	
 	for(auto post_id: *posts) {
 		remove_post(post_id, multithread);
 	}
