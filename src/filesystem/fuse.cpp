@@ -51,8 +51,19 @@ std::string sanitize_path(const char* c_path) {
 
 static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
 	FFS::log << "Begin ffs_opendir " << path << std::endl;
-	auto fh = FFS::FileHandle::open(path);
-	fi->fh = fh;
+	try {
+		auto fh = FFS::FileHandle::open(path);
+		fi->fh = fh;
+	} catch(FFS::NoPhotoWithID& e1) {
+		FFS::err << "Could not open dir \"" << path << "\" no file with ID: " << e1.what() << std::endl;
+		return -ENOENT;
+	} catch(FFS::NoFileWithInode& e2) {
+		FFS::err << "Could not open dir \"" << path << "\" no file with inode: " << e2.what() << std::endl;
+		return -ENOENT;
+	} catch(FFS::Exception& e3) {
+		FFS::err << "Could not open dir \"" << path << "\", unexpected FFS error: " << e3.what() << std::endl;
+		return -ENOENT;
+	}
 	FFS::log << "End ffs_opendir " << path << std::endl << std::endl;
 	return 0;
 }
@@ -60,9 +71,20 @@ static int ffs_opendir(const char* path, struct fuse_file_info* fi) {
 
 static int ffs_open(const char* path, struct fuse_file_info* fi) {
 	FFS::log << "Begin ffs_open " << path << std::endl;
-	auto fh = FFS::FileHandle::open(path);
-	fi->fh = fh;
-	fi->nonseekable = true;
+	try{
+		auto fh = FFS::FileHandle::open(path);
+		fi->fh = fh;
+		fi->nonseekable = true;
+	} catch(FFS::NoPhotoWithID& e1) {
+		FFS::err << "Could not open dir \"" << path << "\" no file with ID: " << e1.what() << std::endl;
+		return -ENOENT;
+	} catch(FFS::NoFileWithInode& e2) {
+		FFS::err << "Could not open dir \"" << path << "\" no file with inode: " << e2.what() << std::endl;
+		return -ENOENT;
+	} catch(FFS::Exception& e3) {
+		FFS::err << "Could not open dir \"" << path << "\", unexpected FFS error: " << e3.what() << std::endl;
+		return -ENOENT;
+	}
 
 	FFS::log << "End ffs_open " << path << std::endl << std::endl;
 	return 0;
@@ -127,27 +149,48 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	if(path == "/") {
 		FFS::inode_t inode = FFS_ROOT_INODE;
 		auto entry = table->entry(inode);
-		generic_getattr(entry, -1, stat_struct);
-		// FFS::log << "end ffs_getattr early: " << c_path << std::endl << std::endl;
+
+		try {
+			generic_getattr(entry, -1, stat_struct);
+		} catch(FFS::NoPhotoWithID) {
+			FFS::err << "getattr: Root directory exists in table but does not exist. Resetting table and trying again" << std::endl;
+			entry->length = 0;
+			entry->post_ids = nullptr;
+
+			generic_getattr(entry, -1, stat_struct);
+		}
+
 		return 0;
 	}
 
-
+	std::shared_ptr<FFS::FS::Traverser> traverser;
 	try {
-		auto traverser = FFS::FS::traverse_path(path);
+		traverser = FFS::FS::traverse_path(path);
 		FFS::FS::verify_in(traverser);
 	} catch(FFS::NoPathWithName) {
-		// FFS::log << "end ffs_getattr early, no path: " << c_path << std::endl << std::endl;
+		// FFS::err << "Some dir in path " << path << " threw NoPathWithName" << std::endl;
 		return -ENOENT;
 	} catch(FFS::NoPhotoWithID) {
+		FFS::err << "Some dir in path " << path << " threw NoPhotoWithID" << std::endl;
 		return -ENOENT;
 	}
 	
-	auto inode = traverser->parent_dir->get_file(traverser->filename);
-	auto entry = table->entry(inode);
-	
-	generic_getattr(entry, -1, stat_struct);
+	auto parent_dir = traverser->parent_dir;
+	auto filename = traverser->filename;
 
+	auto inode = parent_dir->get_file(filename);
+	auto entry = table->entry(inode);
+	try {
+		generic_getattr(entry, -1, stat_struct);
+	} catch(FFS::NoPhotoWithID) {
+		// Could not find some photo, remove from table and directory
+		FFS::err << "getattr: File or directory exists in table but does not exist" << std::endl;
+		table->entries->erase(inode);
+		parent_dir->entries->erase(filename);
+
+		return -ENOENT;
+	}
+		
 	// FFS::log << "End ffs_getattr " << c_path << std::endl << std::endl;
 	return 0;
 }

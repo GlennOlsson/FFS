@@ -64,10 +64,11 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 	try {
 		dir = FFS::FS::get_dir(FFS_ROOT_INODE);
 	} catch(FFS::NoPhotoWithID) {
-		// if the root dir had error fetching, replace with new root dir in table
-		FFS::err << "Could not get root dir" << std::endl;
-		dir = std::make_shared<FFS::Directory>();
-		table->entries->insert_or_assign(FFS_ROOT_INODE, dir);
+		// if the root dir had error fetching, replace table with new table and re-run function
+		FFS::err << "Could not get root dir, creating new table" << std::endl;
+		auto table = std::make_shared<FFS::InodeTable>();
+		FFS::State::inode_table = table;
+		dir = get_root_dir();
 	}
 
 	FFS::Cache::cache_root(dir);

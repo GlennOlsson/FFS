@@ -2,8 +2,8 @@ out.nosync
 *.trace
 **/*.DS_Store
 *.out
-ffs
+ffs/
 .vscode
 src/secret.h
-ffs_bench.wks
+*.wks
 *.log
