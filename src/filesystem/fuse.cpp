@@ -387,6 +387,20 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	return 0;
 }
 
+void generic_truncate(std::istream& input, std::ostream& output, off_t size) {
+	// While there is content in the stream and the index 
+	// 	is smaller than the size, add from current stream
+	int new_size = 0;
+	while(input && new_size++ < size) {
+		output.put(input.get());
+	}
+
+	// If extending the file, continue to add NULL to match the new size of the file
+	while(new_size++ < size) {
+		output.put('\0');
+	}
+}
+
 // truncate or extend file to be size bytes
 static int ffs_truncate(const char* c_path, off_t size) {
 	FFS::log << "Begin ffs_truncate " << c_path << std::endl;
@@ -400,18 +414,8 @@ static int ffs_truncate(const char* c_path, off_t size) {
 
 	FFS::FS::read_file(path, curr_stream);
 	
-	// While there is content in the stream and the index 
-	// 	is smaller than the size, add from current stream
-	int new_size = 0;
-	while(curr_stream && new_size++ < size) {
-		new_stream.put(curr_stream.get());
-	}
-
-	// If extending the file, continue to add NULL to match the new size of the file
-	while(new_size++ < size) {
-		new_stream.put('\0');
-	}
-
+	generic_truncate(curr_stream, new_stream, size);
+	
 	FFS::FS::remove(path);
 
 	auto ptr = std::make_shared<std::istream>(new_stream.rdbuf());
@@ -443,17 +447,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	} else
 		FFS::FS::read_file(inode, curr_stream);
 
-	// While there is content in the stream and the index 
-	// 	is smaller than the size, add from current stream
-	int new_size = 0;
-	while(curr_stream && new_size++ < size) {
-		new_stream.put(curr_stream.get());
-	}
-
-	// If extending the file, continue to add NULL to match the new size of the file
-	while(new_size++ < size) {
-		new_stream.put('\0');
-	}
+	generic_truncate(curr_stream, new_stream, size);
 
 	auto new_blobs = FFS::FS::update_file(inode, new_stream);
 	FFS::FileHandle::update_blobs(fh, new_blobs);
