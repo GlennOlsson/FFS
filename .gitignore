@@ -7,3 +7,4 @@ ffs/
 src/secret.h
 *.wks
 *.log
+*.env

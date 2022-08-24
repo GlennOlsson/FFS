@@ -11,10 +11,11 @@
 #include <modes.h>
 #include <osrng.h>
 #include <files.h>
+#include <cstdlib>
 
 // Will work even if access tokens needs renewal. Will only have to change if app tokens are revoked/re-generated
 // i.e. will work for any user who authenticates with FFS Flickr app
-#define UNDERIVED_KEY FFS_FLICKR_APP_CONSUMER_SECRET
+#define UNDERIVED_KEY getenv("FFS_PASSWORD")
 
 #define KEY_LEN CryptoPP::AES::DEFAULT_KEYLENGTH
 
