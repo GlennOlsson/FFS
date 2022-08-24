@@ -2,6 +2,8 @@
 
 #include "../secret.h"
 
+#include "../exceptions/exceptions.h"
+
 #include <iostream>
 
 #include <cryptlib.h>
@@ -12,12 +14,16 @@
 #include <osrng.h>
 #include <files.h>
 #include <cstdlib>
+#include <gcm.h>
+#include <filters.h>
 
 // Will work even if access tokens needs renewal. Will only have to change if app tokens are revoked/re-generated
 // i.e. will work for any user who authenticates with FFS Flickr app
 #define UNDERIVED_KEY getenv("FFS_PASSWORD")
 
 #define KEY_LEN CryptoPP::AES::DEFAULT_KEYLENGTH
+
+#define TAG_LEN 16 // In bytes == 128 bits 
 
 // Some public data
 const char* salt = "FFS_ULTIMATE_FILESYSTEM_SALT";
@@ -39,7 +45,7 @@ CryptoPP::byte* derive_key() {
 }
 
 FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
-	CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption e;
+	CryptoPP::GCM<CryptoPP::AES>::Encryption e;
 
 	size_t iv_len = e.IVSize();
 	CryptoPP::byte iv[iv_len];
@@ -53,8 +59,10 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 	// Cipher string
 	std::string cipher;
 	CryptoPP::StringSource s((unsigned char*) in_ptr, len, true, 
-            new CryptoPP::StreamTransformationFilter(e,
-                new CryptoPP::StringSink(cipher)
+            new CryptoPP::AuthenticatedEncryptionFilter(e,
+                new CryptoPP::StringSink(cipher),
+				false,
+				TAG_LEN
             )
         );
 	
@@ -75,7 +83,7 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 }
 
 FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* ptr, size_t len) {
-	CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption d;
+	CryptoPP::GCM<CryptoPP::AES>::Decryption d;
 
 	CryptoPP::byte iv[d.IVSize()];
 	memcpy(iv, ptr, d.IVSize());
@@ -86,11 +94,20 @@ FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* ptr, size_t len) {
 	d.SetKeyWithIV(key, CryptoPP::AES::DEFAULT_KEYLENGTH, iv);
 
 	std::string recovered;
-	CryptoPP::StringSource s(((unsigned char*) ptr) + d.IVSize(), cipher_len, true, 
-		new CryptoPP::StreamTransformationFilter(d,
-			new CryptoPP::StringSink(recovered)
-		)
+
+	auto auth_dec_filt = CryptoPP::AuthenticatedDecryptionFilter(d,
+		new CryptoPP::StringSink(recovered),
+		CryptoPP::AuthenticatedDecryptionFilter::DEFAULT_FLAGS,
+		TAG_LEN
 	);
+
+	CryptoPP::StringSource s(((unsigned char*) ptr) + d.IVSize(), cipher_len, true, 
+		new CryptoPP::Redirector(auth_dec_filt)
+	);
+
+	auto auth_success = auth_dec_filt.GetLastResult();
+	if(!auth_success)
+		throw FFS::CipherIntegrityCompromised();
 
 	char* out_ptr = new char[recovered.size()];
 	memcpy(out_ptr, recovered.c_str(), recovered.size());

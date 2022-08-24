@@ -104,4 +104,9 @@ public:
 	JSONKeyNonexistant(std::string key): FFS::JSONException("JSONValue has no key \"" + key + "\"") {}
 };
 
+class CipherIntegrityCompromised: public FFS::Exception {
+public:
+	CipherIntegrityCompromised(): FFS::Exception("The encrypted cipher text's integrity has been compromised. Could not verify integrity") {}
+};
+
 };
