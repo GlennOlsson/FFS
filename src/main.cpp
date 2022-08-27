@@ -4,6 +4,7 @@
 #include "filesystem/inode_table.h"
 #include "filesystem/directory.h"
 #include "filesystem/fuse.h"
+#include "filesystem/crypto.h"
 
 #include "system/state.h"
 
@@ -11,6 +12,7 @@
 #include "helpers/functions.h"
 
 #include "user_io/cmd.h"
+
 
 // #include "api/curl.h"
 
@@ -92,6 +94,9 @@ void tweet() {
 }
 
 int main(int argc, char *argv[]) {
+
+	if(!FFS::Crypto::has_secret())
+		cerr << "WARNING: " << FFS_ENCRYPTION_SECRET_KEY << " not set" << std::endl;
 
 	if(argc < 2) {
 		cerr << "Need to supply argument" << endl;

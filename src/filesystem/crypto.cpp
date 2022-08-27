@@ -6,6 +6,8 @@
 
 #include "../helpers/logger.h"
 
+#include "../helpers/constants.h"
+
 #include <iostream>
 
 #include <cryptlib.h>
@@ -27,49 +29,48 @@
 
 CryptoPP::AutoSeededRandomPool rng;
 
-const CryptoPP::byte* generate_salt() {
-	CryptoPP::byte* salt = new CryptoPP::byte[SALT_LEN];
+char* get_secret() {
+	return getenv(FFS_ENCRYPTION_SECRET_KEY);
+}
+
+bool FFS::Crypto::has_secret() {
+	return get_secret() != nullptr;
+}
+
+const CryptoPP::SecByteBlock generate_salt() {
+	CryptoPP::SecByteBlock salt(SALT_LEN);
 	rng.GenerateBlock(salt, SALT_LEN);
 
 	return salt;
 }
 
-const CryptoPP::byte* derive_key(const CryptoPP::byte* salt) {
-	CryptoPP::byte* password = (unsigned char*) UNDERIVED_KEY;
+const CryptoPP::SecByteBlock derive_key(const CryptoPP::SecByteBlock salt) {
+	CryptoPP::byte* password = (unsigned char*) get_secret();
+	auto pass_len = strlen((const char*) password);
 
-	CryptoPP::byte* key = new CryptoPP::byte[KEY_LEN];
+	CryptoPP::SecByteBlock key(KEY_LEN);
 
 	CryptoPP::HKDF<CryptoPP::SHA256> key_derivation_func;
 
-	key_derivation_func.DeriveKey(key, KEY_LEN, password, strlen(UNDERIVED_KEY), salt, SALT_LEN, nullptr, 0);
+	key_derivation_func.DeriveKey(key, KEY_LEN, password, pass_len, salt, SALT_LEN, nullptr, 0);
 
 	return key;
 }
 
 FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
-	if(UNDERIVED_KEY == NULL)
+	if(!has_secret())
 		throw FFS::NoEncryptionSecret();
 
 	CryptoPP::GCM<CryptoPP::AES>::Encryption e;
 
-	FFS::log << "Encrypting " << len << " bytes" << std::endl;
-
 	size_t iv_len = e.IVSize();
-	CryptoPP::byte iv[iv_len];
+	CryptoPP::SecByteBlock iv(iv_len);
 	rng.GenerateBlock(iv, iv_len);
 
-	FFS::log << "Generated IV" << std::endl;
-
 	auto salt = generate_salt();
-
-	FFS::log << "Generated salt" << std::endl;
 	auto key = derive_key(salt);
-
-	FFS::log << "Derived key" << std::endl;
 	
 	e.SetKeyWithIV(key, KEY_LEN, iv, iv_len);
-
-	FFS::log << "Set iv key" << std::endl;
 
 	// Cipher string
 	std::string cipher;
@@ -81,8 +82,6 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
             )
         );
 	
-
-	FFS::log << "Generated cipher" << std::endl;
 	
 	size_t output_encryption_length = SALT_LEN + e.IVSize() + cipher.size();
 	// Create char ptr with iv + cipher
@@ -101,13 +100,6 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 	// Copy cipher to after iv
 	memcpy(out_ptr + ptr_offset, cipher.c_str(), cipher.size());
 
-	FFS::log << "Created out ptr" << std::endl;
-
-	delete[] salt;
-	delete[] key;
-
-	FFS::log << "Deleted ptrs" << std::endl;
-
 	crypt_t crypt;
 	crypt.ptr = (void*) out_ptr;
 	crypt.len = output_encryption_length;
@@ -116,7 +108,7 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 }
 
 FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* i_ptr, size_t len) {
-	if(UNDERIVED_KEY == NULL)
+	if(!has_secret())
 		throw FFS::NoEncryptionSecret();
 		
 	CryptoPP::GCM<CryptoPP::AES>::Decryption d;
@@ -126,11 +118,11 @@ FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* i_ptr, size_t len) {
 
 	int ptr_offset = 0;
 
-	CryptoPP::byte salt[SALT_LEN];
+	CryptoPP::SecByteBlock salt(SALT_LEN);
 	memcpy(salt, ptr + ptr_offset, SALT_LEN);
 	ptr_offset += SALT_LEN;
 
-	CryptoPP::byte iv[d.IVSize()];
+	CryptoPP::SecByteBlock iv(d.IVSize());
 	memcpy(iv, ptr + ptr_offset, d.IVSize());
 	ptr_offset += d.IVSize();
 
@@ -157,8 +149,6 @@ FFS::Crypto::crypt_t FFS::Crypto::decrypt(const void* i_ptr, size_t len) {
 
 	char* out_ptr = new char[recovered.size()];
 	memcpy(out_ptr, recovered.c_str(), recovered.size());
-
-	delete[] key;
 
 	crypt_t crypt;
 	crypt.ptr = out_ptr;

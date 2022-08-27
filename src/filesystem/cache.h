@@ -34,7 +34,6 @@ namespace FFS::Cache {
 	// Invalidate the cache of a post, remove from cache
 	void invalidate(FFS::post_id_t);
 
-
 	// Clear all cache entries
 	void clear_cache();
 }
