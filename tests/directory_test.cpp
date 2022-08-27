@@ -62,10 +62,7 @@ TEST_CASE("Sterlizing and desterlizing directory creates same dir", "[directory]
 // Copies stream, flips byte at _at_ and creates FFS image of directory
 // If it does not throw when creating image, check that directory and modified-directory are unequal
 // If it does throw, make sure it is a FFS File exception
-void test_flip_byte_and_create(uint32_t at, std::shared_ptr<FFS::Directory> dir) {
-	uint32_t total_bytes = dir->size();
-	assert(total_bytes > at);
-	
+void test_flip_byte_and_create(uint32_t at, std::shared_ptr<FFS::Directory> dir) {	
 	std::stringbuf buf;
 	std::basic_iostream stream(&buf);
 	dir->serialize(stream);
@@ -76,15 +73,15 @@ void test_flip_byte_and_create(uint32_t at, std::shared_ptr<FFS::Directory> dir)
 	char c;
 	// Copy stream
 	while(index++ < at) {
-		c = stream.peek();
+		c = stream.get();
 		cp_stream.put(c);
 	}
 	// Invert so we know it's not the same bytes
-	c = stream.peek();
+	c = stream.get();
 	cp_stream.put(~c);
 	// Want to keep same size of buffer
-	while(index++ < total_bytes) {
-		c = stream.peek();
+	while(stream) {
+		c = stream.get();
 		cp_stream.put(c);
 	}
 

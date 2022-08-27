@@ -43,7 +43,7 @@ all_tests: #all | $(out_dir)
 	@time $(CPP_CC) $(all_flags) $(test_main) out.nosync/c.out $(patsubst $(@F).cpp, $(out_dir)/%.o, $(test_files)) $(patsubst $(@F).cpp, $(out_dir)/%.o, $(cpp_files)) -o $(out_dir)/test.out
 	@notify FFS compile tests is done
 
-run_tests: all_tests
+run_tests: #all_tests
 	time $(out_dir)/test.out || notify_err FFS test failed
 	@notify FFS testing is done
 

@@ -43,13 +43,6 @@ public:
 	~InodeEntry();
 
 	/**
-	 * @brief Returns the size of the object in terms of bytes
-	 * 
-	 * @return uint32_t the amount of bytes occupied by object
-	 */
-	uint32_t size();
-
-	/**
 	 * @brief serializes the entry into the stream as bytes in the following manner
 	 * byte 0-3: length attribute (int)
 	 * byte 4-7: n = amount of post blocks (int)
@@ -89,13 +82,6 @@ public:
 	InodeTable(std::shared_ptr<std::map<inode_t,  std::shared_ptr<InodeEntry>>> entries);
 
 	InodeTable();
-
-	/**
-	 * @brief Returns the size of the object in terms of bytes
-	 * 
-	 * @return uint32_t the amount of bytes occupied by object
-	 */
-	uint32_t size();
 
 	/**
 	 * @brief serializes the entry into the stream as bytes in the following manner

@@ -44,33 +44,25 @@ FFS::InodeEntry::~InodeEntry() {
 	this->post_ids.reset();
 }
 
-uint32_t FFS::InodeEntry::size() {
-	uint32_t value = 0;
-	value += sizeof(uint32_t); // length
-	value += sizeof(uint8_t); // is_dir
-	value += sizeof(uint32_t); // amount of post blocks
-	value += this->post_ids->size() * sizeof(uint64_t); // per post block
-
-	return value;
-}
-
 void FFS::InodeEntry::serialize(std::ostream& stream) {
-	FFS::write_i(stream, this->length);
-	FFS::write_c(stream, this->is_dir);
-	FFS::write_l(stream, this->time_created);
-	FFS::write_l(stream, this->time_accessed);
-	FFS::write_l(stream, this->time_modified);
+	FFS::write_i(stream, this->length); // 4
+	FFS::write_c(stream, this->is_dir); // 1
+	FFS::write_l(stream, this->time_created); // 8
+	FFS::write_l(stream, this->time_accessed); // 8
+	FFS::write_l(stream, this->time_modified); // 8
 
 	// If has no posts, just write 0 and return
 	if(this->post_ids == nullptr) {
-		FFS::write_i(stream, 0);
+		FFS::write_i(stream, 0); // 4
 		return;
 	}
 
-	FFS::write_i(stream, this->post_ids->size());
-	for (post_id_t entry : *post_ids) {
-		FFS::write_str(stream, entry);
+	FFS::write_i(stream, this->post_ids->size()); // 4
+	for (post_id_t entry : *post_ids) { // Variable
+		FFS::write_str(stream, entry); // Variable, often 12
 	}
+
+	// Total: 33 + 12*posts, 33, 45, ...
 }
 
 std::shared_ptr<FFS::InodeEntry> FFS::InodeEntry::deserialize(std::istream& stream) {
@@ -127,16 +119,6 @@ FFS::InodeTable::InodeTable() {
 	empty_entries->insert({FFS_ROOT_INODE, std::move(entry)});
 
 	this->entries = std::move(empty_entries);
-}
-
-uint32_t FFS::InodeTable::size() {
-	uint32_t size = 4;  // 4 bytes for amount of entries
-	for (auto entry : *this->entries) {
-		size += 4;					   // Size of id, int
-		size += entry.second->size();  // Add the size for each entry
-	}
-
-	return size;
 }
 
 void FFS::InodeTable::serialize(std::ostream& stream) {

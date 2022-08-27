@@ -28,8 +28,8 @@ void start_fuse() {
 	std::cout << "Start fuse on " << FUSE_PATH << std::endl;
 	std::cout << "Press enter when done...";
 	
-	std::cin >> i;
 	int i = 0;
+	std::cin >> i;
 
 	std::cout << "OK, starting" << std::endl;
 

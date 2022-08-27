@@ -2,7 +2,7 @@
 
 // FFS image header length attribute is 32 bits so can store up to 4.2Gb of data
 // But set max to 200 MB as it is the limit for flickr
-#define FFS_MAX_FILE_SIZE 200000000
+#define FFS_MAX_FILE_SIZE 189999903
 
 // FFS Inode Table structure version
 #define FFS_INODE_TABLE_VERSION 0
