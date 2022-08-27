@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../helpers/types.h"
+#include "../helpers/constants.h"
 
 #include <string>
 #include <stdexcept>
@@ -109,4 +110,8 @@ public:
 	CipherIntegrityCompromised(): FFS::Exception("The encrypted cipher text's integrity has been compromised. Could not verify integrity") {}
 };
 
+class NoEncryptionSecret: public FFS::Exception {
+public:
+	NoEncryptionSecret(): FFS::Exception("Must set " + std::string(FFS_ENCRYPTION_SECRET_KEY) + " in environment") {}
+};
 };

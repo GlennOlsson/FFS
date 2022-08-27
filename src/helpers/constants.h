@@ -8,7 +8,7 @@
 #define FFS_INODE_TABLE_VERSION 0
 
 // FFS Output image file version
-#define FFS_FILE_VERSION 0
+#define FFS_FILE_VERSION 1
 
 // FFS Directory structure version
 #define FFS_DIRECTORY_VERSION 0
@@ -20,3 +20,5 @@
 
 // Inode ID for root directory
 #define FFS_ROOT_INODE 0
+
+#define FFS_ENCRYPTION_SECRET_KEY "FFS_PASSWORD"
