@@ -65,7 +65,7 @@ FFS::Crypto::crypt_t FFS::Crypto::encrypt(const void* in_ptr, size_t len) {
 
 	size_t iv_len = e.IVSize();
 	CryptoPP::SecByteBlock iv(iv_len);
-	rng.GenerateBlock(iv, iv_len);
+	e.GetNextIV(rng, iv);
 
 	auto salt = generate_salt();
 	auto key = derive_key(salt);
