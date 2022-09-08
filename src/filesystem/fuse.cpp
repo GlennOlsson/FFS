@@ -547,6 +547,7 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 
 // --- UNIMPLEMENTED ---
 static int ffs_flush(const char* path, struct fuse_file_info* fi) {
+	std::cerr << "UNIMPLEMENTED: flush" << std::endl;
 	// Do nothing interesting, but don't return error
 	return 0;
 }
@@ -576,15 +577,15 @@ static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
 	return 0;
 }
 
-// static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
-// 	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
-// 	return 0;
-// }
+static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
+	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
+	return 0;
+}
 
-// static int ffs_fsyncdir(const char* path, int isdatasync, struct fuse_file_info* fi) {
-// 	std::cerr << "UNIMPLEMENTED: fsyncdir" << std::endl;
-// 	return 0;
-// }
+static int ffs_fsyncdir(const char* path, int isdatasync, struct fuse_file_info* fi) {
+	std::cerr << "UNIMPLEMENTED: fsyncdir" << std::endl;
+	return 0;
+}
 
 
 //static int ffs_lock(const char* path, struct fuse_file_info* fi, int cmd, struct flock* locks) {
@@ -651,8 +652,8 @@ static struct fuse_operations ffs_operations = {
 	.link		= ffs_link,
 	.chmod		= ffs_chmod,
 	.chown		= ffs_chown,
-	// .fsync	= ffs_fsync,
-	// .fsyncdir= ffs_fsyncdir,
+	.fsync		= ffs_fsync,
+	.fsyncdir= ffs_fsyncdir,
 	//.lock		= ffs_lock,
 	.bmap		= ffs_bmap,
 	//.setxattr	= ffs_setxattr,

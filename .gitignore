@@ -8,3 +8,4 @@ src/secret.h
 *.wks
 *.log
 *.env
+gcsf/

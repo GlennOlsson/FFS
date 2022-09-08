@@ -1,5 +1,5 @@
 if [ -z "$1" ]; then
-    echo "Arugment needs to be benchmark identifier, eg. \"flickr\""
+    echo "1st arugment needs to be benchmark identifier, eg. \"flickr\""
 	exit 1
 fi
 
@@ -12,5 +12,5 @@ fi
 log="$1.log"
 binary_out="$1.wks"
 
-iozone -Ra -g 4G -s 1024k -b $binary_out -f $bench_file > $log || notify_err Benchmark failed
+iozone -Ra -g 16M -s 1024k -b $binary_out -f $bench_file > $log || notify_err Benchmark failed
 notify Benchmark is done

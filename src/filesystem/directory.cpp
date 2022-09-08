@@ -41,18 +41,11 @@ uint32_t FFS::Directory::size() {
 void FFS::Directory::serialize(std::ostream& stream) {	
 	FFS::write_i(stream, this->entries->size());
 	for(auto entry: *this->entries) {
-		std::string name = entry.first;
-
-		uint8_t name_length = name.size();
-		FFS::write_c(stream, name_length);
-
-		// Write string without \0
-		for(int i = 0; i < name_length; ++i) {
-			FFS::write_c(stream, name[i]);
-		}
-
 		// Write inode id
 		FFS::write_i(stream, entry.second);
+
+		// Write name
+		FFS::write_str(stream, entry.first);
 	}
 }
 std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream) {
@@ -66,23 +59,13 @@ std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream
 	auto entries = std::make_shared<std::map<std::string, uint32_t>>();
 
 	while(entries_count-- > 0) {
-		uint8_t name_count;
-		FFS::read_c(stream, name_count);
-
-		std::stringstream name_stream;
-		while(name_count--) {
-			uint8_t c;
-			FFS::read_c(stream, c);
-			name_stream.put(c);
-		}
-
-		std::string name = name_stream.str();
-
 		FFS::inode_t inode;
-
-		// Write inode id
+		// Read inode id
 		FFS::read_i(stream, inode);
 
+		std::string name;
+		// Read string
+		FFS::read_str(stream, name);
 		entries->insert({name, inode});
 	}
 

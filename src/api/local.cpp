@@ -22,6 +22,10 @@ std::string path_of(const FFS::post_id_t& id) {
 FFS::post_id_t FFS::API::Local::save_file(const std::string& from_path, bool is_inode_table) {
 	auto id = is_inode_table ? INODE_POST_ID : std::to_string(FFS::random_int());
 	auto save_path = path_of(id);
+
+	// If saving inode table, remove old table first
+	if(is_inode_table)
+		std::filesystem::remove(save_path);
 	
 	std::filesystem::copy_file(from_path, save_path, std::filesystem::copy_options::overwrite_existing);
 
