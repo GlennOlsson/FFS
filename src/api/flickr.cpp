@@ -15,6 +15,7 @@
 #include "../exceptions/exceptions.h"
 #include "../helpers/types.h"
 #include "../helpers/logger.h"
+#include "../helpers/functions.h"
 #include "json.h"
 
 #define FLICKR_USER_ID "me"
@@ -59,14 +60,17 @@ flickcurl* get_fc() {
 	return fc;
 }
 
-FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path, const std::string& tags) {
+FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path) {
 
 	auto fc = get_fc();
 
+	// Generate some random string of 7-15 characters as the title
+	auto title = FFS::random_str(FFS::random_int(7, 15));
+
 	flickcurl_upload_params params;
-	
+
 	params.photo_file = file_path.c_str();
-	params.title = nullptr;
+	params.title = title.c_str();
 	params.description = nullptr;
 	params.tags = nullptr;
 	params.is_public = true;
@@ -75,9 +79,6 @@ FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path, const 
 	params.safety_level = 0;
 	params.content_type = 0;
 	params.hidden = 0;
-;
-	if(tags.size() > 2)
-		params.tags = tags.c_str();
 
 	auto status = flickcurl_photos_upload_params(fc, &params);
 	auto uploaded_id = std::string(status->photoid);

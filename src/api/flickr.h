@@ -13,7 +13,7 @@ namespace FFS::API::Flickr {
 	};
 
 	// Post image to flickr, stored at file_path. post_text and tags are optional, but can be posted along with the photo
-	FFS::post_id_t post_image(const std::string&, const std::string& tags = "");
+	FFS::post_id_t post_image(const std::string&);
 
 	// Get the url to the image with a post_id_t. The url points to the original version of the image, as stored on flickr
 	const std::string& get_image(const FFS::post_id_t&);

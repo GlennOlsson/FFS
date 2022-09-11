@@ -29,8 +29,6 @@
 #include <chrono>
 #include <thread>
 
-#define FFS_INODE_TABLE_TAG "ffs"
-
 std::string path_of(FFS::post_id_t id) {
 	std::stringstream path_stream;
 	path_stream << FFS_TMP_FS_PATH << "/ffs_" << id << "." << FFS_IMAGE_TYPE;
@@ -89,6 +87,7 @@ void FFS::Storage::update(std::shared_ptr<FFS::Directory> dir, FFS::inode_t inod
 	inode_entry->post_ids = new_post_id_ts;
 }
 
+// need is_inode only for local storage now, flickr doesn't need the tag 
 FFS::post_id_t FFS::Storage::upload_file(FFS::blob_t blob, bool is_inode) {
 	// Write to temporary file, upload, and then remove temp file
 
@@ -101,11 +100,7 @@ FFS::post_id_t FFS::Storage::upload_file(FFS::blob_t blob, bool is_inode) {
 	auto id = FFS::API::Local::save_file(tmp_filename, is_inode);
 #endif
 #ifndef USE_LOCAL_STORAGE
-	std::string tag = "";
-	if(is_inode) {
-		tag = FFS_INODE_TABLE_TAG;
-	}
-	auto id = FFS::API::Flickr::post_image(tmp_filename, tag);
+	auto id = FFS::API::Flickr::post_image(tmp_filename);
 #endif
 
 	std::filesystem::remove(tmp_filename);
@@ -172,8 +167,6 @@ FFS::blobs_t FFS::Storage::get_file(posts_t ids) {
 }
 
 std::pair<FFS::blob_t, FFS::post_id_t&> FFS::Storage::get_inode_table() {
-	std::string tag = FFS_INODE_TABLE_TAG;
-
 #ifdef USE_LOCAL_STORAGE
 	auto post_id = FFS::API::Local::get_inode_post_id();
 	auto blob = get_file(post_id);
