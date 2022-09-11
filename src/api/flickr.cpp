@@ -125,6 +125,42 @@ const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
 	throw FFS::NoPhotoWithID(id);
 }
 
+const FFS::API::Flickr::SearchResponse FFS::API::Flickr::most_recent_image() {
+	std::string method = "flickr.people.getPhotos";
+
+	auto full_params = BASE_REST_PARAMS + 
+		"&method=" + method + 
+		"&user_id=" + FLICKR_USER_ID + 
+		"&extras=url_o" + 
+		"&per_page=1";
+
+	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
+
+	auto response_body = FFS::API::HTTP::get(BASE_REST_URL, auth_str);
+
+	request_counter++;
+	FFS::log << "Got most recent image info, request counter: " << request_counter << std::endl;
+
+	auto json = FFS::API::JSON::parse(*response_body);
+
+	try {
+		auto& photos_obj = json->get_obj("photos");
+		auto& photo_arr = photos_obj.get_arr("photo");
+		if(photo_arr.size() < 1)
+			throw FFS::NoPhotosOnFlickr();
+
+		auto& first_photo_obj = FFS::API::JSON::as_obj(photo_arr.front());
+		auto& o_url = first_photo_obj.get_str("url_o");
+		auto& id = first_photo_obj.get_str("id");
+
+		FFS::API::Flickr::SearchResponse sr = {o_url, id};
+
+		return sr;
+	} catch(FFS::JSONKeyNonexistant) {
+		throw FFS::NoPhotosOnFlickr();
+	}
+}
+
 const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std::string& tag) {
 	std::string method = "flickr.photos.search";
 

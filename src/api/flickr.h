@@ -18,6 +18,9 @@ namespace FFS::API::Flickr {
 	// Get the url to the image with a post_id_t. The url points to the original version of the image, as stored on flickr
 	const std::string& get_image(const FFS::post_id_t&);
 
+	// Get the most recent image uploaded to Flickr
+	const SearchResponse most_recent_image();
+
 	// Get the original url of the first image found with the tag, posted by the authenticated user. Will throw if no results are found
 	const SearchResponse search_image(const std::string&);
 

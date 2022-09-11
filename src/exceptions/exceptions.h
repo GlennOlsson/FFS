@@ -95,6 +95,11 @@ public:
 	NoPhotoWithID(std::string id): FFS::FlickrException("Could not find any photos with id " + id) {}
 };
 
+class NoPhotosOnFlickr: public FFS::FlickrException {
+public:
+	NoPhotosOnFlickr(): FFS::FlickrException("No photos found on Flickr"){}
+};
+
 class JSONException: public FFS::APIException {
 public:
 	JSONException(std::string why): FFS::APIException(why) {}

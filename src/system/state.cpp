@@ -29,11 +29,11 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 		// If could get blob, save new post_id_t and inode table
 		if(blob != nullptr) {
 			FFS::State::inode_table_id = current_id;
-			State::inode_table = FFS::Storage::itable_from_blob(blob);
+			FFS::State::inode_table = FFS::Storage::itable_from_blob(blob);
 		} else {
-			State::inode_table = std::make_shared<InodeTable>();
+			FFS::State::inode_table = std::make_shared<InodeTable>();
 			save_table();
-		}
+		} 
 	}
 
 	return State::inode_table;
@@ -53,7 +53,7 @@ void FFS::State::save_table() {
 	FFS::log << "Saving table" << std::endl;
 	auto old_id = FFS::State::inode_table_id;
 
-	std::shared_ptr<FFS::InodeTable> table = get_inode_table();
+	std::shared_ptr<FFS::InodeTable> table = FFS::State::inode_table;
 	if(table == nullptr) {
 		FFS::err << "Cannot save table, nullptr" << std::endl;
 		return;

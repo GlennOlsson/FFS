@@ -29,7 +29,7 @@
 #include <chrono>
 #include <thread>
 
-#define FFS_INODE_TABLE_TAG "ffsinode"
+#define FFS_INODE_TABLE_TAG "ffs"
 
 std::string path_of(FFS::post_id_t id) {
 	std::stringstream path_stream;
@@ -179,7 +179,8 @@ std::pair<FFS::blob_t, FFS::post_id_t&> FFS::Storage::get_inode_table() {
 	auto blob = get_file(post_id);
 #endif
 #ifndef USE_LOCAL_STORAGE
-	auto search = FFS::API::Flickr::search_image(tag);
+	// Most recent image _should_ be inode table
+	auto search = FFS::API::Flickr::most_recent_image();
 	auto post_id = search.post_id;
 	auto url = search.url;
 
