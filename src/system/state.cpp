@@ -1,4 +1,4 @@
-#include "state.h"
+	#include "state.h"
 
 #include "../filesystem/storage.h"
 
@@ -12,6 +12,11 @@
 std::shared_ptr<FFS::InodeTable> FFS::State::inode_table = nullptr;
 FFS::post_id_t FFS::State::inode_table_id = "";
 
+void create_new_table() {
+	FFS::State::inode_table = std::make_shared<FFS::InodeTable>();
+	FFS::State::save_table();
+}
+
 std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 	if(FFS::State::inode_table == nullptr) {
 		// try to load from storage, else create new
@@ -21,18 +26,26 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 			auto pair = FFS::Storage::get_inode_table();
 			blob = pair.first;
 			current_id = pair.second;
-		} catch (FFS::Exception& e) {
+		} catch (const FFS::Exception& e) {
 			FFS::log << "Error getting inode table: " << e.what() << std::endl;
+			blob = nullptr;
+		} catch (const std::exception& e2) {
+			FFS::log << "Non-FFS error getting inode table: " << e2.what() << std::endl;
 			blob = nullptr;
 		}
 
 		// If could get blob, save new post_id_t and inode table
 		if(blob != nullptr) {
+			try {
+				FFS::State::inode_table = FFS::Storage::itable_from_blob(blob);
+			}   catch (const std::exception& e2) {
+				// For instance, if decryption does not work
+				FFS::log << "Non-FFS error decoding inode table: " << e2.what() << std::endl;
+				create_new_table();
+			}
 			FFS::State::inode_table_id = current_id;
-			FFS::State::inode_table = FFS::Storage::itable_from_blob(blob);
 		} else {
-			FFS::State::inode_table = std::make_shared<InodeTable>();
-			save_table();
+			create_new_table();
 		} 
 	}
 
