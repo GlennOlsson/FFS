@@ -124,6 +124,10 @@ FFS::InodeTable::InodeTable() {
 void FFS::InodeTable::serialize(std::ostream& stream) {
 	uint32_t total_entries = this->entries->size();
 
+	FFS::write_c(stream, 'i');
+	FFS::write_c(stream, 'n');
+	FFS::write_c(stream, 'd');
+
 	FFS::write_i(stream, total_entries);
 
 	// For each entry add its id, and the serialized entry
@@ -137,6 +141,14 @@ void FFS::InodeTable::serialize(std::ostream& stream) {
 
 std::shared_ptr<FFS::InodeTable> FFS::InodeTable::deserialize(std::istream& stream) {
 	uint32_t entries_count;
+
+	char c1, c2, c3;
+	FFS::read_c(stream, c1);
+	FFS::read_c(stream, c2);
+	FFS::read_c(stream, c3);
+	if(c1 != 'i' || c2 != 'n' || c3 != 'd') {
+		throw FFS::FFSFileNotInodeTable();
+	}
 
 	FFS::read_i(stream, entries_count);
 

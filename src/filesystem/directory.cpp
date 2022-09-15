@@ -38,7 +38,11 @@ uint32_t FFS::Directory::size() {
 	return size;
 }
 
-void FFS::Directory::serialize(std::ostream& stream) {	
+void FFS::Directory::serialize(std::ostream& stream) {
+	FFS::write_c(stream, 'd');
+	FFS::write_c(stream, 'i');
+	FFS::write_c(stream, 'r');
+
 	FFS::write_i(stream, this->entries->size());
 	for(auto entry: *this->entries) {
 		// Write inode id
@@ -52,6 +56,14 @@ std::shared_ptr<FFS::Directory> FFS::Directory::deserialize(std::istream& stream
 	// If stream is empty, just return empty Directory
 	if(!stream || FFS::stream_size(stream) == 0)
 		return std::make_shared<FFS::Directory>();
+
+	char c1, c2, c3;
+	FFS::read_c(stream, c1);
+	FFS::read_c(stream, c2);
+	FFS::read_c(stream, c3);
+	if(c1 != 'd' || c2 != 'i' || c3 != 'r') {
+		throw FFS::FFSFileNotDirectory();
+	}
 
 	uint32_t entries_count;
 	FFS::read_i(stream, entries_count);

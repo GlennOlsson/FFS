@@ -378,7 +378,7 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 
 	// If the parent is same, only update once
 	FFS::Storage::update(parent_from->second, parent_from->first);
-	if(parent_to->second != parent_to->second)
+	if(parent_from->second != parent_to->second)
 		FFS::Storage::update(parent_to->second, parent_to->first);
 
 	FFS::FS::sync_inode_table();

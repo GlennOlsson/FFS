@@ -26,6 +26,8 @@
 
 #define BASE_REST_PARAMS std::string("format=json&nojsoncallback=1")
 
+#define RETRIES 3
+
 // Should change if the keys don't work
 std::string oauth_key = FFS_FLICKR_ACCESS_TOKEN;
 std::string oauth_secret = FFS_FLICKR_ACCES_TOKEN_SECRET;
@@ -42,14 +44,17 @@ std::string get_auth_string(OAuth::Http::RequestType request_type, std::string f
 	return str;
 }
 
+class UploadFailed {};
+
 void flickr_error_handler(void *user_data, const char *message) {
 	auto error_str = std::string(message);
-	throw FFS::FlickrException(error_str);
+	FFS::err << "Upload failed: " << error_str << std::endl;
+	throw UploadFailed();
 }
 
 flickcurl* get_fc() {
 	auto fc = flickcurl_new();
-	
+
 	flickcurl_set_error_handler(fc, flickr_error_handler, nullptr);
 
 	flickcurl_set_oauth_client_key(fc, FFS_FLICKR_APP_CONSUMER_KEY);
@@ -80,11 +85,24 @@ FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path) {
 	params.content_type = 0;
 	params.hidden = 0;
 
-	auto status = flickcurl_photos_upload_params(fc, &params);
+	FFS::log << "Uploading file, request counter: " << request_counter << std::endl;
+
+	flickcurl_upload_status* status = nullptr;
+	for(int i = 0; i < RETRIES; ++i) {
+		try {
+			status = flickcurl_photos_upload_params(fc, &params);
+			break;
+		} catch(const UploadFailed& e) {
+			if(i == RETRIES - 1) {
+				FFS::err << "Retried " << RETRIES << " times, still failed" << std::endl;
+				throw FFS::FlickrException("Could not upload file after " + std::to_string(RETRIES) + " attempts");
+			}
+		}
+	}
+
 	auto uploaded_id = std::string(status->photoid);
 
 	request_counter++;
-	FFS::log << "Uploaded file, request counter: " << request_counter << std::endl;
 
 	flickcurl_free_upload_status(status);
 
@@ -93,7 +111,7 @@ FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path) {
 	return uploaded_id;
 }
 
-const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
+const std::string& _get_image(const FFS::post_id_t& id) {
 	std::string method = "flickr.photos.getSizes";
 
 	auto full_params = BASE_REST_PARAMS + "&method=" + method + "&photo_id=" + id;
@@ -126,8 +144,23 @@ const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
 	throw FFS::NoPhotoWithID(id);
 }
 
-const FFS::API::Flickr::SearchResponse FFS::API::Flickr::most_recent_image() {
-	std::string method = "flickr.people.getPhotos";
+const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
+	for(int i = 0; i < RETRIES; ++i) {
+		try {
+			return _get_image(id);
+		} catch(const std::exception& e) {
+			if(i == RETRIES - 1) {
+				FFS::err << "Retried " << RETRIES << " times, still failed" << std::endl;
+				throw e;
+			}
+		}
+	}
+	FFS::err << "Somehow didn't return or throw on get_image" << std::endl;
+	throw FFS::FlickrException("Error with get_image");
+}
+
+const FFS::API::Flickr::SearchResponse _most_recent_image() {
+	std::string method = "flickr.photos.getNotInSet";
 
 	auto full_params = BASE_REST_PARAMS + 
 		"&method=" + method + 
@@ -137,18 +170,21 @@ const FFS::API::Flickr::SearchResponse FFS::API::Flickr::most_recent_image() {
 
 	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
 
+	FFS::log << "Getting most recent image info, request counter: " << request_counter << std::endl;
+	
 	auto response_body = FFS::API::HTTP::get(BASE_REST_URL, auth_str);
 
 	request_counter++;
-	FFS::log << "Got most recent image info, request counter: " << request_counter << std::endl;
 
 	auto json = FFS::API::JSON::parse(*response_body);
 
 	try {
 		auto& photos_obj = json->get_obj("photos");
 		auto& photo_arr = photos_obj.get_arr("photo");
-		if(photo_arr.size() < 1)
+		if(photo_arr.size() < 1) {
+			FFS::log << "No photos in array" << std::endl;
 			throw FFS::NoPhotosOnFlickr();
+		}
 
 		auto& first_photo_obj = FFS::API::JSON::as_obj(photo_arr.front());
 		auto& o_url = first_photo_obj.get_str("url_o");
@@ -158,11 +194,27 @@ const FFS::API::Flickr::SearchResponse FFS::API::Flickr::most_recent_image() {
 
 		return sr;
 	} catch(FFS::JSONKeyNonexistant) {
+		FFS::log << "JSON key error with most recent flickr image" << std::endl;
 		throw FFS::NoPhotosOnFlickr();
 	}
 }
 
-const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std::string& tag) {
+const FFS::API::Flickr::SearchResponse FFS::API::Flickr::most_recent_image() {
+	for(int i = 0; i < RETRIES; ++i) {
+		try {
+			return _most_recent_image();
+		} catch(const std::exception& e) {
+			if(i == RETRIES - 1) {
+				FFS::err << "Retried " << RETRIES << " times, still failed" << std::endl;
+				throw e;
+			}
+		}
+	}
+	FFS::err << "Somehow didn't return or throw on most_recent_image" << std::endl;
+	throw FFS::FlickrException("Error with most_recent_image");
+}
+
+const FFS::API::Flickr::SearchResponse _search_image(const std::string& tag) {
 	std::string method = "flickr.photos.search";
 
 	auto full_params = BASE_REST_PARAMS + 
@@ -172,11 +224,12 @@ const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std:
 		"&tag_mode=all&extras=url_o&per_page=1";
 
 	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
+	
+	FFS::log << "Searching for photo, request counter: " << request_counter << std::endl;
 
 	auto response_body = FFS::API::HTTP::get(BASE_REST_URL, auth_str);
 
 	request_counter++;
-	FFS::log << "Searched for photo, request counter: " << request_counter << std::endl;
 
 	auto json = FFS::API::JSON::parse(*response_body);
 
@@ -198,19 +251,49 @@ const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std:
 	}
 }
 
-void FFS::API::Flickr::delete_image(const FFS::post_id_t& id) {
+const FFS::API::Flickr::SearchResponse FFS::API::Flickr::search_image(const std::string& tag) {
+	for(int i = 0; i < RETRIES; ++i) {
+		try {
+			return _search_image(tag);
+		} catch(const std::exception& e) {
+			if(i == RETRIES - 1) {
+				FFS::err << "Retried " << RETRIES << " times, still failed" << std::endl;
+				throw e;
+			}
+		}
+	}
+	FFS::err << "Somehow didn't return or throw on search_image" << std::endl;
+	throw FFS::FlickrException("Error with search_image");
+}
+
+void _delete_image(const FFS::post_id_t& id) {
 	std::string method = "flickr.photos.delete";
 
 	auto full_params = BASE_REST_PARAMS + 
 		"&method=" + method + 
 		"&photo_id=" + id;
 
+	FFS::log << "Deleting file, request counter: " << request_counter << std::endl;
+	
 	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
-
 
 	// For some reason problem if using post instead of get - but get works fine!!
 	FFS::API::HTTP::get(BASE_REST_URL, auth_str);
 
 	request_counter++;
-	FFS::log << "Deleted file, request counter: " << request_counter << std::endl;
+}
+
+void FFS::API::Flickr::delete_image(const FFS::post_id_t& id) {
+	for(int i = 0; i < RETRIES; ++i) {
+		try {
+			return _delete_image(id);
+		} catch(const std::exception& e) {
+			if(i == RETRIES - 1) {
+				FFS::err << "Retried " << RETRIES << " times, still failed" << std::endl;
+				throw e;
+			}
+		}
+	}
+	FFS::err << "Somehow didn't return or throw on delete_image" << std::endl;
+	throw FFS::FlickrException("Error with delete_image");
 }

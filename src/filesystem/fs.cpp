@@ -338,14 +338,7 @@ void FFS::FS::remove(std::string path, bool multithread) {
 
 	auto inode = parent_dir->remove_entry(filename);
 
-	// Update parent on other thread
-	auto thread = std::thread([parent_dir, parent_inode] {
-		FFS::Storage::update(parent_dir, parent_inode);
-	});
-	if(multithread)
-		thread.detach();
-	else
-		thread.join();
+	FFS::Storage::update(parent_dir, parent_inode);
 
 	auto table = FFS::State::get_inode_table();
 	

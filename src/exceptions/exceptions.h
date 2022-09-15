@@ -28,6 +28,16 @@ public:
 	UnexpectedEOF(uint64_t eof_location);
 };
 
+class FFSFileNotInodeTable: public BadFFSFile {
+public:
+	FFSFileNotInodeTable(): BadFFSFile("The image deserialized as an inode table is not an inode table") {}
+};
+
+class FFSFileNotDirectory: public BadFFSFile {
+public:
+	FFSFileNotDirectory(): BadFFSFile("The image deserialized as a directory is not a directory") {}
+};
+
 class StorageException: public FFS::Exception {
 public:
 	StorageException(std::string reason) : Exception(reason) {}
