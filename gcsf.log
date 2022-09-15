@@ -5,6 +5,9 @@ Latency:      56,978 ms
 Download:     75,129 Mbit/s
 Upload:        3,338 Mbit/s
 Measurement ID: 422530845
+
+Total time: 1h10min
+
 	Iozone: Performance Test of File I/O
 	        Version $Revision: 3.493 $
 		Compiled for 64 bit mode.
