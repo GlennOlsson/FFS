@@ -264,8 +264,10 @@ FFS::blobs_t FFS::FS::update_file(FFS::inode_t inode, std::istream& stream) {
 
 	// Remove old posts
 	auto old_posts = entry->post_ids;
-	if(old_posts != nullptr)
+	if(old_posts != nullptr) {
 		FFS::Storage::remove_posts(old_posts);
+		entry->post_ids = nullptr;
+	}
 
 	entry->length = stream_length;
 	
