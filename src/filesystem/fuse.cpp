@@ -268,7 +268,6 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
-	auto entry = FFS::FS::entry(inode);
 
 	// Stream for previous (current) file
 	std::stringbuf prev_string_buf;
@@ -291,8 +290,8 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	while(index < size)
 		FFS::write_c(prev_stream, buf[index++]);
 
-	auto new_blobs = FFS::FS::update_file(inode, prev_stream);
-	FFS::FileHandle::update_blobs(fh, new_blobs);
+	auto new_blobs = FFS::encode(prev_stream);
+	FFS::FileHandle::update_blobs(fh, new_blobs, size);
 	
 	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
@@ -449,8 +448,8 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 
 	generic_truncate(curr_stream, new_stream, size);
 
-	auto new_blobs = FFS::FS::update_file(inode, new_stream);
-	FFS::FileHandle::update_blobs(fh, new_blobs);
+	auto new_blobs = FFS::encode(new_stream);
+	FFS::FileHandle::update_blobs(fh, new_blobs, size);
 
 	FFS::log << "End ffs_ftruncate " << path << std::endl << std::endl;
 	return 0;

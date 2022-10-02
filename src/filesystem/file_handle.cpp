@@ -4,6 +4,7 @@
 #include "storage.h"
 
 #include "../helpers/types.h"
+#include "../helpers/functions.h"
 #include "../helpers/constants.h"
 #include "../helpers/logger.h"
 
@@ -27,6 +28,8 @@ private:
 
 	FFS::blobs_t blobs;
 	FFS::blobs_t parent_blobs;
+
+	size_t size;
 
 	bool modified = false;
 
@@ -63,6 +66,14 @@ public:
 
 	FFS::blobs_t get_parent_blobs() {
 		return this->parent_blobs;
+	}
+
+	void set_size(size_t size) {
+		this->size = size;
+	}
+
+	size_t get_size() {
+		return this->size;
 	}
 
 	bool is_modified() {
@@ -122,6 +133,11 @@ FFS::file_handle_t FFS::FileHandle::open(std::string path) {
 	} else { // If call to un-opened file
 		auto parent_inode = traverser->parent_inode;
 		auto file_handler = FileHandler(filename, parent_inode);
+		
+		auto table = FFS::State::get_inode_table();
+		auto inode_entry = table->entry(inode);
+		file_handler.set_size(inode_entry->length);
+
 		open_files.insert({inode, file_handler});
 	}
 
@@ -169,11 +185,24 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 
 			auto inode_entry = table->entry(inode);
 
+			// Remove the current posts of the file
+			auto current_posts = inode_entry->post_ids;
+
 			auto blobs = open_file.get_blobs();
 			posts_t posts = nullptr;
 			if(blobs != nullptr) 
 				posts = FFS::Storage::upload_file(blobs);
+			//Else posts will be nullptr
+
 			inode_entry->post_ids = posts;
+
+			auto now = FFS::curr_milliseconds();		
+			inode_entry->time_modified = now;
+			inode_entry->time_accessed = now;
+
+			inode_entry->length = open_file.get_size();
+
+			FFS::Storage::remove_posts(current_posts);
 
 			FFS::FS::sync_inode_table();
 		}
@@ -191,10 +220,11 @@ FFS::inode_t FFS::FileHandle::parent(FFS::file_handle_t fh) {
 	return get_open_file(inode).parent();
 }
 
-void FFS::FileHandle::update_blobs(FFS::file_handle_t fh, FFS::blobs_t blobs) {
+void FFS::FileHandle::update_blobs(FFS::file_handle_t fh, FFS::blobs_t blobs, size_t size) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
 	open_file.set_blobs(blobs);
+	open_file.set_size(size);
 }
 
 FFS::blobs_t FFS::FileHandle::get_blobs(FFS::file_handle_t fh) {

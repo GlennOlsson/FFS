@@ -18,8 +18,8 @@ namespace FFS::FileHandle {
 	// Get the parent inode of given file handle
 	FFS::inode_t parent(FFS::file_handle_t);
 
-	// Update blobs of file handle which should be uploaded on close
-	void update_blobs(FFS::file_handle_t, FFS::blobs_t);
+	// Update blobs of file handle which should be uploaded on close, along with new total size of the stream
+	void update_blobs(FFS::file_handle_t, FFS::blobs_t, size_t size);
 
 	// Get current blobs, not updated in storage
 	FFS::blobs_t get_blobs(FFS::file_handle_t);
