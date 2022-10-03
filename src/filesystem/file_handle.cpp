@@ -30,6 +30,7 @@ private:
 	std::string filename;
 	FFS::inode_t parent_inode;
 
+	std::shared_ptr<std::stringbuf> buf;
 	std::shared_ptr<std::iostream> stream;
 
 	size_t size;
@@ -53,8 +54,11 @@ public:
 		return this->parent_inode;
 	}
 
-	void set_stream(std::shared_ptr<std::iostream> stream) {
+	void set_stream(std::shared_ptr<std::iostream> stream, std::shared_ptr<std::stringbuf> buf) {
 		this->stream = stream;
+		// If buf == nullptr, don't update buffer. Assume buffer is same as before
+		if(buf != nullptr)
+			this->buf = buf;
 		this->modified = true;
 	}
 
@@ -156,7 +160,7 @@ FFS::file_handle_t FFS::FileHandle::create(std::string path) {
 	auto buf = std::make_shared<std::stringbuf>();
 	auto stream = std::make_shared<std::basic_iostream<char>>(buf.get());
 
-	file_handle.set_stream(stream);
+	file_handle.set_stream(stream, buf);
 	open_files.insert({inode, file_handle});
 
 	auto parent_dir = traverser->parent_dir;
@@ -220,10 +224,10 @@ FFS::inode_t FFS::FileHandle::parent(FFS::file_handle_t fh) {
 	return get_open_file(inode).parent();
 }
 
-void FFS::FileHandle::update_stream(FFS::file_handle_t fh, std::shared_ptr<std::iostream> stream) {
+void FFS::FileHandle::update_stream(FFS::file_handle_t fh, std::shared_ptr<std::iostream> stream, std::shared_ptr<std::stringbuf> buf) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
-	open_file.set_stream(stream);
+	open_file.set_stream(stream, buf);
 	open_file.set_size(FFS::stream_size(*stream));
 }
 

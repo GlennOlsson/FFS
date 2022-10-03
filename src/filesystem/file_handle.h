@@ -20,8 +20,8 @@ namespace FFS::FileHandle {
 	// Get the parent inode of given file handle
 	FFS::inode_t parent(FFS::file_handle_t);
 
-	// Update stream of file handle which should be uploaded on close
-	void update_stream(FFS::file_handle_t, std::shared_ptr<std::iostream>);
+	// Update stream and stream buffer of file handle which should be uploaded on close
+	void update_stream(FFS::file_handle_t, std::shared_ptr<std::iostream>, std::shared_ptr<std::stringbuf>);
 
 	// Get current stream, not updated in storage	
 	std::shared_ptr<std::iostream> get_stream(FFS::file_handle_t);

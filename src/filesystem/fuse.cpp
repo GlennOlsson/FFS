@@ -270,14 +270,15 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	auto inode = FFS::FileHandle::inode(fh);
 
 	std::shared_ptr<std::basic_iostream<char>> stream = nullptr;
-
+	
+	std::shared_ptr<std::stringbuf> new_buf;
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new stream, read as current file instead
 	if(FFS::FileHandle::is_modified(fh))
 		stream = FFS::FileHandle::get_stream(fh);
 	else {
-		auto prev_string_buf = std::make_shared<std::stringbuf>();
-		stream = std::make_shared<std::basic_iostream<char>>(prev_string_buf.get());
+		new_buf = std::make_shared<std::stringbuf>();
+		stream = std::make_shared<std::basic_iostream<char>>(new_buf.get());
 		FFS::FS::read_file(inode, *stream);
 	}
 
@@ -289,7 +290,8 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	while(index < size)
 		FFS::write_c(*stream, buf[index++]);
 
-	FFS::FileHandle::update_stream(fh, stream);
+	// new_buf is nullptr if stream is same as before, filehandle will not update buffer in that case
+	FFS::FileHandle::update_stream(fh, stream, new_buf);
 	
 	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
@@ -446,7 +448,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 
 	generic_truncate(*curr_stream, *new_stream, size);
 
-	FFS::FileHandle::update_stream(fh, new_stream);
+	FFS::FileHandle::update_stream(fh, new_stream, new_string_buf);
 
 	FFS::log << "End ffs_ftruncate " << path << std::endl << std::endl;
 	return 0;
