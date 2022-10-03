@@ -187,7 +187,6 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 			// Remove the current posts of the file
 			auto current_posts = inode_entry->post_ids;
 
-			// auto blobs = open_file.get_blobs();
 			auto stream = open_file.get_stream();
 			auto blobs = FFS::encode(*stream);
 			posts_t posts = nullptr;
