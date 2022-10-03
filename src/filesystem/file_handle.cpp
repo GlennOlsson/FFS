@@ -2,6 +2,7 @@
 
 #include "fs.h"
 #include "storage.h"
+#include "file_coder.h"
 
 #include "../helpers/types.h"
 #include "../helpers/functions.h"
@@ -17,6 +18,9 @@
 #include <vector>
 #include <memory>
 #include <Magick++.h>
+#include <iostream>
+#include <sstream>
+#include <iostream>
 
 class FileHandler {
 private:
@@ -26,8 +30,7 @@ private:
 	std::string filename;
 	FFS::inode_t parent_inode;
 
-	FFS::blobs_t blobs;
-	FFS::blobs_t parent_blobs;
+	std::shared_ptr<std::iostream> stream;
 
 	size_t size;
 
@@ -50,22 +53,13 @@ public:
 		return this->parent_inode;
 	}
 
-	void set_blobs(FFS::blobs_t blobs) {
-		this->blobs = blobs;
+	void set_stream(std::shared_ptr<std::iostream> stream) {
+		this->stream = stream;
 		this->modified = true;
 	}
 
-	FFS::blobs_t get_blobs() {
-		return this->blobs;
-	}
-
-	void set_parent_blobs(FFS::blobs_t blobs) {
-		this->parent_blobs = blobs;
-		this->modified = true;
-	}
-
-	FFS::blobs_t get_parent_blobs() {
-		return this->parent_blobs;
+	std::shared_ptr<std::iostream> get_stream() {
+		return this->stream;
 	}
 
 	void set_size(size_t size) {
@@ -134,6 +128,7 @@ FFS::file_handle_t FFS::FileHandle::open(std::string path) {
 		auto parent_inode = traverser->parent_inode;
 		auto file_handler = FileHandler(filename, parent_inode);
 		
+		// At first open, set the size at the current size of the file or dir
 		auto table = FFS::State::get_inode_table();
 		auto inode_entry = table->entry(inode);
 		file_handler.set_size(inode_entry->length);
@@ -157,7 +152,11 @@ FFS::file_handle_t FFS::FileHandle::create(std::string path) {
 
 	auto parent_inode = traverser->parent_inode;
 	auto file_handle = FileHandler(filename, parent_inode);
-	file_handle.set_blobs(nullptr);
+
+	auto buf = std::make_shared<std::stringbuf>();
+	auto stream = std::make_shared<std::basic_iostream<char>>(buf.get());
+
+	file_handle.set_stream(stream);
 	open_files.insert({inode, file_handle});
 
 	auto parent_dir = traverser->parent_dir;
@@ -188,7 +187,9 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 			// Remove the current posts of the file
 			auto current_posts = inode_entry->post_ids;
 
-			auto blobs = open_file.get_blobs();
+			// auto blobs = open_file.get_blobs();
+			auto stream = open_file.get_stream();
+			auto blobs = FFS::encode(*stream);
 			posts_t posts = nullptr;
 			if(blobs != nullptr) 
 				posts = FFS::Storage::upload_file(blobs);
@@ -220,18 +221,18 @@ FFS::inode_t FFS::FileHandle::parent(FFS::file_handle_t fh) {
 	return get_open_file(inode).parent();
 }
 
-void FFS::FileHandle::update_blobs(FFS::file_handle_t fh, FFS::blobs_t blobs, size_t size) {
+void FFS::FileHandle::update_stream(FFS::file_handle_t fh, std::shared_ptr<std::iostream> stream) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
-	open_file.set_blobs(blobs);
-	open_file.set_size(size);
+	open_file.set_stream(stream);
+	open_file.set_size(FFS::stream_size(*stream));
 }
 
-FFS::blobs_t FFS::FileHandle::get_blobs(FFS::file_handle_t fh) {
+std::shared_ptr<std::iostream> FFS::FileHandle::get_stream(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
 	
-	return open_file.get_blobs();
+	return open_file.get_stream();
 }
 
 bool FFS::FileHandle::is_modified(FFS::file_handle_t fh) {

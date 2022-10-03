@@ -1,4 +1,5 @@
 import functools
+from importlib.metadata import files
 import os
 import subprocess
 import random
@@ -79,13 +80,13 @@ tests: List[Callable[[], None]] = []
 
 def bench_test(func: Callable[[], None]):
 	def wrapper():
-		mount()
+		# mount()
 		pre_ns = time.time_ns()
 		
 		func()
 
 		post_ns = time.time_ns()
-		unmount()
+		# unmount()
 
 		total_time = (post_ns - pre_ns)
 
@@ -98,65 +99,65 @@ def bench_test(func: Callable[[], None]):
 ## TESTS
 ## Will be run in order from defined
 
-@bench_test
-def save_100b_in_root():
-	generate_file(100, "foo.txt")
+# @bench_test
+# def save_100b_in_root():
+# 	generate_file(100, "foo.txt")
 
-@bench_test
-def read_root_file():
-	verify_file("foo.txt")
+# @bench_test
+# def read_root_file():
+# 	verify_file("foo.txt")
 
-@bench_test
-def remove_root_file():
-	os.remove(_path("foo.txt"))
+# @bench_test
+# def remove_root_file():
+# 	os.remove(_path("foo.txt"))
 
-@bench_test
-def create_level1_dir():
-	os.mkdir(_path("bar"))
+# @bench_test
+# def create_level1_dir():
+# 	os.mkdir(_path("bar"))
 
-@bench_test
-def create_level2_dir():
-	os.mkdir(_path("bar/fizz"))
+# @bench_test
+# def create_level2_dir():
+# 	os.mkdir(_path("bar/fizz"))
 
-@bench_test
-def save_100kb_in_level2():
-	generate_file(100_000, "bar/fizz/buzz.txt")
+# @bench_test
+# def save_100kb_in_level2():
+# 	generate_file(100_000, "bar/fizz/buzz.txt")
 
-@bench_test
-def read_100kb_in_level2():
-	verify_file("bar/fizz/buzz.txt")
+# @bench_test
+# def read_100kb_in_level2():
+# 	verify_file("bar/fizz/buzz.txt")
 
-@bench_test
-def move_100kb():
-	os.rename(_path("bar/fizz/buzz.txt"), _path("bar/jizz.txt"))
+# @bench_test
+# def move_100kb():
+# 	os.rename(_path("bar/fizz/buzz.txt"), _path("bar/jizz.txt"))
 
-@bench_test
-def remove_100kb():
-	os.remove(_path("bar/jizz.txt"))
+# @bench_test
+# def remove_100kb():
+# 	os.remove(_path("bar/jizz.txt"))
 
-@bench_test
-def remove_level2():
-	os.rmdir(_path("bar/fizz"))
+# @bench_test
+# def remove_level2():
+# 	os.rmdir(_path("bar/fizz"))
 
-@bench_test
-def create_empty_file_level1():
-	open(_path("bar/empty.txt"), 'a').close()
+# @bench_test
+# def create_empty_file_level1():
+# 	open(_path("bar/empty.txt"), 'a').close()
 
-@bench_test
-def remove_empty_file_level1():
-	os.remove(_path("bar/empty.txt"))
+# @bench_test
+# def remove_empty_file_level1():
+# 	os.remove(_path("bar/empty.txt"))
 
-@bench_test
-def remove_level1():
-	os.rmdir(_path("bar"))
+# @bench_test
+# def remove_level1():
+# 	os.rmdir(_path("bar"))
 
-@bench_test
-def create_empty_file_root():
-	open(_path("empty.txt"), 'a').close()	
+# @bench_test
+# def create_empty_file_root():
+# 	open(_path("empty.txt"), 'a').close()	
 
-@bench_test
-def remove_empty_file():
-	os.remove(_path("empty.txt"))
+# @bench_test
+# def remove_empty_file():
+# 	os.remove(_path("empty.txt"))
 
 @bench_test
 def create_7mb_file():
@@ -166,9 +167,9 @@ def create_7mb_file():
 def read_7mb_file():
 	verify_file("bigboy.txt")
 
-@bench_test
-def remove_7mb_file():
-	os.remove(_path("bigboy.txt"))
+# @bench_test
+# def remove_7mb_file():
+# 	os.remove(_path("bigboy.txt"))
 
 # Run tests, one at a time. After all has been run, run again. TEST_ITERATIONS times in total
 def run_tests():
@@ -179,28 +180,31 @@ def run_tests():
 		print(f"Done with iter {i}")
 
 if __name__ == "__main__":
-	while filesystem not in filesystems:
-		print("Which filesystem: ")
-		filesystem = input()
+	filesystem = 'ffs'
+	generate_file(70_000_000, 'bigboy.txt')
 
-	print(f"Running {len(tests)} tests {TEST_ITERATIONS} times, at least {len(tests) * mount_sleep * TEST_ITERATIONS}s")
+	# while filesystem not in filesystems:
+	# 	print("Which filesystem: ")
+	# 	filesystem = input()
 
-	start = time.time_ns()
-	run_tests()
-	end = time.time_ns()
+	# print(f"Running {len(tests)} tests {TEST_ITERATIONS} times, at least {len(tests) * mount_sleep * TEST_ITERATIONS}s")
 
-	total_time = (end - start) / 1_000_000_000
+	# start = time.time_ns()
+	# run_tests()
+	# end = time.time_ns()
 
-	with open(f"{filesystem}_bench.log", "w") as log:
-		log.write("---- TESTS COMPLETE ----\n")
-		log.write(f"Ran {len(tests)} tests {TEST_ITERATIONS} times for {filesystem}\n")
-		log.write(f"Total of {total_time}s\n")
-		for test_name in test_log:
-			results = test_log[test_name]
-			avg_ns = sum(results) / TEST_ITERATIONS
-			res_str = functools.reduce(lambda res: str(res) + "\n", results, "")
-			log.write(f"{test_name}: {avg_ns}ns\t({avg_ns / 1_000_000_000}s)")
-			log.write(f"\n{res_str}\n")
+	# total_time = (end - start) / 1_000_000_000
+
+	# with open(f"{filesystem}_bench.log", "w") as log:
+	# 	log.write("---- TESTS COMPLETE ----\n")
+	# 	log.write(f"Ran {len(tests)} tests {TEST_ITERATIONS} times for {filesystem}\n")
+	# 	log.write(f"Total of {total_time}s\n")
+	# 	for test_name in test_log:
+	# 		results = test_log[test_name]
+	# 		avg_ns = sum(results) / TEST_ITERATIONS
+	# 		res_str = functools.reduce(lambda pre, curr: pre + str(curr) + "\n", results, "")
+	# 		log.write(f"{test_name}: {avg_ns}ns\t({avg_ns / 1_000_000_000}s)")
+	# 		log.write(f"\n{res_str}\n")
 
 # Writes slower for FFS than GCSF
 # Makes a lot of sense as it has to handle the inode table (upload it), requiring at 

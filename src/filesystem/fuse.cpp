@@ -110,9 +110,10 @@ void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t 
 	if(entry->is_dir) {
 		std::shared_ptr<FFS::Directory> dir;
 		if(FFS::FileHandle::is_modified(fh)) {
-			auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-			if(curr_blobs != nullptr) 
-				dir = FFS::Storage::dir_from_blobs(curr_blobs);
+			// auto curr_blobs = FFS::FileHandle::get_blobs(fh)
+			auto stream = FFS::FileHandle::get_stream(fh);
+			if(stream != nullptr) 
+				dir = FFS::Directory::deserialize(*stream);
 			else
 				dir = std::make_shared<FFS::Directory>();
 		} else {
@@ -228,22 +229,25 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
-	
-	std::stringbuf string_buf;
-	std::basic_iostream stream(&string_buf);
+
+	std::shared_ptr<std::basic_iostream<char>> stream = nullptr;
 
 	if(FFS::FileHandle::is_modified(fh)) {
-		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		if(curr_blobs != nullptr)
-			FFS::decode(curr_blobs, stream);
-	} else 
-		FFS::FS::read_file(inode, stream);
+		// auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+		stream = FFS::FileHandle::get_stream(fh);
+		// if(curr_blobs != nullptr)
+		// 	FFS::decode(curr_blobs, stream);
+	} else {
+		auto stream_buf = std::make_shared<std::stringbuf>();
+		stream = std::make_shared<std::basic_iostream<char>>(stream_buf.get());
+		FFS::FS::read_file(inode, *stream);
+	}
 	
-	stream.seekg(offset);
+	stream->seekg(offset);
 	int index = 0;
 	// Read as many bytes as requested, or until end of stream
-	while(index < size && stream)
-		FFS::read_c(stream, buf[index++]);
+	while(index < size && *stream)
+		FFS::read_c(*stream, buf[index++]);
 
 	// If stream is less than size, fill with NULL
 	while(index < size)
@@ -269,29 +273,40 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
 
-	// Stream for previous (current) file
-	std::stringbuf prev_string_buf;
-	std::basic_iostream prev_stream(&prev_string_buf);
+	std::shared_ptr<std::basic_iostream<char>> stream = nullptr;
 
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new blobs, read those as current file instead
+	FFS::log << "checking modified" << std::endl;
 	if(FFS::FileHandle::is_modified(fh)) {
-		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		if(curr_blobs != nullptr) 
-			FFS::decode(curr_blobs, prev_stream);
-	} else
-		FFS::FS::read_file(inode, prev_stream);
+		FFS::log << "is modified, getting stream" << std::endl;
+		// auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+		stream = FFS::FileHandle::get_stream(fh);
+		FFS::log << "got stream" << std::endl;
+		// if(curr_blobs != nullptr) 
+		// 	FFS::decode(curr_blobs, prev_stream);
+		// FFS::log << "got blobs" << std::endl;
+	} else {
+		FFS::log << "Not modified, getting file" << std::endl;
+		auto prev_string_buf = std::make_shared<std::stringbuf>();
+		stream = std::make_shared<std::basic_iostream<char>>(prev_string_buf.get());
+		FFS::FS::read_file(inode, *stream);
+	}
 
-	prev_stream.seekp(offset);
+	FFS::log << "Seeking offset" << std::endl;
+	stream->seekp(offset);
 
 	// Add new content. If larger than current stream, will overwrite all and expand
 	// Otherwise, will keep data further than seek-point
+	FFS::log << "writing to stream" << std::endl;
 	size_t index = 0;
 	while(index < size)
-		FFS::write_c(prev_stream, buf[index++]);
+		FFS::write_c(*stream, buf[index++]);
 
-	auto new_blobs = FFS::encode(prev_stream);
-	FFS::FileHandle::update_blobs(fh, new_blobs, size);
+	FFS::log << "Written to stream" << std::endl;
+	// auto new_blobs = FFS::encode(prev_stream);
+	FFS::log << "updating stream" << std::endl;
+	FFS::FileHandle::update_stream(fh, stream);
 	
 	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
@@ -433,23 +448,28 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
 
-	std::stringbuf new_string_buf;
-	std::basic_iostream new_stream(&new_string_buf);
+	auto new_string_buf = std::make_shared<std::stringbuf>();;
+	auto new_stream = std::make_shared<std::basic_iostream<char>>(new_string_buf.get());
 
-	std::stringbuf curr_string_buf;
-	std::basic_iostream curr_stream(&curr_string_buf);
-
+	std::shared_ptr<std::basic_iostream<char>> curr_stream = nullptr;
+	
 	if(FFS::FileHandle::is_modified(fh)) {
-		auto curr_blobs = FFS::FileHandle::get_blobs(fh);
-		if(curr_blobs != nullptr) // If curr_blobs is nullptr, don't decode. Is no data
-			FFS::decode(curr_blobs, curr_stream);
-	} else
-		FFS::FS::read_file(inode, curr_stream);
+		// auto curr_blobs = FFS::FileHandle::get_blobs(fh);
+		curr_stream = FFS::FileHandle::get_stream(fh);
+		// if(curr_blobs != nullptr) // If curr_blobs is nullptr, don't decode. Is no data
+		// 	FFS::decode(curr_blobs, curr_stream);
+	} else {
+		auto prev_string_buf = std::make_shared<std::stringbuf>();;
+		curr_stream = std::make_shared<std::basic_iostream<char>>(prev_string_buf.get());
+		FFS::FS::read_file(inode, *curr_stream);
+	}
 
-	generic_truncate(curr_stream, new_stream, size);
+	generic_truncate(*curr_stream, *new_stream, size);
 
-	auto new_blobs = FFS::encode(new_stream);
-	FFS::FileHandle::update_blobs(fh, new_blobs, size);
+	// auto new_blobs = FFS::encode(new_stream);
+	// FFS::FileHandle::update_blobs(fh, new_blobs, size);
+
+	FFS::FileHandle::update_stream(fh, new_stream);
 
 	FFS::log << "End ffs_ftruncate " << path << std::endl << std::endl;
 	return 0;
