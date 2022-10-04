@@ -99,7 +99,7 @@ const JSONObject* FFS::API::JSON::parse(std::istream& json_stream) {
 		json_parser_char(&parser, json_stream.get());
 
 	if(!json_parser_is_done(&parser)) {
-		std::cerr << "parser not done!" << std::endl;
+		FFS::err << "parser not done!" << std::endl;
 		return nullptr;
 	}
 

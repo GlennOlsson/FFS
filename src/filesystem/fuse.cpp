@@ -546,79 +546,79 @@ static int ffs_utimens(const char* c_path, const struct timespec ts[2]) {
 
 // --- UNIMPLEMENTED ---
 static int ffs_flush(const char* path, struct fuse_file_info* fi) {
-	std::cerr << "UNIMPLEMENTED: flush" << std::endl;
+	FFS::err << "UNIMPLEMENTED: flush" << std::endl;
 	// Do nothing interesting, but don't return error
 	return 0;
 }
 
 static int ffs_readlink(const char* path, char* buf, size_t size) {
-	std::cerr << "UNIMPLEMENTED: readlink" << std::endl;
+	FFS::err << "UNIMPLEMENTED: readlink" << std::endl;
 	return -EPERM;
 }
 
 static int ffs_symlink(const char* to, const char* from) {
-	std::cerr << "UNIMPLEMENTED: symlink" << std::endl;
+	FFS::err << "UNIMPLEMENTED: symlink" << std::endl;
 	return -EPERM;
 }
 
 static int ffs_link(const char* from, const char* to) {
-	std::cerr << "UNIMPLEMENTED: link" << std::endl;
+	FFS::err << "UNIMPLEMENTED: link" << std::endl;
 	return -EPERM;
 }
 
 static int ffs_chmod(const char* path, mode_t mode) {
-	std::cerr << "UNIMPLEMENTED: chmod" << std::endl;
+	FFS::err << "UNIMPLEMENTED: chmod" << std::endl;
 	return 0;
 }
 
 static int ffs_chown(const char* path, uid_t uid, gid_t gid) {
-	std::cerr << "UNIMPLEMENTED: chown" << std::endl;
+	FFS::err << "UNIMPLEMENTED: chown" << std::endl;
 	return 0;
 }
 
 static int ffs_fsync(const char* path, int isdatasync, struct fuse_file_info* fi) {
-	std::cerr << "UNIMPLEMENTED: fsync" << std::endl;
+	FFS::err << "UNIMPLEMENTED: fsync" << std::endl;
 	return 0;
 }
 
 static int ffs_fsyncdir(const char* path, int isdatasync, struct fuse_file_info* fi) {
-	std::cerr << "UNIMPLEMENTED: fsyncdir" << std::endl;
+	FFS::err << "UNIMPLEMENTED: fsyncdir" << std::endl;
 	return 0;
 }
 
 
 //static int ffs_lock(const char* path, struct fuse_file_info* fi, int cmd, struct flock* locks) {
-//	std::cerr << "UNIMPLEMENTED: lock" << std::endl;
+//	FFS::err << "UNIMPLEMENTED: lock" << std::endl;
 //	return -EPERM;
 //}
 
 static int ffs_bmap(const char* path, size_t blocksize, uint64_t* blockno) {
-	std::cerr << "UNIMPLEMENTED: bmap" << std::endl;
+	FFS::err << "UNIMPLEMENTED: bmap" << std::endl;
 	return -EPERM;
 }
 
 //static int ffs_setxattr(const char* path, const char* name, const char* value, size_t size, int flags, uint32_t unknown) {
-//	std::cerr << "UNIMPLEMENTED: setxattr" << std::endl;
+//	FFS::err << "UNIMPLEMENTED: setxattr" << std::endl;
 //	return -EPERM;
 //}
 
 //static int ffs_getxattr(const char* path, const char* name, char* value, size_t size, uint32_t unknown) {
-//	std::cerr << "UNIMPLEMENTED: getxattr" << std::endl;
+//	FFS::err << "UNIMPLEMENTED: getxattr" << std::endl;
 //	return -EPERM;
 //}
 
 //static int ffs_listxattr(const char* path, char* list, size_t size) {
-//	std::cerr << "UNIMPLEMENTED: listxattr" << std::endl;
+//	FFS::err << "UNIMPLEMENTED: listxattr" << std::endl;
 //	return -EPERM;
 //}
 
 static int ffs_ioctl(const char* path, int cmd, void* arg, struct fuse_file_info* fi, unsigned int flags, void* data) {
-	std::cerr << "UNIMPLEMENTED: ioctl" << std::endl;
+	FFS::err << "UNIMPLEMENTED: ioctl" << std::endl;
 	return -EPERM;
 }
 
 static int ffs_poll(const char* path, struct fuse_file_info* fi, struct fuse_pollhandle* ph, unsigned* reventsp) {
-	std::cerr << "UNIMPLEMENTED: poll" << std::endl;
+	FFS::err << "UNIMPLEMENTED: poll" << std::endl;
 	return -EPERM;
 }
 
