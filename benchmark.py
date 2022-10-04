@@ -47,9 +47,11 @@ def verify_file(path):
 		random.seed(file_len)
 		expected_file_content = random.randbytes(file_len)
 
+		index = 0
 		for (a,b) in zip(file_content, expected_file_content):
 			if a != b:
-				raise "FILE NOT OK"
+				raise RuntimeError(f"FILE NOT OK at {index}")
+			index += 1
 		return True
 
 def mount():
@@ -167,9 +169,9 @@ def create_7mb_file():
 def read_7mb_file():
 	verify_file("bigboy.txt")
 
-# @bench_test
-# def remove_7mb_file():
-# 	os.remove(_path("bigboy.txt"))
+@bench_test
+def remove_7mb_file():
+	os.remove(_path("bigboy.txt"))
 
 # Run tests, one at a time. After all has been run, run again. TEST_ITERATIONS times in total
 def run_tests():
@@ -180,31 +182,28 @@ def run_tests():
 		print(f"Done with iter {i}")
 
 if __name__ == "__main__":
-	filesystem = 'ffs'
-	generate_file(70_000_000, 'bigboy.txt')
+	while filesystem not in filesystems:
+		print("Which filesystem: ")
+		filesystem = input()
 
-	# while filesystem not in filesystems:
-	# 	print("Which filesystem: ")
-	# 	filesystem = input()
+	print(f"Running {len(tests)} tests {TEST_ITERATIONS} times, at least {len(tests) * mount_sleep * TEST_ITERATIONS}s")
 
-	# print(f"Running {len(tests)} tests {TEST_ITERATIONS} times, at least {len(tests) * mount_sleep * TEST_ITERATIONS}s")
+	start = time.time_ns()
+	run_tests()
+	end = time.time_ns()
 
-	# start = time.time_ns()
-	# run_tests()
-	# end = time.time_ns()
+	total_time = (end - start) / 1_000_000_000
 
-	# total_time = (end - start) / 1_000_000_000
-
-	# with open(f"{filesystem}_bench.log", "w") as log:
-	# 	log.write("---- TESTS COMPLETE ----\n")
-	# 	log.write(f"Ran {len(tests)} tests {TEST_ITERATIONS} times for {filesystem}\n")
-	# 	log.write(f"Total of {total_time}s\n")
-	# 	for test_name in test_log:
-	# 		results = test_log[test_name]
-	# 		avg_ns = sum(results) / TEST_ITERATIONS
-	# 		res_str = functools.reduce(lambda pre, curr: pre + str(curr) + "\n", results, "")
-	# 		log.write(f"{test_name}: {avg_ns}ns\t({avg_ns / 1_000_000_000}s)")
-	# 		log.write(f"\n{res_str}\n")
+	with open(f"{filesystem}_bench.log", "w") as log:
+		log.write("---- TESTS COMPLETE ----\n")
+		log.write(f"Ran {len(tests)} tests {TEST_ITERATIONS} times for {filesystem}\n")
+		log.write(f"Total of {total_time}s\n")
+		for test_name in test_log:
+			results = test_log[test_name]
+			avg_ns = sum(results) / TEST_ITERATIONS
+			res_str = functools.reduce(lambda pre, curr: pre + str(curr) + "\n", results, "")
+			log.write(f"{test_name}: {avg_ns}ns\t({avg_ns / 1_000_000_000}s)")
+			log.write(f"\n{res_str}\n")
 
 # Writes slower for FFS than GCSF
 # Makes a lot of sense as it has to handle the inode table (upload it), requiring at 

@@ -12,5 +12,5 @@ fi
 log="$1.log"
 binary_out="$1.wks"
 
-time sudo iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -c -i0 -i1 -i2 -b $binary_out -f $bench_file > $log || notify_err Benchmark failed
+time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -c -i0 -i1 -i2 -b $binary_out -f $bench_file > $log || notify_err Benchmark failed
 notify Benchmark is done

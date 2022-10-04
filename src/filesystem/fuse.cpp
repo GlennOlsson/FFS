@@ -230,11 +230,12 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	auto inode = FFS::FileHandle::inode(fh);
 
 	std::shared_ptr<std::basic_iostream<char>> stream = nullptr;
+	std::shared_ptr<std::stringbuf> stream_buf = nullptr;
 
 	if(FFS::FileHandle::is_modified(fh))
 		stream = FFS::FileHandle::get_stream(fh);
 	else {
-		auto stream_buf = std::make_shared<std::stringbuf>();
+		stream_buf = std::make_shared<std::stringbuf>();
 		stream = std::make_shared<std::basic_iostream<char>>(stream_buf.get());
 		FFS::FS::read_file(inode, *stream);
 	}
@@ -271,7 +272,7 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 
 	std::shared_ptr<std::basic_iostream<char>> stream = nullptr;
 	
-	std::shared_ptr<std::stringbuf> new_buf;
+	std::shared_ptr<std::stringbuf> new_buf = nullptr;
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new stream, read as current file instead
 	if(FFS::FileHandle::is_modified(fh))
@@ -433,7 +434,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
 
-	auto new_string_buf = std::make_shared<std::stringbuf>();;
+	auto new_string_buf = std::make_shared<std::stringbuf>();
 	auto new_stream = std::make_shared<std::basic_iostream<char>>(new_string_buf.get());
 
 	std::shared_ptr<std::basic_iostream<char>> curr_stream = nullptr;
