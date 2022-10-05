@@ -27,27 +27,28 @@ lines = file_content.splitlines()
 def generate_graphs(name: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
 	ax = plt.axes(projection='3d')
 
-	fig = plt.figure(num=name, figsize=(16,10), dpi=180)
+	fig = plt.figure(num=name, figsize=(16,15), dpi=180)
 
 	for fignr in range(5):
 		ax = fig.add_subplot(3, 2, fignr + 1)
 
+		ax.set_title(f"File size = {y_vals[fignr]}")
+
 		X = []
 		Y = []
-		Z = []
 		row = z_vals[fignr]
 		for j in range(len(row)):
-			Y.append(y_vals[fignr])
 			X.append(x_vals[j])
-			Z.append(row[j])
+			Y.append(row[j])
 
 		ax.set_xlabel('Record length, kB')
 		ax.set_xscale('log', base=2)
 		ax.set_xticks(x_vals)
 		ax.get_xaxis().set_major_formatter(ScalarFormatter())
+
 		ax.set_ylabel('Performance, kB/s')
 
-		ax.scatter(X, Z, color="black")
+		ax.scatter(X, Y, color="black")
 	
 	fig.savefig(f"{fig_output_location}/{name}.pdf", bbox_inches='tight')
 
@@ -70,9 +71,6 @@ def parse_report(name: str, index: int) -> int:
 		values.append(list(map(lambda s: int(s), l[1:])))
 
 		i += 1
-
-	print(len(values), len(values[-1]))
-	print(len(file_sizes), len(rec_lens))
 
 	generate_graphs(name, rec_lens, file_sizes, values)
 
