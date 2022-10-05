@@ -7,9 +7,11 @@ import re
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, ScalarFormatter
 
-fig_output_location = "figs/ffs"
+report = "ffs"
 
-file_path = 'ffs.log'
+fig_output_location = "figs/" + report
+
+file_path = report + '.log'
 with open(file_path) as f:
 	file_content = f.read()
 
@@ -17,8 +19,6 @@ seek_str = "iozone test complete.\nExcel output is below:\n"
 seek_location = file_content.find(seek_str)
 
 file_content = file_content[seek_location + len(seek_str):]
-
-# print(file_content)
 
 report_pattern = r"\"(.+) report\""
 
@@ -90,37 +90,3 @@ def parse_file():
 		i += 1
 
 parse_file()
-
-# x_vals = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
-# y_vals = [1024, 2048, 4096, 8192, 16384]
-# z_vals = [
-# 	[71, 170, 169, 93, 77, 130, 74, 133, 157],
-# 	[183, 72, 150, 153, 216, 96, 67, 86, 32, 174],
-# 	[132, 105, 76, 112, 166, 131, 136, 87, 172, 101, 105],
-# 	[255, 337, 223, 275, 316, 193, 188, 253, 177, 169, 174, 239],
-# 	[320, 218, 288, 191, 291, 254, 363, 269, 340, 364, 317, 252, 208]
-# ]
-# fig = plt.figure(num="Random write", figsize=(16,10), dpi=180)
-# generate_figure(0, fig)
-# generate_figure(1, fig)
-# generate_figure(2, fig)
-# generate_figure(3, fig)
-# generate_figure(4, fig)
-
-# fig.savefig(fig, bbox_inches='tight')
-# generate_figure(0)
-
-# fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-
-# ax.set_xlabel('Record length, kB')
-# ax.set_xticks(x_vals)
-
-# ax.set_ylabel('File size, kB')
-# ax.set_yticks(y_vals)
-
-# ax.set_zlabel('Performance, kB/s')
-
-# surf = ax.scatter3D(X, Y, Z, color="black")
-
-
-# plt.show()
