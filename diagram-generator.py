@@ -97,24 +97,36 @@ z_vals = [
 X = []
 Y = []
 Z = []
-for i in range(len(z_vals)):
+for i in range(2, len(z_vals)):
 	row = z_vals[i]
 	for j in range(len(row)):
 		Y.append(y_vals[i])
 		X.append(x_vals[j])
 		Z.append(row[j])
+	
+	break
 
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+fig, ax = plt.subplots()
 
 ax.set_xlabel('Record length, kB')
 ax.set_xticks(x_vals)
 
-ax.set_ylabel('File size, kB')
-ax.set_yticks(y_vals)
+ax.set_ylabel('Performance, kB/s')
 
-ax.set_zlabel('Performance, kB/s')
+surf = ax.scatter(X, Z, color="black")
 
-surf = ax.scatter3D(X, Y, Z, color="black")
+# fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+# ax.set_xlabel('Record length, kB')
+# ax.set_xticks(x_vals)
+
+# ax.set_ylabel('File size, kB')
+# ax.set_yticks(y_vals)
+
+# ax.set_zlabel('Performance, kB/s')
+
+# surf = ax.scatter3D(X, Y, Z, color="black")
 
 
 plt.show()
