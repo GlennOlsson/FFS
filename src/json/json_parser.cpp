@@ -1,10 +1,10 @@
-#include "../api/json.h"
 #include "json.h"
+#include "../api/json.h"
+#include "../helpers/logger.h"
 
 #include <sstream>
 #include <iostream>
 #include <string>
-
 
 using FFS::API::JSON::JSONValue;
 using FFS::API::JSON::JSONObject;

@@ -43,6 +43,12 @@ void FFS::Cache::invalidate_root() {
 }
 
 void FFS::Cache::cache(FFS::post_id_t post_id, FFS::blob_t blob) {
+	auto post_size = blob->length();
+
+	// If post is bigger than biggest possible cache value, don't cache
+	if(post_size > MAX_CACHE_SIZE * 1000000)
+		return;
+
 	auto insert_result = post_cache->insert_or_assign(post_id, blob);
 	// If false, means that it was assigned, i.e. inode already existed before. Could be in cache
 	if(!insert_result.second) {
