@@ -9,3 +9,4 @@ src/secret.h
 *.log
 *.env
 gcsf/
+figs/
