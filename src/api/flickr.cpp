@@ -9,8 +9,8 @@
 #include <chrono>
 #include <thread>
 #include <liboauthcpp/liboauthcpp.h>
+#include <stdlib.h>
 
-#include "../secret.h"
 #include "curl.h"
 #include "../exceptions/exceptions.h"
 #include "../helpers/types.h"
@@ -29,14 +29,16 @@
 #define RETRIES 3
 
 // Should change if the keys don't work
-std::string oauth_key = FFS_FLICKR_ACCESS_TOKEN;
-std::string oauth_secret = FFS_FLICKR_ACCES_TOKEN_SECRET;
+std::string access_key = getenv(ENV_FFS_FLICKR_ACCESS_TOKEN);
+std::string access_secret =  getenv(ENV_FFS_FLICKR_ACCES_TOKEN_SECRET);
+std::string consumer_key = getenv(ENV_FFS_FLICKR_APP_CONSUMER_KEY);
+std::string consumer_secret = getenv(ENV_FFS_FLICKR_APP_CONSUMER_SECRET);
 
 int request_counter = 0;
 
 std::string get_auth_string(OAuth::Http::RequestType request_type, std::string full_url) {
-	OAuth::Consumer consumer(FFS_FLICKR_APP_CONSUMER_KEY, FFS_FLICKR_APP_CONSUMER_SECRET);
-    OAuth::Token token(FFS_FLICKR_ACCESS_TOKEN, FFS_FLICKR_ACCES_TOKEN_SECRET);
+	OAuth::Consumer consumer(consumer_key, consumer_secret);
+    OAuth::Token token(access_key, access_secret);
     OAuth::Client oauth(&consumer, &token);
 
 	std::string str = oauth.getURLQueryString(request_type, full_url);
@@ -57,10 +59,10 @@ flickcurl* get_fc() {
 
 	flickcurl_set_error_handler(fc, flickr_error_handler, nullptr);
 
-	flickcurl_set_oauth_client_key(fc, FFS_FLICKR_APP_CONSUMER_KEY);
-  	flickcurl_set_oauth_client_secret(fc, FFS_FLICKR_APP_CONSUMER_SECRET);
-	flickcurl_set_oauth_token(fc, oauth_key.c_str());
-	flickcurl_set_oauth_token_secret(fc, oauth_secret.c_str());
+	flickcurl_set_oauth_client_key(fc, consumer_key.c_str());
+  	flickcurl_set_oauth_client_secret(fc, consumer_secret.c_str());
+	flickcurl_set_oauth_token(fc, access_key.c_str());
+	flickcurl_set_oauth_token_secret(fc, access_secret.c_str());
 
 	return fc;
 }
@@ -160,7 +162,7 @@ const std::string& FFS::API::Flickr::get_image(const FFS::post_id_t& id) {
 }
 
 const FFS::API::Flickr::SearchResponse _most_recent_image() {
-	std::string method = "flickr.photos.getNotInSet";
+	std::string method = "flickr.people.getPhotos";
 
 	auto full_params = BASE_REST_PARAMS + 
 		"&method=" + method + 
@@ -180,6 +182,7 @@ const FFS::API::Flickr::SearchResponse _most_recent_image() {
 
 	try {
 		auto& photos_obj = json->get_obj("photos");
+
 		auto& photo_arr = photos_obj.get_arr("photo");
 		if(photo_arr.size() < 1) {
 			FFS::log << "No photos in array" << std::endl;

@@ -105,19 +105,23 @@ int main(int argc, char *argv[]) {
 
 	std::string argument = argv[1];
 
-	if(argument == "encode")
-		encode_main(argc - 1, ++argv);
-	else if(argument == "decode")
-		decode_main(argc - 1, ++argv);
-	else if(argument == "fs")
-		fs_interact(argc - 1, ++argv);
-	else if(argument == "fuse")
-		return FFS::FUSE::start(argc - 1, argv + 1);
-	else if(argument == "tweet")
-		tweet();
-	else {
-		cerr << "Argument not covered: " << argv[1] << endl;
-		return 1;
+	try {
+		if(argument == "encode")
+			encode_main(argc - 1, ++argv);
+		else if(argument == "decode")
+			decode_main(argc - 1, ++argv);
+		else if(argument == "fs")
+			fs_interact(argc - 1, ++argv);
+		else if(argument == "fuse")
+			return FFS::FUSE::start(argc - 1, argv + 1);
+		else if(argument == "tweet")
+			tweet();
+		else {
+			cerr << "Argument not covered: " << argv[1] << endl;
+			return 1;
+		}
+	} catch(std::exception& e) {
+		cerr << "Runtime error for main; " << e.what() << endl;
 	}
 
 	return 0;

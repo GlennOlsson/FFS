@@ -4,7 +4,6 @@ out.nosync
 *.out
 ffs/
 .vscode
-src/secret.h
 *.wks
 *.log
 *.env

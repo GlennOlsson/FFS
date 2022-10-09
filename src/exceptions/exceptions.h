@@ -8,9 +8,14 @@
 
 namespace FFS {
 
-class Exception: public std::runtime_error {
+class Exception: public std::exception {	
+public:
+	virtual const char* what() const noexcept {
+		return reason.c_str();
+	}
 protected:
-	Exception(std::string reason) : std::runtime_error(reason) {}
+	std::string reason;
+	Exception(std::string reason) : reason(reason) {}
 };
 
 class BadFFSFile: public FFS::Exception {
