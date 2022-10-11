@@ -1,6 +1,7 @@
-from cgi import parse
 from functools import reduce
-from typing import List
+from typing import List, Tuple
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 import numpy as np
@@ -68,9 +69,40 @@ def generate_table(name: str, x_vals: List[int], y_vals: List[int], z_vals: List
 	with open(f"{fig_output_location}/{name}.tex", "w") as f:
 		f.write(content)
 
-def generate_graphs(name: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
-	ax = plt.axes(projection='3d')
+def generate_boxplot(name: str, z_vals: List[List[int]], ax: Axes):
+	all_data = [item for l in z_vals for item in l]
 
+	ax.boxplot(all_data, vert = 0)
+
+	# ax.get_xaxis().tick_bottom()
+	# ax.get_yaxis().tick_left()
+
+	ax.set_ylabel(name)
+	plt.tick_params(left=False, labelleft=False)
+
+	ax.set_xlabel("Performance, kB/s")
+
+	ax.get_yaxis().set_major_formatter(ScalarFormatter())
+	ax.ticklabel_format(useOffset=False, style="plain")
+
+def generate_boxplots(reports: List[Tuple[str, List[List[str]]]]):
+	fig = plt.figure(num=title, figsize=(14,15), dpi=180)
+	
+	fig.suptitle(title, fontsize=16)
+
+	fig_nr = 0
+	for name, values in reports:
+		ax = fig.add_subplot(6, 1, fig_nr + 1)
+
+		generate_boxplot(name, values, ax)
+
+		fig_nr += 1
+
+	
+	fig.tight_layout(rect=[0, 0.01, 1, 0.99])
+	fig.savefig(f"{fig_output_location}/{title}-box.pdf")
+
+def generate_graphs(name: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
 	fig = plt.figure(num=name, figsize=(16,18), dpi=180)
 
 	for fignr in range(5):
@@ -96,7 +128,7 @@ def generate_graphs(name: str, x_vals: List[int], y_vals: List[int], z_vals: Lis
 	
 	fig.savefig(f"{fig_output_location}/{name}.pdf", bbox_inches='tight')
 
-def parse_report(name: str, index: int) -> int:
+def parse_report(name: str, index: int) -> Tuple[int, List[List[int]]]:
 	rec_lens_line = lines[index]
 	# Split by whitespace and convert to numbers. First and last char of str is "
 	rec_lens = list(map(lambda s: int(s[1:-1]), rec_lens_line.split()))
@@ -116,13 +148,17 @@ def parse_report(name: str, index: int) -> int:
 
 		i += 1
 
-	generate_graphs(name, rec_lens, file_sizes, values)
-	generate_table(name, rec_lens, file_sizes, values)
+	# generate_graphs(name, rec_lens, file_sizes, values)
+	# generate_table(name, rec_lens, file_sizes, values)
 
-	return i
+	return (i, values)
 
 def parse_file():
 	i = 0
+
+	# Report name, and the values of the report
+	reports: List[Tuple[str, List[List[str]]]] = []
+	
 	while i < len(lines):
 		l = lines[i]
 		
@@ -130,8 +166,11 @@ def parse_file():
 		if m is not None:
 			report_name = m.group(1)
 			print(report_name)
-			i = parse_report(report_name, i + 1)
+			i, report_vals = parse_report(report_name, i + 1)
 
+			reports.append((report_name, report_vals))
 		i += 1
+	
+	generate_boxplots(reports)
 
 parse_file()
