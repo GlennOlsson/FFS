@@ -76,13 +76,13 @@ static int ffs_open(const char* path, struct fuse_file_info* fi) {
 		fi->fh = fh;
 		fi->nonseekable = true;
 	} catch(FFS::NoPhotoWithID& e1) {
-		FFS::err << "Could not open dir \"" << path << "\" no file with ID: " << e1.what() << std::endl;
+		FFS::err << "Could not open file \"" << path << "\" no file with ID: " << e1.what() << std::endl;
 		return -ENOENT;
 	} catch(FFS::NoFileWithInode& e2) {
-		FFS::err << "Could not open dir \"" << path << "\" no file with inode: " << e2.what() << std::endl;
+		FFS::err << "Could not open file \"" << path << "\" no file with inode: " << e2.what() << std::endl;
 		return -ENOENT;
 	} catch(FFS::Exception& e3) {
-		FFS::err << "Could not open dir \"" << path << "\", unexpected FFS error: " << e3.what() << std::endl;
+		FFS::err << "Could not open file \"" << path << "\", unexpected FFS error: " << e3.what() << std::endl;
 		return -ENOENT;
 	}
 
@@ -152,7 +152,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 
 		try {
 			generic_getattr(entry, -1, stat_struct);
-		} catch(FFS::NoPhotoWithID) {
+		} catch(FFS::NoPhotoWithID& e) {
 			FFS::err << "getattr: Root directory exists in table but does not exist. Resetting table and trying again" << std::endl;
 			entry->length = 0;
 			entry->post_ids = nullptr;
@@ -167,10 +167,10 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	try {
 		traverser = FFS::FS::traverse_path(path);
 		FFS::FS::verify_in(traverser);
-	} catch(FFS::NoPathWithName) {
+	} catch(FFS::NoPathWithName& e1) {
 		// FFS::err << "Some dir in path " << path << " threw NoPathWithName" << std::endl;
 		return -ENOENT;
-	} catch(FFS::NoPhotoWithID) {
+	} catch(FFS::NoPhotoWithID& e2) {
 		FFS::err << "Some dir in path " << path << " threw NoPhotoWithID" << std::endl;
 		return -ENOENT;
 	}
@@ -182,7 +182,7 @@ static int ffs_getattr(const char* c_path, struct stat* stat_struct) {
 	auto entry = table->entry(inode);
 	try {
 		generic_getattr(entry, -1, stat_struct);
-	} catch(FFS::NoPhotoWithID) {
+	} catch(FFS::NoPhotoWithID& e1) {
 		// Could not find some photo, remove from table and directory
 		FFS::err << "getattr: File or directory exists in table but does not exist" << std::endl;
 		table->entries->erase(inode);
@@ -623,7 +623,7 @@ static int ffs_poll(const char* path, struct fuse_file_info* fi, struct fuse_pol
 }
 
 
-static struct fuse_operations ffs_operations = {
+struct fuse_operations ffs_operations = {
 	.getattr	= ffs_getattr,
 	.fgetattr	= ffs_fgetattr,
 	.read		= ffs_read,   

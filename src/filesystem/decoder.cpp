@@ -2,6 +2,7 @@
 
 #include "../helpers/constants.h"
 #include "../helpers/functions.h"
+#include "../helpers/logger.h"
 #include "../exceptions/exceptions.h"
 
 #include "crypto.h"
@@ -45,6 +46,7 @@ uint32_t assert_header(char* data) {
 }
 
 void decode_file(Magick::Image& image, std::ostream& output_stream) {
+	FFS::log << "DEcode file " << std::endl;
 	Magick::Pixels pixel_view(image);
 
 	Magick::Geometry image_size = image.size();
@@ -83,6 +85,8 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	delete[] encrypted_data;
 	// Cannot delete void*
 	delete[] (char*) decryption.ptr;
+
+	FFS::log << "Decoded file " << std::endl;
 }
 
 void FFS::decode(const FFS::blobs_t blobs, std::ostream& file_stream){

@@ -190,26 +190,26 @@ TEST_CASE("Creating file or dir already existing throws", "[fs]") {
         auto stream = std::make_shared<std::ifstream>(TEST_FILE_TXT);
         FFS::FS::create_file(TEST_PATH_TXT, stream);
         FAIL("Did not throw when creating file");
-    } catch(FFS::FileAlreadyExists) {}
+    } catch(FFS::FileAlreadyExists& e) {}
 
     // Create existing dir
     try {
         FFS::FS::create_dir(TEST_PATH_DIR_LEVEL_2);
         FAIL("Did not throw when creating dir");
-    } catch(FFS::FileAlreadyExists) {}
+    } catch(FFS::FileAlreadyExists& e) {}
 
     // Create dir on existing file location
     try {
         FFS::FS::create_dir(TEST_PATH_TXT);
         FAIL("Did not throw when creating dir on existing file location");
-    } catch(FFS::FileAlreadyExists) {}
+    } catch(FFS::FileAlreadyExists& e) {}
 
     // Create file on existing dir location
     try {
         auto stream = std::make_shared<std::ifstream>(TEST_FILE_TXT);
         FFS::FS::create_file(TEST_PATH_DIR_LEVEL_1, stream);
         FAIL("Did not throw when creating file on existing dir location");
-    } catch(FFS::FileAlreadyExists) {}
+    } catch(FFS::FileAlreadyExists& e) {}
 }
 
 TEST_CASE("Dirs and files are marked as such", "[fs]") {

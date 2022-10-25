@@ -10,8 +10,8 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, ScalarFormatter
 import os
 
-report = "fake-ffs"
-title = "Fejk FFS"
+report = "gcsf"
+title = "GCSF"
 
 fig_output_location = "../doc/figures/benchmarking/" + report
 
@@ -148,8 +148,8 @@ def parse_report(name: str, index: int) -> Tuple[int, List[List[int]]]:
 
 		i += 1
 
-	# generate_graphs(name, rec_lens, file_sizes, values)
-	# generate_table(name, rec_lens, file_sizes, values)
+	generate_graphs(name, rec_lens, file_sizes, values)
+	generate_table(name, rec_lens, file_sizes, values)
 
 	return (i, values)
 

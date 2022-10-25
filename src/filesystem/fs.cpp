@@ -63,7 +63,7 @@ std::shared_ptr<FFS::Directory> get_root_dir() {
 
 	try {
 		dir = FFS::FS::get_dir(FFS_ROOT_INODE);
-	} catch(FFS::NoPhotoWithID) {
+	} catch(FFS::NoPhotoWithID& e) {
 		// if the root dir had error fetching, replace table with new table and re-run function
 		FFS::err << "Could not get root dir, creating new table" << std::endl;
 		auto table = std::make_shared<FFS::InodeTable>();
@@ -289,7 +289,7 @@ void FFS::FS::create_file(std::string path, std::shared_ptr<std::istream> stream
 	auto parent_inode = traverser->parent_inode;
 
 	// If stream is nullptr, create as empty file in inode table. Means that is does not have to be uploaded
-	std::shared_ptr<std::__1::vector<FFS::post_id_t>> posts = nullptr;
+	posts_t posts = nullptr;
 	size_t stream_length = 0;
 	if(stream != nullptr) {
 		stream_length = FFS::stream_size(*stream);
@@ -367,11 +367,11 @@ bool FFS::FS::exists(std::string path) {
 	try {
 		auto traverser = traverse_path(path);
 		return traverser->parent_dir->entries->count(traverser->filename) > 0;
-	} catch(FFS::BadFFSPath) {
+	} catch(FFS::BadFFSPath& e1) {
 		return false;
-	} catch(FFS::NoFileWithName) { // Thrown if parent dir does not exist
+	} catch(FFS::NoFileWithName& e2) { // Thrown if parent dir does not exist
 		return false;
-	} catch(std::exception& e) {
+	} catch(std::exception& e3) {
 		return false;
 	}
 }

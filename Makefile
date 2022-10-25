@@ -27,7 +27,7 @@ $(out_dir):
 	@mkdir $(out_dir)
 
 all: | $(out_dir)
-	@$(C_CC $(c_files) -c -o out.nosync/c.out
+	@$(C_CC) $(c_file) -c -o out.nosync/c.out
 	@$(CPP_CC) $(all_flags) src/main.cpp out.nosync/c.out $(patsubst $(@F).cpp, $(out_dir)/%.o, $(cpp_files)) -o $(out_dir)/main.out  || notify_err FFS compile failed
 	@notify FFS compile is done
 

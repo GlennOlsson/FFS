@@ -139,7 +139,7 @@ const std::string& _get_image(const FFS::post_id_t& id) {
 				return url;
 			}
 		}
-	} catch(FFS::JSONKeyNonexistant) {
+	} catch(FFS::JSONKeyNonexistant& e) {
 		throw FFS::NoPhotoWithID(id);
 	}
 	// if not found
@@ -196,7 +196,7 @@ const FFS::API::Flickr::SearchResponse _most_recent_image() {
 		FFS::API::Flickr::SearchResponse sr = {o_url, id};
 
 		return sr;
-	} catch(FFS::JSONKeyNonexistant) {
+	} catch(FFS::JSONKeyNonexistant& e) {
 		FFS::log << "JSON key error with most recent flickr image" << std::endl;
 		throw FFS::NoPhotosOnFlickr();
 	}
@@ -249,7 +249,7 @@ const FFS::API::Flickr::SearchResponse _search_image(const std::string& tag) {
 		FFS::API::Flickr::SearchResponse sr = {o_url, id};
 
 		return sr;
-	} catch(FFS::JSONKeyNonexistant) {
+	} catch(FFS::JSONKeyNonexistant& e) {
 		throw FFS::NoPhotoWithTag(tag);
 	}
 }

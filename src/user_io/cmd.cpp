@@ -35,7 +35,7 @@ void save() {
 			fclose(file);
 			
 			FFS::FS::sync_inode_table();
-		} catch(FFS::FileAlreadyExists) {
+		} catch(FFS::FileAlreadyExists& e1) {
 			cout << "Cannot overwrite" << endl;
 		}
     } else {
@@ -53,7 +53,7 @@ void create_dir() {
 		cout << "Created directory" << endl;
 		
 		FFS::FS::sync_inode_table();
-	} catch(FFS::FileAlreadyExists) {
+	} catch(FFS::FileAlreadyExists& e1) {
 		cout << "Cannot overwrite" << endl;
 	}
 }
@@ -195,10 +195,14 @@ void parse_input(string& cmd) {
 
 void interact() {
 	
+	int i = 0;
 	string input;
 	while(1) {
 		cout << "Enter command: ";
-		cin >> input;
+		if(i++ == 0)
+			input = "ls";
+		else
+			cin >> input;
 		parse_input(input);
 		cout << endl;
 	}

@@ -8,6 +8,9 @@
 
 #include <iostream>
 #include <Magick++.h>
+
+#include <MagickWand/MagickWand.h>
+
 #include <string>
 #include <math.h>
 #include <fstream>
@@ -51,6 +54,7 @@ FFS::blob_t FFS::create_image(std::istream& input_stream, uint32_t length) {
 
 	char* data = new char[data_bytes];
 	// Write header and all stream data to data ptr
+
 	encode_data(input_stream, length, data);
 
 	auto encryption = FFS::Crypto::encrypt(data, data_bytes);
@@ -68,13 +72,16 @@ FFS::blob_t FFS::create_image(std::istream& input_stream, uint32_t length) {
 	// Find closest square that can fit the pixels
 	uint32_t width = ceil(sqrt(required_pixels));
 	uint32_t height = ceil((double) required_pixels / (double) width);
-	uint32_t total_pixels = width * height;
 
+	// Some bug in v. 7.1.051
+	MagickCore::MagickWandGenesis();
+
+	Magick::Image image(Magick::Geometry(width, height), Magick::ColorRGB(0, 0, 0));
+
+	uint32_t total_pixels = width * height;
 	// Total bytes in image, is data bytes + filler bytes
 	// Per pixel, 3 colors (quantum). Per Quantum, 2 bytes. i.e. 6 bytes per pixel
 	uint32_t total_bytes = total_pixels * 6;
-
-	Magick::Image image(Magick::Geometry(width, height), Magick::Color("white"));
 
 	image.magick(FFS_IMAGE_TYPE);
 	image.quality(100);
@@ -137,6 +144,7 @@ FFS::blobs_t FFS::encode(std::istream& file_stream) {
 		uint32_t out_file_size = std::min(FFS_MAX_FILE_SIZE - FFS_HEADER_SIZE, (int) length);
 
 		FFS::blob_t blob = create_image(file_stream, out_file_size);
+
 		blobs->push_back(blob);
 
 		length -= out_file_size;

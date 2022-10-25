@@ -28,6 +28,7 @@
 #include <filesystem>
 #include <chrono>
 #include <thread>
+#include <pthread.h>
 
 std::string path_of(FFS::post_id_t id) {
 	std::stringstream path_stream;
@@ -204,9 +205,19 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 		FFS::State::deleted(post_id);
 	};
 
-	// If multithread is true, detach. Else, run on same thread
-	if(multithread) 
-		std::thread(func).detach();
+	// If multithread is true, lower prio and detach. Else, run on same thread
+	if(multithread) {
+		auto thread = std::thread(func);
+
+ 		sched_param sch;
+		sch.sched_priority = 2;
+		if(pthread_setschedparam(thread.native_handle(), SCHED_RR, &sch)) {
+			FFS::err << "Couldn't set priority of thread, oh well" << std::endl;
+		}
+		try {
+			thread.detach();
+		} catch(std::system_error& e) {} // Do nothing if can't join thread
+	}
 	else
 		func();
 
