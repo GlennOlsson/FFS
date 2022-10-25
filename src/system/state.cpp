@@ -34,8 +34,6 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 			blob = nullptr;
 		}
 
-		FFS::log << "Got inode table" << std::endl;
-
 		// If could get blob, save new post_id_t and inode table
 		if(blob != nullptr) {
 			try {
@@ -65,10 +63,7 @@ void FFS::State::clear_inode_table() {
 }
 
 void FFS::State::save_table() {
-	FFS::log << "Saving table" << std::endl;
 	auto old_id = FFS::State::inode_table_id;
-
-	FFS::log << "Old table id: '" << old_id << "'" << std::endl;
 
 	std::shared_ptr<FFS::InodeTable> table = FFS::State::inode_table;
 	if(table == nullptr) {
@@ -76,17 +71,10 @@ void FFS::State::save_table() {
 		return;
 	}
 
-	FFS::log << "New table address: '" << table << "'" << std::endl;
-
 	auto blobs = FFS::Storage::blobs(*table);
-
-	FFS::log << "Decoded new table, blobs address: '" << blobs << "'" << std::endl;
-	FFS::log << "Blobs count: '" << blobs->size() << "'" << std::endl;
 	
 	// DANGEROUS: Assuming only one blob for inode table, _should_ be fine!
 	FFS::State::inode_table_id = FFS::Storage::upload_file(blobs->front(), true);
-
-	FFS::log << "New table id: '" << inode_table_id << "'" << std::endl;
 
 	// If old id existed, remove old post
 	if(old_id.size() > 2) {
