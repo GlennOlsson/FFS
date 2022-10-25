@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <Magick++.h>
+#include <MagickWand/MagickWand.h>
 #include <string>
 #include <math.h>
 #include <fstream>
@@ -90,11 +91,20 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 }
 
 void FFS::decode(const FFS::blobs_t blobs, std::ostream& file_stream){
+	FFS::log << "decoding blobs: " << blobs->size() << std::endl;
 
+	// Some bug in v. 7.1.051
+	MagickCore::MagickWandGenesis();
 	Magick::Image image;
+
+	FFS::log << "Created image: " << std::endl;
 	// std::string filename;
 	for(auto blob: *blobs) {
+		FFS::log << "For blob " << blob << std::endl;
+		// Some bug in v. 7.1.051
+		MagickCore::MagickWandGenesis();
 		image = Magick::Image(*blob);
+		FFS::log << "Created image for blob " << blob << std::endl;
 		decode_file(image, file_stream);
 	}
 }

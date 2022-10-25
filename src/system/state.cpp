@@ -34,6 +34,8 @@ std::shared_ptr<FFS::InodeTable> FFS::State::get_inode_table() {
 			blob = nullptr;
 		}
 
+		FFS::log << "Got inode table" << std::endl;
+
 		// If could get blob, save new post_id_t and inode table
 		if(blob != nullptr) {
 			try {
