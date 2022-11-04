@@ -36,11 +36,11 @@ void save_header(char* data, uint32_t length) {
 	*((uint32_t*) &data[12]) = length;
 }
 
-void encode_data(std::istream& input_stream, uint32_t stream_len, char* data) {
-	save_header(data, stream_len);
+void encode_data(std::istream& input_stream, uint32_t length, char* data) {
+	save_header(data, length);
 	
 	uint32_t byte_index = FFS_HEADER_SIZE;
-	while(input_stream)
+	while(byte_index < (length + FFS_HEADER_SIZE))
 		FFS::read_c(input_stream, data[byte_index++]);
 }
 

@@ -7,7 +7,7 @@ import threading
 import time
 from typing import Callable, List
 
-TEST_ITERATIONS = 2
+TEST_ITERATIONS = 1
 
 filesystem: str = " "
 mount_process: subprocess.Popen
@@ -163,7 +163,7 @@ def bench_test(func: Callable[[], None]):
 
 @bench_test
 def create_7mb_file():
-	generate_file(7_000_000, "bigboy.txt")
+	generate_file(250_000_000, "bigboy.txt")
 
 @bench_test
 def read_7mb_file():

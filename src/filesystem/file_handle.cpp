@@ -54,12 +54,13 @@ public:
 		return this->parent_inode;
 	}
 
-	void set_stream(std::shared_ptr<std::iostream> stream, std::shared_ptr<std::stringbuf> buf) {
+	void set_stream(std::shared_ptr<std::iostream> stream, std::shared_ptr<std::stringbuf> buf, bool modified) {
 		this->stream = stream;
 		// If buf == nullptr, don't update buffer. Assume buffer is same as before
 		if(buf != nullptr)
 			this->buf = buf;
-		this->modified = true;
+		// If has been modified once, will always be considered modified
+		this->modified = modified || this->modified;
 	}
 
 	std::shared_ptr<std::iostream> get_stream() {
@@ -74,8 +75,16 @@ public:
 		return this->size;
 	}
 
+	bool is_cached() {
+		return this->stream != nullptr;
+	}
+
 	bool is_modified() {
 		return this->modified;
+	}
+
+	size_t opens() {
+		return this->open_calls;
 	}
 };
 
@@ -160,7 +169,7 @@ FFS::file_handle_t FFS::FileHandle::create(std::string path) {
 	auto buf = std::make_shared<std::stringbuf>();
 	auto stream = std::make_shared<std::basic_iostream<char>>(buf.get());
 
-	file_handle.set_stream(stream, buf);
+	file_handle.set_stream(stream, buf, true);
 	open_files.insert({inode, file_handle});
 
 	auto parent_dir = traverser->parent_dir;
@@ -181,6 +190,7 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 	auto& open_file = get_open_file(inode);
 
 	bool last_close = open_file.close();
+
 	if(last_close) {
 		if(open_file.is_modified()) {
 			// Save open file/dir, (parent dir?) and inode table
@@ -192,7 +202,9 @@ void FFS::FileHandle::close(FFS::file_handle_t fh) {
 			auto current_posts = inode_entry->post_ids;
 
 			auto stream = open_file.get_stream();
+
 			auto blobs = FFS::encode(*stream);
+
 			posts_t posts = nullptr;
 			if(blobs != nullptr) 
 				posts = FFS::Storage::upload_file(blobs);
@@ -224,10 +236,14 @@ FFS::inode_t FFS::FileHandle::parent(FFS::file_handle_t fh) {
 	return get_open_file(inode).parent();
 }
 
-void FFS::FileHandle::update_stream(FFS::file_handle_t fh, std::shared_ptr<std::iostream> stream, std::shared_ptr<std::stringbuf> buf) {
+void FFS::FileHandle::update_stream(
+	FFS::file_handle_t fh, std::shared_ptr<std::iostream> stream, 
+	std::shared_ptr<std::stringbuf> buf, 
+	bool did_modify
+) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
-	open_file.set_stream(stream, buf);
+	open_file.set_stream(stream, buf, did_modify);
 	open_file.set_size(FFS::stream_size(*stream));
 }
 
@@ -238,7 +254,7 @@ std::shared_ptr<std::iostream> FFS::FileHandle::get_stream(FFS::file_handle_t fh
 	return open_file.get_stream();
 }
 
-bool FFS::FileHandle::is_modified(FFS::file_handle_t fh) {
+bool FFS::FileHandle::is_cached(FFS::file_handle_t fh) {
 	auto inode = FFS::FileHandle::inode(fh);
 
 	// Special case if it does not contain, simply has not been modified
@@ -246,5 +262,5 @@ bool FFS::FileHandle::is_modified(FFS::file_handle_t fh) {
 		return false;
 
 	auto& open_file = get_open_file(inode);
-	return open_file.is_modified();
+	return open_file.is_cached();
 }

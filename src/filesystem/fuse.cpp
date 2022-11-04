@@ -99,7 +99,7 @@ static int ffs_releasedir(const char* path, struct fuse_file_info *fi) {
 }
 
 static int ffs_release(const char* path, struct fuse_file_info *fi) {
-	FFS::log << "Begin ffs_release " << path << std::endl;
+	FFS::log << "Begin ffs_release... " << path << std::endl;
 	FFS::FileHandle::close(fi->fh);
 
 	FFS::log << "End ffs_release " << path << std::endl << std::endl;
@@ -109,7 +109,7 @@ static int ffs_release(const char* path, struct fuse_file_info *fi) {
 void generic_getattr(std::shared_ptr<FFS::InodeEntry> entry, FFS::file_handle_t fh, struct stat* stat_struct) {
 	if(entry->is_dir) {
 		std::shared_ptr<FFS::Directory> dir;
-		if(FFS::FileHandle::is_modified(fh)) {
+		if(FFS::FileHandle::is_cached(fh)) {
 			auto stream = FFS::FileHandle::get_stream(fh);
 			if(stream != nullptr) 
 				dir = FFS::Directory::deserialize(*stream);
@@ -232,12 +232,13 @@ static int ffs_read(const char* path, char* buf, size_t size, off_t offset, stru
 	std::shared_ptr<std::basic_iostream<char>> stream = nullptr;
 	std::shared_ptr<std::stringbuf> stream_buf = nullptr;
 
-	if(FFS::FileHandle::is_modified(fh))
+	if(FFS::FileHandle::is_cached(fh))
 		stream = FFS::FileHandle::get_stream(fh);
 	else {
 		stream_buf = std::make_shared<std::stringbuf>();
 		stream = std::make_shared<std::basic_iostream<char>>(stream_buf.get());
 		FFS::FS::read_file(inode, *stream);
+		FFS::FileHandle::update_stream(fh, stream, stream_buf, false);
 	}
 	
 	stream->seekg(offset);
@@ -275,7 +276,7 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 	std::shared_ptr<std::stringbuf> new_buf = nullptr;
 	// If offset > 0, read current file and seek to offset
 	// If the file has been modified, i.e. is storing new stream, read as current file instead
-	if(FFS::FileHandle::is_modified(fh))
+	if(FFS::FileHandle::is_cached(fh))
 		stream = FFS::FileHandle::get_stream(fh);
 	else {
 		new_buf = std::make_shared<std::stringbuf>();
@@ -292,7 +293,7 @@ static int ffs_write(const char* path, const char* buf, size_t size, off_t offse
 		FFS::write_c(*stream, buf[index++]);
 
 	// new_buf is nullptr if stream is same as before, filehandle will not update buffer in that case
-	FFS::FileHandle::update_stream(fh, stream, new_buf);
+	FFS::FileHandle::update_stream(fh, stream, new_buf, true);
 	
 	FFS::log << "End ffs_write " << path << ", written "<< size << " bytes" << std::endl << std::endl;
 	return size;
@@ -439,7 +440,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 
 	std::shared_ptr<std::basic_iostream<char>> curr_stream = nullptr;
 	
-	if(FFS::FileHandle::is_modified(fh))
+	if(FFS::FileHandle::is_cached(fh))
 		curr_stream = FFS::FileHandle::get_stream(fh);
 	else {
 		auto prev_string_buf = std::make_shared<std::stringbuf>();;
@@ -449,7 +450,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 
 	generic_truncate(*curr_stream, *new_stream, size);
 
-	FFS::FileHandle::update_stream(fh, new_stream, new_string_buf);
+	FFS::FileHandle::update_stream(fh, new_stream, new_string_buf, true);
 
 	FFS::log << "End ffs_ftruncate " << path << std::endl << std::endl;
 	return 0;

@@ -21,13 +21,13 @@ namespace FFS::FileHandle {
 	FFS::inode_t parent(FFS::file_handle_t);
 
 	// Update stream and stream buffer of file handle which should be uploaded on close
-	void update_stream(FFS::file_handle_t, std::shared_ptr<std::iostream>, std::shared_ptr<std::stringbuf>);
+	void update_stream(FFS::file_handle_t, std::shared_ptr<std::iostream>, std::shared_ptr<std::stringbuf>, bool);
 
 	// Get current stream, not updated in storage	
 	std::shared_ptr<std::iostream> get_stream(FFS::file_handle_t);
 
 	// If the file or directory has been modified, i.e. if it has blobs to get
-	bool is_modified(FFS::file_handle_t);
+	bool is_cached(FFS::file_handle_t);
 }
 
 #endif

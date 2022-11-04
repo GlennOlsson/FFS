@@ -55,8 +55,8 @@ void decode_file(Magick::Image& image, std::ostream& output_stream) {
 	auto encrypted_pixel_data = pixel_view.get(0, 0, image_size.width(), image_size.height());
 	uint32_t encrypted_data_len = ((unsigned short) encrypted_pixel_data[0] << 16) | (unsigned short) encrypted_pixel_data[1];
 
-	if(encrypted_data_len > FFS_MAX_FILE_SIZE)
-		throw FFS::BadFFSFile("Encrypted data length to big");
+	if(encrypted_data_len > FFS_MAX_FLICKER_SIZE)
+		throw FFS::BadFFSFile("Encrypted data length to big, is " + std::to_string(encrypted_data_len));
 	
 
 	// Skip 4 first bytes == stores encrypted data length
