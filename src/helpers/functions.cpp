@@ -8,6 +8,8 @@
 
 #include <chrono>
 
+void FFS::set_random_seed(int v) { srand(v); }
+
 uint32_t FFS::random_int() { return rand(); }
 
 uint32_t FFS::random_int(uint32_t high) { return random_int() % high; }

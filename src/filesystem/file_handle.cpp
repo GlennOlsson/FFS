@@ -243,6 +243,11 @@ void FFS::FileHandle::update_stream(
 ) {
 	auto inode = FFS::FileHandle::inode(fh);
 	auto& open_file = get_open_file(inode);
+
+	// Reset stream pointers
+	stream->seekg(0);
+	stream->seekp(0);
+	
 	open_file.set_stream(stream, buf, did_modify);
 	open_file.set_size(FFS::stream_size(*stream));
 }

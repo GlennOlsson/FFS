@@ -3,6 +3,9 @@
 #include <iostream>
 #include <string>
 namespace FFS {	 
+
+	void set_random_seed(int);
+
 	uint32_t random_int();
 	/** 
 	 * Exclusive

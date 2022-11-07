@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <Magick++.h>
 
 #define INPUT_FILE_PATH std::string("/tmp/ffs_in")
@@ -131,5 +132,47 @@ TEST_CASE("Ensure decoder throws when image is not FFS image", "[coders]") {
 		FAIL("Did not throw exception");
 	} catch(const FFS::BadFFSFile& b) {
 		SUCCEED("Threw exception as expected");
+	}
+}
+
+TEST_CASE("Ensure can encode and decode big file", "[a]") {
+	// 250mb
+	const auto FILE_SIZE = 250000000;
+	auto seed = FFS::curr_milliseconds();
+
+	REQUIRE(FILE_SIZE > FFS_MAX_FILE_SIZE);
+
+	FFS::blobs_t blobs;
+	// Own scope so that buf and stream are freed after 
+	{
+		std::stringbuf buf;
+		std::basic_iostream<char> stream(&buf);
+
+		FFS::set_random_seed(seed);
+		char c;
+		for(int i = 0; i < FILE_SIZE; ++i) {
+			c = FFS::random_byte();
+			FFS::write_c(stream, c);
+		}
+
+		blobs = FFS::encode(stream);
+	}
+
+	REQUIRE(blobs->size() == 2);
+
+	std::stringbuf buf;
+	std::basic_iostream<char> stream(&buf);
+	
+	FFS::decode(blobs, stream);
+
+	REQUIRE(FFS::stream_size(stream) == FILE_SIZE);
+
+	FFS::set_random_seed(seed);
+
+	char c, r;
+	for(int i = 0; i < FILE_SIZE; ++i) {
+		FFS::read_c(stream, c);
+		r = FFS::random_byte();
+		REQUIRE(c == r);
 	}
 }
