@@ -9,35 +9,34 @@ import re
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, ScalarFormatter
 import os
+import math
 
-report = "gcsf"
-title = "GCSF"
+files = {
+	"ffs": "FFS",
+	"fejk-ffs": "Fejk FFS",
+	"gcsf": "GCSF",
+	"local": "APFS"
+}
 
-fig_output_location = "../doc/figures/benchmarking/" + report
+fig_output_location = "../doc/figures/benchmarking"
+
+def output_path(fig_name: str, fs: str):
+	return f"{fig_output_location}/{fs}/{fig_name}"
 
 if not os.path.exists(fig_output_location):
 	os.mkdir(fig_output_location)
 
-file_path = report + '.log'
-with open(file_path) as f:
-	file_content = f.read()
-
-file_content = file_content.replace("Reader", "Read")
-file_content = re.sub(re.compile(r"[Ww]riter") , "Write", file_content)
-
-seek_str = "iozone test complete.\nExcel output is below:\n"
-seek_location = file_content.find(seek_str)
-
-file_content = file_content[seek_location + len(seek_str):]
+for fs in files.keys():
+	path = output_path("", fs)
+	if not os.path.exists(path):
+		os.mkdir(path)
 
 report_pattern = r"\"(.+) report\""
-
-lines = file_content.splitlines()
 
 def underscore_case(s: str):
 	return s.replace(" ", "_").lower()
 
-def generate_table(name: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
+def generate_table(test_name: str, fs: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
 	columns = len(x_vals)
 
 	rows_str = "\n"
@@ -46,10 +45,11 @@ def generate_table(name: str, x_vals: List[int], y_vals: List[int], z_vals: List
 		# Add each z value for the row, and append with empty {} for each None value so each table has the same amount of rows
 		rows_str += "\t\t\t\\textbf{" + str(row) + "} " + reduce(lambda a, b: a + " & " + str(b), z_vals[row_i], "") + reduce(lambda a, b: a + " & " + str(b), ["{}"] * (len(x_vals) - len(z_vals[row_i])), "") + "\\\\\n"
 
+	fs_name = files[fs]
 
 	content ="""\\begin{table}[!ht]
 	\\begin{center}
-		\\caption{IOZone result for """ + title + """ """ + name + """}
+		\\caption{IOZone result for the """ + test_name + """ test on """ + fs_name + """}
 		\\resizebox{\\textwidth}{!}{\\begin{tabular}{| c """ + "| c " * columns + """| }
 			
 			\\hline
@@ -61,49 +61,16 @@ def generate_table(name: str, x_vals: List[int], y_vals: List[int], z_vals: List
 			\\hline
 
 		\\end{tabular}}
-		\\label{tbl:data_""" + underscore_case(name + " " + title) + """}
+		\\label{tbl:data_""" + underscore_case(fs + " " + test_name) + """}
 	\\end{center}
 \\end{table}
 	"""
 
-	with open(f"{fig_output_location}/{name}.tex", "w") as f:
+	with open(f"{output_path(test_name, fs)}.tex", "w") as f:
 		f.write(content)
 
-def generate_boxplot(name: str, z_vals: List[List[int]], ax: Axes):
-	all_data = [item for l in z_vals for item in l]
-
-	ax.boxplot(all_data, vert = 0)
-
-	# ax.get_xaxis().tick_bottom()
-	# ax.get_yaxis().tick_left()
-
-	ax.set_ylabel(name)
-	plt.tick_params(left=False, labelleft=False)
-
-	ax.set_xlabel("Performance, kB/s")
-
-	ax.get_yaxis().set_major_formatter(ScalarFormatter())
-	ax.ticklabel_format(useOffset=False, style="plain")
-
-def generate_boxplots(reports: List[Tuple[str, List[List[str]]]]):
-	fig = plt.figure(num=title, figsize=(14,15), dpi=180)
-	
-	fig.suptitle(title, fontsize=16)
-
-	fig_nr = 0
-	for name, values in reports:
-		ax = fig.add_subplot(6, 1, fig_nr + 1)
-
-		generate_boxplot(name, values, ax)
-
-		fig_nr += 1
-
-	
-	fig.tight_layout(rect=[0, 0.01, 1, 0.99])
-	fig.savefig(f"{fig_output_location}/{title}-box.pdf")
-
-def generate_graphs(name: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
-	fig = plt.figure(num=name, figsize=(16,18), dpi=180)
+def generate_graphs(test_name: str, fs: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
+	fig = plt.figure(figsize=(16,18), dpi=180)
 
 	for fignr in range(5):
 		ax = fig.add_subplot(3, 2, fignr + 1)
@@ -126,9 +93,9 @@ def generate_graphs(name: str, x_vals: List[int], y_vals: List[int], z_vals: Lis
 
 		ax.scatter(X, Y, color="black")
 	
-	fig.savefig(f"{fig_output_location}/{name}.pdf", bbox_inches='tight')
+	fig.savefig(f"{output_path(test_name, fs)}.pdf", bbox_inches='tight')
 
-def parse_report(name: str, index: int) -> Tuple[int, List[List[int]]]:
+def parse_report(lines: List[str], test_name, fs: str, index: int) -> Tuple[int, List[List[int]]]:
 	rec_lens_line = lines[index]
 	# Split by whitespace and convert to numbers. First and last char of str is "
 	rec_lens = list(map(lambda s: int(s[1:-1]), rec_lens_line.split()))
@@ -148,16 +115,18 @@ def parse_report(name: str, index: int) -> Tuple[int, List[List[int]]]:
 
 		i += 1
 
-	generate_graphs(name, rec_lens, file_sizes, values)
-	generate_table(name, rec_lens, file_sizes, values)
+	print("Generating graphs for ", test_name, fs)
+
+	generate_graphs(test_name, fs, rec_lens, file_sizes, values)
+	generate_table(test_name, fs, rec_lens, file_sizes, values)
 
 	return (i, values)
 
-def parse_file():
+def parse_file(fs_name: str, lines: List[str]):
 	i = 0
 
 	# Report name, and the values of the report
-	reports: List[Tuple[str, List[List[str]]]] = []
+	reports: dict[str, List[List[str]]] = {}
 	
 	while i < len(lines):
 		l = lines[i]
@@ -165,12 +134,83 @@ def parse_file():
 		m = re.match(report_pattern, l)
 		if m is not None:
 			report_name = m.group(1)
-			print(report_name)
-			i, report_vals = parse_report(report_name, i + 1)
+			print(f"'{report_name}'")
+			i, report_vals = parse_report(lines, report_name, fs_name, i + 1)
 
-			reports.append((report_name, report_vals))
+			reports[report_name] = report_vals
 		i += 1
 	
-	generate_boxplots(reports)
+	return reports
 
-parse_file()
+bench_reports: dict[str, dict[str, List[List[str]]]] = {}
+test_names = [
+	"Write",
+	"Re-Write",
+	"Read",
+	"Re-Read",
+	"Random read",
+	"Random write"
+]
+
+for filename, fs in files.items():
+	
+	file_path = filename + '.log'
+	with open(file_path) as f:
+		file_content = f.read()
+
+	file_content = file_content.replace("Reader", "Read")
+	file_content = re.sub(re.compile(r"[Ww]riter") , "Write", file_content)
+
+	seek_str = "iozone test complete.\nExcel output is below:\n"
+	seek_location = file_content.find(seek_str)
+
+	file_content = file_content[seek_location + len(seek_str):]
+
+	lines = file_content.splitlines()
+
+	reports = parse_file(filename, lines)
+
+	bench_reports[fs] = reports
+
+def median(data: List[int]):
+	l = sorted(data)
+	dl = len(l)
+	return l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2
+
+def average(data: List[int]):
+	return sum(data) / len(data)
+
+# Generate boxplot for each test, for all 4 filesystems
+for test in test_names:
+
+	all_data = []
+
+	for fs in files.values():
+		fs_test_report = bench_reports[fs][test]
+		data = [int(item) for l in fs_test_report for item in l]
+		all_data.append(data)
+
+	
+	fig, ax = plt.subplots()
+
+	fig.set_size_inches(8, 6)
+
+	ax.boxplot(all_data, labels=files.values())
+
+	for i, data in zip(range(len(all_data)), all_data):
+		med = median(data)
+		avg = average(data)
+
+		ax.text(i + 1, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
+             horizontalalignment='center', size='x-small',)
+		ax.text(i + 1, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
+             horizontalalignment='center', size='x-small',)
+
+
+	ax.set_title(test)
+
+	ax.set_yscale('log')
+
+	ax.set_ylabel("Performance, kB/s")
+
+	fig.savefig(f"{fig_output_location}/{test}_box.pdf")

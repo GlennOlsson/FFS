@@ -83,6 +83,8 @@ FFS::blob_t FFS::create_image(std::istream& input_stream, uint32_t length) {
 	// Per pixel, 3 colors (quantum). Per Quantum, 2 bytes. i.e. 6 bytes per pixel
 	uint32_t total_bytes = total_pixels * 6;
 
+	FFS::log << "Total size of encoded image: " << total_bytes << std::endl;
+
 	image.magick(FFS_IMAGE_TYPE);
 	image.quality(100);
 	
