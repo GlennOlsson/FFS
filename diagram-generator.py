@@ -18,7 +18,8 @@ files = {
 	"local": "APFS"
 }
 
-fig_output_location = "../doc/figures/benchmarking"
+# fig_output_location = "../doc/figures/benchmarking"
+fig_output_location = "./"
 
 def output_path(fig_name: str, fs: str):
 	return f"{fig_output_location}/{fs}/{fig_name}"
@@ -70,10 +71,16 @@ def generate_table(test_name: str, fs: str, x_vals: List[int], y_vals: List[int]
 		f.write(content)
 
 def generate_graphs(test_name: str, fs: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
-	fig = plt.figure(figsize=(16,18), dpi=180)
+	fig = plt.figure(figsize=(20,22), dpi=180)
 
-	for fignr in range(5):
-		ax = fig.add_subplot(3, 2, fignr + 1)
+	limit = 9 if fs != "gcsf" else 8
+
+	x_data: List[List[int]] = []
+	y_data: List[List[int]] = []
+
+	for fignr in range(limit):
+
+		ax = fig.add_subplot(3, 3, fignr + 1)
 
 		ax.set_title(f"File size = {y_vals[fignr]} kB")
 
@@ -84,14 +91,19 @@ def generate_graphs(test_name: str, fs: str, x_vals: List[int], y_vals: List[int
 			X.append(x_vals[j])
 			Y.append(row[j])
 
-		ax.set_xlabel('Record length, kB')
-		ax.set_xscale('log', base=2)
-		ax.set_xticks(x_vals)
-		ax.get_xaxis().set_major_formatter(ScalarFormatter())
+		x_data.append(X)
+		y_data.append(Y)
 
-		ax.set_ylabel('Performance, kB/s')
+		# ax.set_xlabel('Buffer size, kB')
+		# ax.set_xscale('log', base=2)
+		# ax.set_xticks(x_vals)
+		# ax.get_xaxis().set_major_formatter(ScalarFormatter())
 
-		ax.scatter(X, Y, color="black")
+		# ax.set_ylabel('Performance, kB/s')
+
+		# ax.tick_params(axis='x', rotation=45)
+
+		# ax.scatter(X, Y, color="black")
 	
 	fig.savefig(f"{output_path(test_name, fs)}.pdf", bbox_inches='tight')
 
@@ -118,7 +130,7 @@ def parse_report(lines: List[str], test_name, fs: str, index: int) -> Tuple[int,
 	print("Generating graphs for ", test_name, fs)
 
 	generate_graphs(test_name, fs, rec_lens, file_sizes, values)
-	generate_table(test_name, fs, rec_lens, file_sizes, values)
+	# generate_table(test_name, fs, rec_lens, file_sizes, values)
 
 	return (i, values)
 
@@ -141,6 +153,7 @@ def parse_file(fs_name: str, lines: List[str]):
 		i += 1
 	
 	return reports
+
 
 bench_reports: dict[str, dict[str, List[List[str]]]] = {}
 test_names = [
@@ -172,45 +185,47 @@ for filename, fs in files.items():
 
 	bench_reports[fs] = reports
 
-def median(data: List[int]):
-	l = sorted(data)
-	dl = len(l)
-	return l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2
+	break
 
-def average(data: List[int]):
-	return sum(data) / len(data)
+# def median(data: List[int]):
+# 	l = sorted(data)
+# 	dl = len(l)
+# 	return l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2
 
-# Generate boxplot for each test, for all 4 filesystems
-for test in test_names:
+# def average(data: List[int]):
+# 	return sum(data) / len(data)
 
-	all_data = []
+# # Generate boxplot for each test, for all 4 filesystems
+# for test in test_names:
 
-	for fs in files.values():
-		fs_test_report = bench_reports[fs][test]
-		data = [int(item) for l in fs_test_report for item in l]
-		all_data.append(data)
+# 	all_data = []
+
+# 	for fs in files.values():
+# 		fs_test_report = bench_reports[fs][test]
+# 		data = sorted([int(item) for l in fs_test_report for item in l])
+# 		all_data.append(data)
 
 	
-	fig, ax = plt.subplots()
+# 	fig, ax = plt.subplots()
 
-	fig.set_size_inches(8, 6)
+# 	fig.set_size_inches(8, 6)
 
-	ax.boxplot(all_data, labels=files.values())
+# 	ax.boxplot(all_data, labels=files.values())
 
-	for i, data in zip(range(len(all_data)), all_data):
-		med = median(data)
-		avg = average(data)
+# 	for i, data in zip(range(len(all_data)), all_data):
+# 		med = median(data)
+# 		avg = average(data)
 
-		ax.text(i + 1, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
-             horizontalalignment='center', size='x-small',)
-		ax.text(i + 1, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
-             horizontalalignment='center', size='x-small',)
+# 		ax.text(i + 1, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
+#              horizontalalignment='center', size='x-small',)
+# 		ax.text(i + 1, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
+#              horizontalalignment='center', size='x-small',)
 
 
-	ax.set_title(test)
+# 	ax.set_title(test)
 
-	ax.set_yscale('log')
+# 	ax.set_yscale('log')
 
-	ax.set_ylabel("Performance, kB/s")
+# 	ax.set_ylabel("Performance, kB/s")
 
-	fig.savefig(f"{fig_output_location}/{test}_box.pdf")
+# 	fig.savefig(f"{fig_output_location}/{test}_box.pdf")
