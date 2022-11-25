@@ -18,8 +18,8 @@ files = {
 	"local": "APFS"
 }
 
-# fig_output_location = "../doc/figures/benchmarking"
-fig_output_location = "./"
+fig_output_location = "../doc/figures/benchmarking"
+# fig_output_location = "./"
 
 def output_path(fig_name: str, fs: str):
 	return f"{fig_output_location}/{fs}/{fig_name}"
@@ -71,28 +71,25 @@ def generate_table(test_name: str, fs: str, x_vals: List[int], y_vals: List[int]
 		f.write(content)
 
 def generate_graphs(test_name: str, fs: str, x_vals: List[int], y_vals: List[int], z_vals: List[List[int]]):
-	fig = plt.figure(figsize=(20,22), dpi=180)
+	fig, ax = plt.subplots(dpi=100)
 
 	limit = 9 if fs != "gcsf" else 8
 
-	x_data: List[List[int]] = []
-	y_data: List[List[int]] = []
+	scats: List[any] = []
+	labels: List[str] = []
 
-	for fignr in range(limit):
+	for file_size_i in range(limit):
 
-		ax = fig.add_subplot(3, 3, fignr + 1)
+		# ax = fig.add_subplot(3, 3, file_size_i + 1)
 
-		ax.set_title(f"File size = {y_vals[fignr]} kB")
+		# ax.set_title(f"File size = {y_vals[file_size_i]} kB")
 
 		X = []
 		Y = []
-		row = z_vals[fignr]
+		row = z_vals[file_size_i]
 		for j in range(len(row)):
 			X.append(x_vals[j])
 			Y.append(row[j])
-
-		x_data.append(X)
-		y_data.append(Y)
 
 		# ax.set_xlabel('Buffer size, kB')
 		# ax.set_xscale('log', base=2)
@@ -103,8 +100,21 @@ def generate_graphs(test_name: str, fs: str, x_vals: List[int], y_vals: List[int
 
 		# ax.tick_params(axis='x', rotation=45)
 
-		# ax.scatter(X, Y, color="black")
+		scat = ax.scatter(X, Y)#, color=colors[file_size_i])
+		scats.append(scat)
+		labels.append(f"{y_vals[file_size_i]} kB")
 	
+
+	ax.set_xscale('log', base=2)
+	ax.set_xticks(x_vals)
+	ax.get_xaxis().set_major_formatter(ScalarFormatter())
+	ax.set_ylabel('Performance, kB/s')
+	ax.set_xlabel('Buffer size, kB')
+	ax.tick_params(axis='x', rotation=45)
+
+	plt.legend(scats, labels, loc="center right", bbox_to_anchor=(1.3, 0.5), ncol=1, fancybox=True, shadow=True, title="File size")
+
+	# plt.show()
 	fig.savefig(f"{output_path(test_name, fs)}.pdf", bbox_inches='tight')
 
 def parse_report(lines: List[str], test_name, fs: str, index: int) -> Tuple[int, List[List[int]]]:
@@ -150,6 +160,7 @@ def parse_file(fs_name: str, lines: List[str]):
 			i, report_vals = parse_report(lines, report_name, fs_name, i + 1)
 
 			reports[report_name] = report_vals
+
 		i += 1
 	
 	return reports
@@ -184,8 +195,6 @@ for filename, fs in files.items():
 	reports = parse_file(filename, lines)
 
 	bench_reports[fs] = reports
-
-	break
 
 # def median(data: List[int]):
 # 	l = sorted(data)
