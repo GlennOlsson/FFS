@@ -375,6 +375,19 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	auto inode = parent_from->second->remove_entry(filename_from);
 
 	auto parent_to = FFS::FS::parent_entry(to);
+	// If a file exists with the same filename we are renaming to, remove this file
+	try {
+		auto existing_file_to = parent_to->second->get_file(filename_to);
+		
+		auto table = FFS::State::get_inode_table();
+		auto existing_entry = table->entry(existing_file_to);
+		
+		FFS::Storage::remove_posts(existing_entry->post_ids, true);
+
+		table->remove_entry(existing_file_to);
+	} catch(FFS::NoFileWithName e) {
+		FFS::log << "Rename to new file" << std::endl;
+	}
 	parent_to->second->add_entry(filename_to, inode);
 
 	// If the parent is same, only update once
@@ -404,7 +417,7 @@ void generic_truncate(std::istream& input, std::ostream& output, off_t size) {
 
 // truncate or extend file to be size bytes
 static int ffs_truncate(const char* c_path, off_t size) {
-	FFS::log << "Begin ffs_truncate " << c_path << std::endl;
+	FFS::log << "Begin ffs_truncate " << c_path << " to " << size << std::endl;
 	auto path = sanitize_path(c_path);
 
 	std::stringbuf new_string_buf;
@@ -430,7 +443,7 @@ static int ffs_truncate(const char* c_path, off_t size) {
 
 // Similar to above but uses file handle
 static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
-	FFS::log << "Begin ffs_ftruncate " << path << std::endl;
+	FFS::log << "Begin ffs_ftruncate " << path << " to " << size << std::endl;
 	
 	auto fh = fi->fh;
 	auto inode = FFS::FileHandle::inode(fh);
