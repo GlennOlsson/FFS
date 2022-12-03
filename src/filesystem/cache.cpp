@@ -2,6 +2,7 @@
 
 #include "../helpers/types.h"
 #include "../helpers/constants.h"
+#include "../helpers/logger.h"
 
 #include <memory>
 #include <Magick++.h>

@@ -200,7 +200,9 @@ void FFS::Storage::remove_post(FFS::post_id_t& post_id, bool multithread) {
 			FFS::API::Flickr::delete_image(post_id);
 #endif
 		} catch(FFS::FlickrException& e) {
-			FFS::err << "Could not delete post with id " << post_id << std::endl;
+			// Create string because might be on different thread
+			auto str = "Could not delete post with id " + post_id + "\n";
+			FFS::err << str;
 		}
 		FFS::State::deleted(post_id);
 	};

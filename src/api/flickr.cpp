@@ -276,7 +276,8 @@ void _delete_image(const FFS::post_id_t& id) {
 		"&method=" + method + 
 		"&photo_id=" + id;
 
-	FFS::log << "Deleting file, request counter: " << request_counter << std::endl;
+	auto str = "Deleting file, request counter: " + std::to_string(request_counter) + "\n";
+	FFS::log << str;
 	
 	auto auth_str = get_auth_string(OAuth::Http::Get, BASE_REST_URL + "?" + full_params);
 
@@ -292,11 +293,13 @@ void FFS::API::Flickr::delete_image(const FFS::post_id_t& id) {
 			return _delete_image(id);
 		} catch(const std::exception& e) {
 			if(i == RETRIES - 1) {
-				FFS::err << "Retried " << RETRIES << " times, still failed" << std::endl;
+				auto str = "Retried " + std::to_string(RETRIES) + " times, still failed\n";
+				FFS::err << str;
 				throw e;
 			}
 		}
 	}
-	FFS::err << "Somehow didn't return or throw on delete_image" << std::endl;
+	auto str = "Somehow didn't return or throw on delete_image\n";
+	FFS::err << str;
 	throw FFS::FlickrException("Error with delete_image");
 }
