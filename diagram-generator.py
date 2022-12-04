@@ -13,7 +13,7 @@ import math
 
 files = {
 	"ffs": "FFS",
-	"fejk-ffs": "Fejk FFS",
+	"fejk-ffs": "FFFS",
 	"gcsf": "GCSF",
 	"local": "APFS"
 }
@@ -50,12 +50,12 @@ def generate_table(test_name: str, fs: str, x_vals: List[int], y_vals: List[int]
 
 	content ="""\\begin{table}[!ht]
 	\\begin{center}
-		\\caption{IOZone result for the """ + test_name + """ test on """ + fs_name + """}
-		\\resizebox{\\textwidth}{!}{\\begin{tabular}{| c """ + "| c " * columns + """| }
+		\\caption{IOZone result for the """ + test_name + """ test on """ + fs_name + """ in kilobytes per second}
+		\\resizebox{\\textwidth}{!}{\\begin{tabular}{| r """ + "| r " * columns + """| }
 			
 			\\hline
 			{} & \multicolumn{"""+ str(len(x_vals)) +"""}{c |}{Buffer size (kB)} \\\\
-			\\textbf{File size (kB)}  """ + reduce(lambda a, b: a + " & " + str(b), x_vals, "") + """\\\\
+			\\textbf{File size (kB)}  """ + reduce(lambda a, b: a + f" & \multicolumn{{1}}{{c |}}{{{b}}}", x_vals, "") + """\\\\
 			\\hline
 			\\hline""" + rows_str + """
 
@@ -100,7 +100,7 @@ def generate_graphs(test_name: str, fs: str, x_vals: List[int], y_vals: List[int
 
 		# ax.tick_params(axis='x', rotation=45)
 
-		scat = ax.scatter(X, Y)#, color=colors[file_size_i])
+		scat = ax.scatter(X, Y, alpha=0.5)#, color=colors[file_size_i])
 		scats.append(scat)
 		labels.append(f"{y_vals[file_size_i]} kB")
 	
@@ -140,7 +140,7 @@ def parse_report(lines: List[str], test_name, fs: str, index: int) -> Tuple[int,
 	print("Generating graphs for ", test_name, fs)
 
 	generate_graphs(test_name, fs, rec_lens, file_sizes, values)
-	# generate_table(test_name, fs, rec_lens, file_sizes, values)
+	generate_table(test_name, fs, rec_lens, file_sizes, values)
 
 	return (i, values)
 
@@ -196,45 +196,46 @@ for filename, fs in files.items():
 
 	bench_reports[fs] = reports
 
-# def median(data: List[int]):
-# 	l = sorted(data)
-# 	dl = len(l)
-# 	return l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2
+def median(data: List[int]):
+	l = sorted(data)
+	dl = len(l)
+	return round(l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2)
 
-# def average(data: List[int]):
-# 	return sum(data) / len(data)
+def average(data: List[int]):
+	return round(sum(data) / len(data))
 
-# # Generate boxplot for each test, for all 4 filesystems
-# for test in test_names:
+# Generate boxplot for each test, for all 4 filesystems
+for test in test_names:
 
-# 	all_data = []
+	all_data = []
 
-# 	for fs in files.values():
-# 		fs_test_report = bench_reports[fs][test]
-# 		data = sorted([int(item) for l in fs_test_report for item in l])
-# 		all_data.append(data)
+	for fs in files.values():
+		fs_test_report = bench_reports[fs][test]
+		data = sorted([int(item) for l in fs_test_report for item in l])
+		all_data.append(data)
 
 	
-# 	fig, ax = plt.subplots()
+	fig, ax = plt.subplots()
 
-# 	fig.set_size_inches(8, 6)
+	fig.set_size_inches(8, 6)
 
-# 	ax.boxplot(all_data, labels=files.values())
+	ax.boxplot(all_data, labels=files.values())
 
-# 	for i, data in zip(range(len(all_data)), all_data):
-# 		med = median(data)
-# 		avg = average(data)
+	for i, data in zip(range(len(all_data)), all_data):
+		med = median(data)
+		avg = average(data)
 
-# 		ax.text(i + 1, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
-#              horizontalalignment='center', size='x-small',)
-# 		ax.text(i + 1, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
-#              horizontalalignment='center', size='x-small',)
+		ax.text(i + 1.35, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
+             horizontalalignment='right', size='x-small',)
+		ax.text(i + 1.35, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
+             horizontalalignment='right', size='x-small',)
 
 
-# 	ax.set_title(test)
+	ax.set_title(test)
 
-# 	ax.set_yscale('log')
+	ax.set_yscale('log')
 
-# 	ax.set_ylabel("Performance, kB/s")
+	ax.set_ylabel("Performance, kB/s")
 
-# 	fig.savefig(f"{fig_output_location}/{test}_box.pdf")
+	fig.savefig(f"{fig_output_location}/{test}_box.pdf")
+
