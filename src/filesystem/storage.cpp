@@ -101,7 +101,7 @@ FFS::post_id_t FFS::Storage::upload_file(FFS::blob_t blob, bool is_inode) {
 	auto id = FFS::API::Local::save_file(tmp_filename, is_inode);
 #endif
 #ifndef USE_LOCAL_STORAGE
-	auto id = FFS::API::Flickr::post_image(tmp_filename);
+	auto id = FFS::API::Flickr::post_image(tmp_filename, blob->length());
 #endif
 
 	std::filesystem::remove(tmp_filename);

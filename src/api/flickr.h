@@ -2,7 +2,7 @@
 #define FFS_FLICKR_H
 
 #include <string>
-
+#include <cstdio>
 #include "../helpers/types.h"
 
 #define ENV_FFS_FLICKR_APP_CONSUMER_KEY "FFS_FLICKR_APP_CONSUMER_KEY"
@@ -17,8 +17,8 @@ namespace FFS::API::Flickr {
 		const FFS::post_id_t& post_id;
 	};
 
-	// Post image to flickr, stored at file_path. post_text and tags are optional, but can be posted along with the photo
-	FFS::post_id_t post_image(const std::string&);
+	// Post image to flickr, stored at file_path of provided file size
+	FFS::post_id_t post_image(const std::string&, const uint32_t);
 
 	// Get the url to the image with a post_id_t. The url points to the original version of the image, as stored on flickr
 	const std::string& get_image(const FFS::post_id_t&);

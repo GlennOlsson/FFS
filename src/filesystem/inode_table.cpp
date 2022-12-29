@@ -166,18 +166,16 @@ std::shared_ptr<FFS::InodeTable> FFS::InodeTable::deserialize(std::istream& stre
 	return std::make_shared<InodeTable>(entries);
 }
 
+FFS::inode_t FFS::InodeTable::largest_inode() {
+	// The table is sorted by key, so largest inode is last element
+	return this->entries->empty() ? -1 : this->entries->rbegin()->first;
+}
+
 FFS::inode_t FFS::InodeTable::new_file(posts_t posts, uint32_t length, uint8_t is_dir) {
 	auto entry = std::make_shared<InodeEntry>(length, posts, is_dir);
 	
 	// Find next inode id to use
-	inode_t new_id;
-	if(this->entries->empty()) {
-		new_id = 0;
-	} else {
-		auto r_it = this->entries->rbegin();
-		inode_t biggest_id = r_it->first;
-		new_id = biggest_id + 1;
-	}
+	inode_t new_id = largest_inode() + 1;
 
 	// Use new id as inode id, and return it
 	this->entries->insert({new_id, entry});

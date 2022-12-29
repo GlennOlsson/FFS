@@ -12,6 +12,9 @@
 
 #include "../exceptions/exceptions.h"
 
+#include "../helpers/functions.h"
+#include "../helpers/logger.h"
+
 std::shared_ptr<curlpp::Easy> create_request(std::string url, std::string params, std::shared_ptr<std::stringstream> ss) {
 	auto request = std::make_shared<curlpp::Easy>();
 
@@ -35,31 +38,20 @@ void assert_http_status(std::shared_ptr<curlpp::Easy> request) {
 		throw FFS::BadHTTPStatusCode(http_code);
 }
 
-std::shared_ptr<std::stringstream> FFS::API::HTTP::post(std::string url, std::string params) {
-	curlpp::Cleanup cleanup;
-	auto ss = std::make_shared<std::stringstream>();
-
-	auto request = create_request(url, params, ss);
-
-	curlpp::Forms forms;
-	request->setOpt<curlpp::options::HttpPost>(forms);
-
-	request->perform();
-
-	ss->flush();
-
-	assert_http_status(request);
-
-	return ss;
-}
-
 std::shared_ptr<std::stringstream> FFS::API::HTTP::get(std::string url, std::string params) {
 	curlpp::Cleanup cleanup;
 	auto ss = std::make_shared<std::stringstream>();
 
 	auto request = create_request(url, params, ss);
 
+	auto time_before = FFS::curr_nanoseconds();
 	request->perform();
+	auto time_after = FFS::curr_nanoseconds();
+
+	auto delta_time = time_after - time_before;
+	auto downloaded_bytes = FFS::stream_size(*ss);
+
+	FFS::log << "Downloaded (GET): " << downloaded_bytes << " B in " << delta_time << " ns" << std::endl;
 
 	assert_http_status(request);
 

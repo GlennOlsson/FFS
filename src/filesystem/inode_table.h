@@ -83,6 +83,8 @@ public:
 
 	InodeTable();
 
+	inode_t largest_inode();
+
 	/**
 	 * @brief serializes the entry into the stream as bytes in the following manner
 	 * byte 0-3: n = amount of entries

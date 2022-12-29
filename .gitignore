@@ -9,3 +9,4 @@ ffs/
 *.env
 gcsf/
 figs/
+output

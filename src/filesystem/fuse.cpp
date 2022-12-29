@@ -378,6 +378,7 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 	// If a file exists with the same filename we are renaming to, remove this file
 	try {
 		auto existing_file_to = parent_to->second->get_file(filename_to);
+		parent_to->second->remove_entry(filename_to);
 		
 		auto table = FFS::State::get_inode_table();
 		auto existing_entry = table->entry(existing_file_to);
@@ -385,6 +386,7 @@ static int ffs_rename(const char* c_from, const char* c_to) {
 		FFS::Storage::remove_posts(existing_entry->post_ids, true);
 
 		table->remove_entry(existing_file_to);
+		FFS::log << "Removed existing file with name" << std::endl;
 	} catch(FFS::NoFileWithName e) {
 		FFS::log << "Rename to new file" << std::endl;
 	}
@@ -489,15 +491,25 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
 	stbuf->f_frsize = FFS_MAX_FILE_SIZE;
 
-	stbuf->f_bavail = 1000;
+	auto table = FFS::State::get_inode_table();
+	
+	stbuf->f_files = 0xFFFFFFFF;
+
+	// Number if posts is total number of post ids + 1 for the inode table
+	int posts = 1;
+	for(auto entry: *table->entries)
+		posts += entry.second->post_ids->size();
+	// Always 1000 blocks available (infinite storage o_O)
+	stbuf->f_bfree = 1000 - posts;
+	stbuf->f_bavail = 1000 - posts;
+
+	// Available blocks (images on flickr)
 	stbuf->f_blocks = 1000;
 
-	// Always 1000 blocks available (infinite storage o_O)
-	stbuf->f_bfree = 1000;
-
+	auto available_inodes = (0xFFFFFFFF - table->largest_inode());
 	// Many free inodes, always
-	stbuf->f_ffree = 1000000;
-	stbuf->f_favail = 1000000;
+	stbuf->f_ffree = available_inodes;
+	stbuf->f_favail = available_inodes;
 
 	// Filesystem ID, something with FFS
 	stbuf->f_fsid = (('F' < 5) | 'F') | 'S';
@@ -507,9 +519,6 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 
 	// Does not honor setuid/setgid
 	stbuf->f_flag = ST_NOSUID;
-
-	auto table = FFS::State::get_inode_table();
-	stbuf->f_files = table->entries->size();
 
 	// FFS::log << "End ffs_statfs " << path << std::endl << std::endl;
 	return 0;

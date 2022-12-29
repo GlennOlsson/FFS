@@ -67,7 +67,7 @@ flickcurl* get_fc() {
 	return fc;
 }
 
-FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path) {
+FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path, const uint32_t size) {
 
 	auto fc = get_fc();
 
@@ -92,7 +92,14 @@ FFS::post_id_t FFS::API::Flickr::post_image(const std::string& file_path) {
 	flickcurl_upload_status* status = nullptr;
 	for(int i = 0; i < RETRIES; ++i) {
 		try {
+			auto time_before = FFS::curr_nanoseconds();
 			status = flickcurl_photos_upload_params(fc, &params);
+			auto time_after = FFS::curr_nanoseconds();
+
+			auto delta_ns = time_after - time_before;
+		
+			FFS::log << "Upload image: " << size << " B in " << delta_ns << "ns" << std::endl;
+
 			break;
 		} catch(const UploadFailed& e) {
 			if(i == RETRIES - 1) {
