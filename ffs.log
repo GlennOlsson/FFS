@@ -1,131 +1,3772 @@
-	Iozone: Performance Test of File I/O
-	        Version $Revision: 3.493 $
-		Compiled for 64 bit mode.
-		Build: macosx 
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+Removing old table
+oded image: 1050852
+Total size of encoded image: 294
+Total size of encoded image: 4212
+Total size of encoded image: 294
+Total size of encoded image: 1050852
+Total size of encoded image: 294
+Total size of encoded image: 150
+Total size of encoded image: 252
+Total size of encoded image: 150
+Total size of encoded image: 294
+Total size of encoded image: 150
+Total size of encoded image: 252
+Total size of encoded image: 150
+Total size of encoded image: 294
+Total size of encoded image: 1050852
+Total size of encoded image: 294
+Total size of encoded image: 1050852
+Total size of encoded image: 294
+Total size of encoded image: 1050852
+Total size of encoded image: 294
+Total size of encoded image: 150
+Total size of encoded image: 252
+0 ns
+Downloaded (GET): 13 B in 788158000 ns
+Downloaded (GET): 13 B in 625954000 ns
+Downloaded (GET): 13 B in 621537000 ns
+Downloaded (GET): 13 B in 582631000 ns
+Downloaded (GET): 13 B in 586586000 ns
+Downloaded (GET): 13 B in 1080222000 ns
+Downloaded (GET): 13 B in 790323000 ns
+Downloaded (GET): 13 B in 773588000 ns
+Downloaded (GET): 13 B in 815539000 ns
+nter: 25
+Uploading file, request counter: 25
+Upload image: 1053224 B in 7525866000ns
+Deleting file, request counter: 27
+Uploading file, request counter: 27
+Upload image: 616 B in 1372766000ns
+Deleting file, request counter: 29
+Uploading file, request counter: 29
+Upload image: 470 B in 1468535000ns
+Deleting file, request counter: 31
+Deleting file, request counter: 31
+Uploading file, request counter: 31
+Upload image: 573 B in 1470215000ns
+Deleting file, request counter: 34
+Uploading file, request counter: 34
+Upload image: 470 B in 1492291000ns
+Deleting file, request counter: 36
+Uploading file, request counter: 36
+Upload image: 616 B in 1417488000ns
+Deleting file, request counter: 38
+Uploading file, request counter: 38
+Upload image: 470 B in 1546868000ns
+Deleting file, request counter: 40
+Uploading file, request counter: 40
+Upload image: 573 B in 3982233000ns
+Deleting file, request counter: 42
+Uploading file, request counter: 42
+Upload image: 470 B in 1484797000ns
+Deleting file, request counter: 44
+Uploading file, request counter: 44
+Upload image: 616 B in 1618405000ns
+Deleting file, request counter: 46
+Uploading file, request counter: 46
+Upload image: 1053220 B in 8763843000ns
+Uploading file, request counter: 48
+Upload image: 616 B in 1344152000ns
+Deleting file, request counter: 49
+Uploading file, request counter: 49
+Upload image: 1053216 B in 9406934000ns
+Deleting file, request counter: 51
+Uploading file, request counter: 51
+Upload image: 616 B in 1041912000ns
+Deleting file, request counter: 53
+Uploading file, request counter: 53
+Upload image: 1053220 B in 3401811000ns
+Deleting file, request counter: 55
+Uploading file, request counter: 55
+Upload image: 616 B in 1669823000ns
+Deleting file, request counter: 57
+Uploading file, request counter: 57
+Upload image: 470 B in 1751694000ns
+Deleting file, request counter: 59
+Deleting file, request counter: 59
+Uploading file, request counter: 59
+Upload image: 573 B in 4314233000ns
+Deleting file, request counter: 62
+ze: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-	Contributors:William Norcott, Don Capps, Isom Crawford, Kirby Collins
-	             Al Slater, Scott Rhine, Mike Wisner, Ken Goss
-	             Steve Landherr, Brad Smith, Mark Kelly, Dr. Alain CYR,
-	             Randy Dunlap, Mark Montague, Dan Million, Gavin Brebner,
-	             Jean-Marc Zucconi, Jeff Blomberg, Benny Halevy, Dave Boone,
-	             Erik Habbinga, Kris Strecker, Walter Wong, Joshua Root,
-	             Fabrice Bacchella, Zhenghua Xue, Qin Li, Darren Sawyer,
-	             Vangel Bojaxhi, Ben England, Vikentsi Lapa,
-	             Alexey Skidanov, Sudhir Kumar.
+Begin ffs_write /bench.tmp, offset: 98304, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-	Run began: Wed Nov 16 15:41:15 2022
+Begin ffs_write /bench.tmp, offset: 102400, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-	Excel chart generation enabled
-	File size set to 131072 kB
-	File size set to 262144 kB
-	File size set to 524288 kB
-	Include close in write timing
-	Command line used: iozone -R -s131072 -s262144 -s524288 -c -i0 -i1 -i2 -b ffs-fs.wks -f ffs/bench.tmp
-	Output is in kBytes/sec
-	Time Resolution = 0.000001 seconds.
-	Processor cache size set to 1024 kBytes.
-	Processor cache line size set to 32 bytes.
-	File stride size set to 17 * record size.
-                                                              random    random     bkwd    record    stride                                    
-              kB  reclen    write  rewrite    read    reread    read     write     read   rewrite      read   fwrite frewrite    fread  freread
-          131072       4     2059     1729  2973359  2666778  1971894     1605                                                                
-          131072       8     2297     1813  4220618  3783414  3118619     1784                                                                
-          131072      16     2472     1637    68079  5009036  3812353     1797                                                                
-          131072      32     2154     1641    70359  6003942  5415790     1715                                                                
-          131072      64     2176     1567    69429  6385321  6283727     1595                                                                
-          131072     128     2362     1748  7874149  8230640  7615527     1631                                                                
-          131072     256     2236     1716    60407  6553543  5731410     1960                                                                
-          131072     512     2465     1963    70434  7089250  7322871     1910                                                                
-          131072    1024     2433     1945     7260  6747555  6164024     1842                                                                
-          131072    2048     2393     1936    81991  6880134  6919971     2001                                                                
-          131072    4096     2644     1902    62072  5982251  5118969     1922                                                                
-          131072    8192     2474     1954  6522596  6600438  4799231     1935                                                                
-          131072   16384     2384     1885    79478  6078894  5960782     1929                                                                
-          262144       4     2339     1822    68103  2583743  1813113     1793                                                                
-          262144       8     2139     1823    70685  4449684  3068092     1945                                                                
-          262144      16     2597     1944    68449  5590363  3975558     1870                                                                
-          262144      32     2157     1949    69849  6013557  4985728     1987                                                                
-          262144      64     2529     1939    99154  6771275  6536121     2005                                                                
-          262144     128     2421     1995    70227  6868693  6311675     1962                                                                
-          262144     256      548     1940    68031  7097066  6655244     1952                                                                
-          262144     512      894     1983    71294  7641769  7390988     1999                                                                
-          262144    1024     2623     2009    68417  7053902  7063782     1782                                                                
-          262144    2048     2612     1967    59723  7329012  7242548     1988                                                                
-          262144    4096     2676     1987  7519272  4997807  6004755     2019                                                                
-          262144    8192     2637     2000  6089594  4674122  5722694     2014                                                                
-          262144   16384     2646     1992   161814  5487959  5567942     2034                                                                
+Begin ffs_write /bench.tmp, offset: 106496, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-iozone test complete.
-Excel output is below:
+Begin ffs_write /bench.tmp, offset: 110592, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-"Writer report"
-        "4"  "8"  "16"  "32"  "64"  "128"  "256"  "512"  "1024"  "2048"  "4096"  "8192"  "16384"
-"1024"  206  270  312  271  262  319  248  310  325
-"2048"  492  447  486  441  532  458  496  506  536  504
-"4096"  774  803  686  853  816  846  829  746  738  816  839
-"8192"  1099  640  1236  1056  1054  1095  1078  975  1177  1068  1029  1077
-"16384"  1320  1240  1369  1344  1413  1363  1339  1278  1349  1427  1341  1344  1187
-"32768"  1573  1749  1685  1625  1610  1647  1639  1750  1745  1734  1636  1650  1727
-"65536"  1875  1995  2062  1724  2029  1995  1783  2007  2008  2052  2109  1955  2068
-"131072"  2059  2297  2472  2154  2176  2362  2236  2465  2433  2393  2644  2474  2384
-"262144"  2339  2139  2597  2157  2529  2421   548   894  2623  2612  2676  2637  2646
+Begin ffs_write /bench.tmp, offset: 114688, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-"Re-writer report"
-        "4"  "8"  "16"  "32"  "64"  "128"  "256"  "512"  "1024"  "2048"  "4096"  "8192"  "16384"  
-"1024"  256  246  200  264  308  269  250  293  324
-"2048"  532  511  404  547  505  533  564  489  434  457
-"4096"  864  768  775  826  762  793  880  767  787  835  721
-"8192"  942  930  958  935  896  1006  895  863  942  862  959  943
-"16384"  1155  1100  1113  1147  1141  1130  1106  1160  1048  1160  1137  1089  1111
-"32768"  1327  1357  1335  1423  1350  1387  1363  1351  1296  1411  1245  1390  1282
-"65536"  1447  1542  1534  1474  1420  1632  1412  1661  1579  1585  1599  1679  1637
-"131072"  1729  1813  1637  1641  1567  1748  1716  1963  1945  1936  1902  1954  1885
-"262144"  1822  1823  1944  1949  1939  1995  1940  1983  2009  1967  1987  2000  1992
+Begin ffs_write /bench.tmp, offset: 118784, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-"Reader report"
-        "4"  "8"  "16"  "32"  "64"  "128"  "256"  "512"  "1024"  "2048"  "4096"  "8192"  "16384"
-"1024"  1124099  1875690  2072054  2606476  2386350  2844715  2604895  2173780  3210456
-"2048"  1378181  567636  2033695  2972495  3154809  3121562  3690142  2301200  3519302  2235910
-"4096"  1614527  2298370  2955012  4027344  4628439  3942321  4511750  4007615  4329816  4095510  3953206
-"8192"  2021184  2978787  3852936  5329730  3541581  3591558  4638941  6390362  3444652  5919188  4003788  5095007
-"16384"  60625  2246482  63191  4702688  61471  6206148  2936754  6362439  69217  5168507  2375140  117941  4462939
-"32768"  55818  52177  4466247  5033507  60178  54036  35729  54242  5819047  53512  5501562  64800  86733
-"65536"  124344  50556  54524  52190  4810367  67341  53582  50273  52437  4826246  56654  56309  4882655
-"131072"  2973359  4220618  68079  70359  69429  7874149  60407  70434  7260  81991  62072  6522596  79478
-"262144"  68103  70685  68449  69849  99154  70227  68031  71294  68417  59723  7519272  6089594  161814
+Begin ffs_write /bench.tmp, offset: 122880, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-"Re-Reader report"
-        "4"  "8"  "16"  "32"  "64"  "128"  "256"  "512"  "1024"  "2048"  "4096"  "8192"  "16384"
-"1024"  1025833  2056183  1600327  2789291  2966535  2625597  3020783  2976816  4178773
-"2048"  2183619  1430271  2595298  2418469  3675930  2748949  4762117  3272598  3555722  3117032
-"4096"  2326065  2740095  3093350  4218190  4298399  4735608  5618365  5483860  5704175  3419011  4321103
-"8192"  2185761  3618412  4754484  5197511  4250966  6248582  6725591  6522590  4385525  6765318  4771651  4445097
-"16384"  1841910  2301789  4900900  5791387  6534875  6582447  6852209  6427904  7599353  3720236  5858035  4687931  4717539
-"32768"  2375173  3448145  4222679  5487065  6201613  6714556  5137750  6366213  6636098  6273801  5597460  5099433  5232021
-"65536"  1777628  3099807  3788868  5457737  4664497  5469466  7114221  6547080  6423160  5395284  5009273  4816014  4676161
-"131072"  2666778  3783414  5009036  6003942  6385321  8230640  6553543  7089250  6747555  6880134  5982251  6600438  6078894
-"262144"  2583743  4449684  5590363  6013557  6771275  6868693  7097066  7641769  7053902  7329012  4997807  4674122  5487959
+Begin ffs_write /bench.tmp, offset: 126976, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-"Random read report"
-        "4"  "8"  "16"  "32"  "64"  "128"  "256"  "512"  "1024"  "2048"  "4096"  "8192"  "16384"
-"1024"  157493  2216407  1627617  1741810  2852271  2926114  3722435  2275110  4146499
-"2048"  1782585  416667  2916978  2752473  3379461  4031308  2763987  3624742  4265523  3894239
-"4096"  1536962  2719708  2965725  4270618  3497668  5411313  3918939  5360658  4409837  4302706  4707064
-"8192"  1719637  2589902  4021596  4670469  4928384  6420214  6703285  6996761  4528880  5978928  4879393  4551075
-"16384"  1790371  1826537  4196659  4780882  4288854  5544663  6963302  6863844  7133159  4528524  4973975  4546200  4920199
-"32768"  1652689  2699602  3615596  5126252  5529450  5983722  5242798  6766123  5356822  5140824  5706695  5170803  2796839
-"65536"  1361645  2149636  3197042  4471609  4626031  5484198  6721584  6197810  6846648  3663045  4794509  5149377  4639069
-"131072"  1971894  3118619  3812353  5415790  6283727  7615527  5731410  7322871  6164024  6919971  5118969  4799231  5960782
-"262144"  1813113  3068092  3975558  4985728  6536121  6311675  6655244  7390988  7063782  7242548  6004755  5722694  5567942
+Begin ffs_write /bench.tmp, offset: 131072, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
 
-"Random write report"
-        "4"  "8"  "16"  "32"  "64"  "128"  "256"  "512"  "1024"  "2048"  "4096"  "8192"  "16384"
-"1024"  230  255  264  338  287  304  184  317  289
-"2048"  524  431  462  512  468  513  570  492  446  558
-"4096"  822  857  787  688  811  799  791  815  793  766  828
-"8192"  907  917  861  865  993  977  747  904  913  918  929  972
-"16384"  1021  1013  1197  1126  1170  1127  1163  1031  1119  1138  1036  1180  1057
-"32768"  1297  1268  1299  1405  1314  1310  1238  1210  1326  1297  1298  1334  1322
-"65536"  1375  1384  1634  1522  1591  1587  1671  1606  1608  1634  1597  1624  1627
-"131072"  1605  1784  1797  1715  1595  1631  1960  1910  1842  2001  1922  1935  1929
-"262144"  1793  1945  1870  1987  2005  1962  1952  1999  1782  1988  2019  2014  2034
+Begin ffs_write /bench.tmp, offset: 135168, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 139264, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 143360, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 147456, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 151552, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 155648, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 159744, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 163840, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 167936, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 172032, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 176128, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 180224, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 184320, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 188416, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 192512, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 196608, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 200704, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 204800, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 208896, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 212992, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 217088, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 221184, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 225280, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 229376, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 233472, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 237568, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 241664, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 245760, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 249856, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 253952, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 258048, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 262144, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 266240, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 270336, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 274432, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 278528, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 282624, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 286720, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 290816, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 294912, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 299008, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 303104, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 307200, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 311296, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 315392, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 319488, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 323584, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 327680, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 331776, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 335872, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 339968, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 344064, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 348160, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 352256, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 356352, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 360448, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 364544, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 368640, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 372736, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 376832, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 380928, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_write /bench.tmp, offset: 385024, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 389120, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_write /bench.tmp, offset: 393216, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 397312, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 401408, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 405504, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 409600, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 413696, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 417792, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 421888, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 425984, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 430080, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 434176, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 438272, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 442368, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 446464, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 450560, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 454656, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 458752, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 462848, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 466944, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 471040, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 475136, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 479232, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 483328, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 487424, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 491520, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 495616, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 499712, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 503808, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 507904, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 512000, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 516096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 520192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 524288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 528384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 532480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 536576, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 540672, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 544768, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 548864, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 552960, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 557056, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 561152, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 565248, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 569344, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 573440, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 577536, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 581632, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 585728, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 589824, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 593920, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 598016, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 602112, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 606208, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 610304, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 614400, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 618496, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 622592, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 626688, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 630784, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 634880, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 638976, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 643072, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 647168, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 651264, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 655360, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 659456, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 663552, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 667648, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 671744, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 675840, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 679936, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 684032, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 688128, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 692224, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 696320, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 700416, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 704512, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 708608, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 712704, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 716800, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 720896, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 724992, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 729088, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 733184, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 737280, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 741376, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 745472, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 749568, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 753664, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 757760, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 761856, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 765952, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 770048, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 774144, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 778240, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 782336, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 786432, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 790528, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 794624, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 798720, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 802816, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 806912, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 811008, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 815104, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 819200, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 823296, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 827392, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 831488, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 835584, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 839680, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 843776, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 847872, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 851968, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 856064, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 860160, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 864256, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 868352, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 872448, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 876544, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 880640, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 884736, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 888832, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 892928, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 897024, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 901120, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 905216, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 909312, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 913408, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 917504, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 921600, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 925696, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 929792, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 933888, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 937984, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 942080, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 946176, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 950272, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 954368, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 958464, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 962560, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 966656, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 970752, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 974848, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 978944, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 983040, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 987136, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 991232, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 995328, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 999424, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1003520, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1007616, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1011712, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1015808, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1019904, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1024000, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1028096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1032192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1036288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1040384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1044480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 0, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 4096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 8192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 12288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 16384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 20480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 24576, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 28672, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 32768, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 36864, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 40960, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 45056, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 49152, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_write /bench.tmp, offset: 53248, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 57344, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 61440, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 65536, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 69632, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 73728, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 77824, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 81920, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 86016, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 90112, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 94208, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 98304, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 102400, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 106496, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 110592, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 114688, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 118784, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 122880, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 126976, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 131072, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 135168, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 139264, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 143360, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 147456, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 151552, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 155648, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 159744, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 163840, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 167936, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 172032, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 176128, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 180224, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 184320, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 188416, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 192512, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 196608, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 200704, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 204800, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 208896, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 212992, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 217088, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 221184, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 225280, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 229376, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 233472, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 237568, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 241664, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 245760, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 249856, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 253952, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 258048, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 262144, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 266240, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 270336, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 274432, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 278528, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 282624, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 286720, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 290816, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 294912, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 299008, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 303104, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 307200, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 311296, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 315392, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 319488, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 323584, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 327680, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 331776, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 335872, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 339968, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 344064, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 348160, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 352256, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 356352, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 360448, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 364544, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 368640, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 372736, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 376832, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 380928, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 385024, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 389120, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 393216, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 397312, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 401408, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 405504, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 409600, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 413696, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 417792, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 421888, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 425984, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 430080, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 434176, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 438272, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 442368, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 446464, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 450560, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 454656, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 458752, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 462848, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 466944, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 471040, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 475136, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 479232, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 483328, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 487424, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 491520, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 495616, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 499712, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 503808, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 507904, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 512000, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 516096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 520192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 524288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 528384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 532480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 536576, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 540672, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 544768, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 548864, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 552960, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 557056, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 561152, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 565248, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 569344, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 573440, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 577536, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 581632, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 585728, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 589824, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 593920, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 598016, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 602112, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 606208, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 610304, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 614400, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 618496, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 622592, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 626688, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 630784, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 634880, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 638976, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 643072, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 647168, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 651264, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 655360, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 659456, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 663552, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 667648, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 671744, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 675840, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 679936, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 684032, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 688128, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 692224, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 696320, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 700416, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 704512, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 708608, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 712704, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 716800, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 720896, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 724992, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 729088, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 733184, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 737280, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 741376, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 745472, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 749568, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 753664, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 757760, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 761856, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 765952, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 770048, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 774144, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 778240, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 782336, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 786432, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 790528, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 794624, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 798720, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 802816, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 806912, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 811008, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 815104, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 819200, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 823296, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 827392, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 831488, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 835584, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 839680, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 843776, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 847872, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 851968, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 856064, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 860160, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 864256, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 868352, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 872448, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 876544, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 880640, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 884736, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 888832, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 892928, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 897024, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 901120, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 905216, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 909312, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 913408, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 917504, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 921600, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 925696, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 929792, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 933888, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 937984, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 942080, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 946176, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 950272, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 954368, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 958464, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 962560, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 966656, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 970752, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 974848, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 978944, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 983040, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 987136, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 991232, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 995328, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 999424, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1003520, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1007616, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1011712, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1015808, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1019904, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1024000, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1028096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1032192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1036288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1040384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1044480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_read /bench.tmp, offset: 0, size: 4096
+End read /bench.tmp, read 4096 bytes 
+
+Begin ffs_read /bench.tmp, offset: 4096, size: 4096
+End read /bench.tmp, read 4096 bytes 
+
+Begin ffs_read /bench.tmp, offset: 8192, size: 4096
+End read /bench.tmp, read 4096 bytes 
+
+Begin ffs_read /bench.tmp, offset: 12288, size: 8192
+End read /bench.tmp, read 8192 bytes 
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_read /bench.tmp, offset: 20480, size: 16384
+End read /bench.tmp, read 16384 bytes 
+
+Begin ffs_read /._., offset: 0, size: 4096
+End read /._., read 4096 bytes 
+
+Begin ffs_write /._., offset: 0, size: 4096
+End ffs_write /._., written 4096 bytes
+
+Begin ffs_read /bench.tmp, offset: 36864, size: 32768
+End read /bench.tmp, read 32768 bytes 
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_read /bench.tmp, offset: 69632, size: 65536
+End read /bench.tmp, read 65536 bytes 
+
+Begin ffs_utimens /
+End ffs_utimens /
+
+Begin ffs_read /bench.tmp, offset: 135168, size: 131072
+End read /bench.tmp, read 131072 bytes 
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_read /bench.tmp, offset: 266240, size: 262144
+End read /bench.tmp, read 262144 bytes 
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_read /bench.tmp, offset: 528384, size: 520192
+End read /bench.tmp, read 520192 bytes 
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 667648, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 77824, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 491520, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 458752, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 737280, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 229376, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 0, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 888832, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 69632, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 299008, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 532480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 868352, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 544768, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 778240, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 126976, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 630784, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 905216, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 401408, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 139264, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 983040, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 753664, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 966656, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 958464, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 65536, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 802816, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 53248, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 380928, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 376832, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 864256, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 438272, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 831488, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 929792, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 745472, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 774144, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 24576, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 466944, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 344064, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 647168, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 782336, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 212992, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 450560, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 638976, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 946176, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 798720, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 671744, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 536576, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 540672, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 114688, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1011712, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 651264, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 471040, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 479232, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1028096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 913408, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 49152, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 110592, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 999424, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 733184, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 282624, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 614400, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 118784, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 245760, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 327680, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 405504, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 311296, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 290816, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 626688, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 364544, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 339968, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 786432, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 159744, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1015808, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 933888, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 4096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 872448, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 331776, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 28672, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 851968, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 94208, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 962560, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 884736, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 475136, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 348160, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 372736, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 425984, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 512000, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 286720, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 708608, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 847872, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 757760, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 765952, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 122880, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 81920, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 360448, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 204800, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 270336, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 749568, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 446464, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 57344, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1019904, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 876544, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 294912, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 131072, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 167936, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 221184, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 430080, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 274432, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1036288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 634880, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 684032, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 73728, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 208896, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 368640, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 323584, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 528384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1044480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 593920, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 724992, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 974848, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 225280, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 815104, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 12288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 356352, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 188416, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 978944, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 741376, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 970752, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 163840, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 987136, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 643072, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 835584, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 659456, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 655360, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 147456, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 950272, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 90112, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 40960, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 729088, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 921600, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 892928, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 462848, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 610304, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 901120, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 8192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 102400, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 442368, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 36864, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 606208, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 602112, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 233472, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 217088, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 409600, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 192512, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 417792, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 434176, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 937984, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1040384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 770048, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1032192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 172032, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 176128, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 880640, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 32768, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 249856, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 503808, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 393216, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 307200, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 389120, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 106496, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 860160, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 561152, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 319488, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 98304, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 806912, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 679936, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 577536, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1003520, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 794624, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 622592, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 20480, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 819200, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 720896, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 200704, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 696320, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 843776, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 569344, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 151552, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 86016, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 262144, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 315392, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 180224, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 585728, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1024000, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 663552, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 925696, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 839680, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 954368, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 45056, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 589824, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 1007616, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 385024, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 241664, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 483328, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 303104, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 184320, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 487424, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 856064, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 61440, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 196608, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 995328, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 917504, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 516096, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 942080, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 253952, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 507904, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 823296, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 495616, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 716800, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 811008, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 909312, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 573440, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 155648, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 143360, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 16384, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 258048, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 581632, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 397312, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 524288, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 991232, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 237568, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 335872, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 557056, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 618496, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 827392, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 692224, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 552960, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 135168, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 700416, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 675840, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 421888, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 761856, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 499712, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 413696, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 598016, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 704512, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 565248, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 266240, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 897024, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 688128, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 790528, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 278528, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 548864, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 454656, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 352256, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 712704, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_write /bench.tmp, offset: 520192, size: 4096
+End ffs_write /bench.tmp, written 4096 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_unlink /bench.tmp
+End ffs_unlink /bench.tmp
+
+Begin ffs_opendir /
+End ffs_opendir /
+
+Begin ffs_releasedir /
+End ffs_releasedir /
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin create /bench.tmp
+End ffs_create /bench.tmp
+
+Begin ffs_fgetattr /bench.tmp
+End ffs_fgetattr /bench.tmp
+
+Begin ffs_ftruncate /bench.tmp to 0
+End ffs_ftruncate /bench.tmp
+
+Begin ffs_fgetattr /bench.tmp
+End ffs_fgetattr /bench.tmp
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_unlink /bench.tmp
+End ffs_unlink /bench.tmp
+
+Begin create /bench.tmp
+End ffs_create /bench.tmp
+
+Begin ffs_fgetattr /bench.tmp
+End ffs_fgetattr /bench.tmp
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 0, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 8192, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 16384, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 24576, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 32768, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 40960, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 49152, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 57344, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 65536, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 73728, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 81920, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 90112, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_write /bench.tmp, offset: 98304, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 106496, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_write /bench.tmp, offset: 114688, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 122880, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 131072, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 139264, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 147456, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 155648, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 163840, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 172032, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 180224, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 188416, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 196608, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 204800, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 212992, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 221184, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 229376, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 237568, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 245760, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 253952, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 262144, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 270336, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 278528, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 286720, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 294912, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 303104, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 311296, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 319488, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 327680, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 335872, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 344064, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 352256, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 360448, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 368640, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 376832, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 385024, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 393216, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 401408, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 409600, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 417792, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 425984, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 434176, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 442368, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_write /bench.tmp, offset: 450560, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 458752, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_write /bench.tmp, offset: 466944, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 475136, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 483328, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 491520, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 499712, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 507904, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 516096, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 524288, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 532480, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 540672, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 548864, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 557056, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 565248, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 573440, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 581632, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 589824, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 598016, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 606208, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 614400, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 622592, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 630784, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 638976, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 647168, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 655360, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 663552, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 671744, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 679936, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 688128, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 696320, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 704512, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 712704, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 720896, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 729088, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 737280, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 745472, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 753664, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 761856, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 770048, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 778240, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 786432, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 794624, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 802816, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 811008, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 819200, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 827392, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 835584, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 843776, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 851968, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 860160, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 868352, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 876544, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 884736, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 892928, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 901120, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 909312, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 917504, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 925696, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 933888, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 942080, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 950272, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 958464, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 966656, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 974848, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 983040, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 991232, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 999424, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1007616, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1015808, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1024000, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1032192, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1040384, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 0, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 8192, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 16384, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 24576, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 32768, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 40960, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 49152, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 57344, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 65536, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 73728, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 81920, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 90112, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 98304, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 106496, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 114688, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 122880, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 131072, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_write /bench.tmp, offset: 139264, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_write /bench.tmp, offset: 147456, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 155648, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 163840, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 172032, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 180224, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 188416, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 196608, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 204800, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 212992, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 221184, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 229376, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 237568, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 245760, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 253952, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 262144, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 270336, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 278528, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 286720, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 294912, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 303104, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 311296, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 319488, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 327680, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 335872, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 344064, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 352256, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 360448, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 368640, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 376832, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 385024, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 393216, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 401408, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 409600, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 417792, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 425984, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 434176, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 442368, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 450560, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 458752, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 466944, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 475136, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 483328, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 491520, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 499712, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 507904, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 516096, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 524288, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 532480, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 540672, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 548864, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 557056, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 565248, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 573440, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 581632, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 589824, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 598016, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 606208, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 614400, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 622592, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 630784, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 638976, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 647168, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 655360, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 663552, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 671744, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 679936, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 688128, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 696320, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 704512, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 712704, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 720896, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 729088, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 737280, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 745472, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 753664, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 761856, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 770048, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 778240, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 786432, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 794624, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 802816, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 811008, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 819200, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 827392, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 835584, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 843776, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 851968, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 860160, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 868352, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 876544, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 884736, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 892928, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 901120, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 909312, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 917504, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 925696, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 933888, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 942080, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 950272, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 958464, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 966656, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 974848, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 983040, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 991232, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 999424, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1007616, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1015808, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1024000, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1032192, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1040384, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_read /bench.tmp, offset: 0, size: 8192
+End read /bench.tmp, read 8192 bytes 
+
+Begin ffs_read /bench.tmp, offset: 8192, size: 8192
+End read /bench.tmp, read 8192 bytes 
+
+Begin ffs_read /bench.tmp, offset: 16384, size: 8192
+End read /bench.tmp, read 8192 bytes 
+
+Begin ffs_read /bench.tmp, offset: 24576, size: 16384
+End read /bench.tmp, read 16384 bytes 
+
+Begin ffs_read /bench.tmp, offset: 40960, size: 32768
+End read /bench.tmp, read 32768 bytes 
+
+Begin ffs_read /bench.tmp, offset: 73728, size: 65536
+End read /bench.tmp, read 65536 bytes 
+
+Begin ffs_read /bench.tmp, offset: 139264, size: 131072
+End read /bench.tmp, read 131072 bytes 
+
+Begin ffs_read /bench.tmp, offset: 270336, size: 262144
+End read /bench.tmp, read 262144 bytes 
+
+Begin ffs_read /bench.tmp, offset: 532480, size: 516096
+End read /bench.tmp, read 516096 bytes 
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_open /bench.tmp
+End ffs_open /bench.tmp
+
+Begin ffs_write /bench.tmp, offset: 90112, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 376832, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 598016, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 835584, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 73728, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 0, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1024000, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 442368, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 802816, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 393216, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 958464, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 761856, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 753664, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 155648, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 425984, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 581632, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 917504, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 630784, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 139264, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 901120, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 966656, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 352256, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 540672, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 999424, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 876544, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 909312, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 163840, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 16384, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 933888, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1032192, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 491520, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 81920, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 589824, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 868352, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_write /bench.tmp, offset: 737280, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 106496, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_write /bench.tmp, offset: 638976, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 32768, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 925696, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 524288, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 679936, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 974848, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 606208, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 434176, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 884736, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 172032, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 188416, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 499712, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 245760, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 712704, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 319488, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 270336, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1015808, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 344064, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 614400, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 278528, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 655360, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 417792, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 196608, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 40960, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 409600, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 368640, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 991232, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 122880, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 827392, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 696320, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 942080, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 647168, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 24576, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 548864, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 819200, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 688128, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 671744, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 516096, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 237568, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 860160, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 811008, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 466944, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 229376, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 385024, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 147456, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 622592, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 565248, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 573440, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 851968, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 131072, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 843776, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 983040, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 950272, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 786432, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 49152, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 253952, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 794624, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1007616, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 745472, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 294912, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 532480, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 704512, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 892928, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 720896, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 180224, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 360448, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 65536, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 262144, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 335872, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 507904, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 204800, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 483328, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 401408, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 303104, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 557056, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 450560, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 458752, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 311296, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 8192, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 212992, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 57344, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 770048, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 286720, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 221184, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 663552, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 729088, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 98304, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 114688, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 778240, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 327680, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 475136, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_write /bench.tmp, offset: 1040384, size: 8192
+End ffs_write /bench.tmp, written 8192 bytes
+
+Begin ffs_release... /bench.tmp
+End ffs_release /bench.tmp
+
+Begin ffs_unlink /bench.tmp
+End ffs_unlink /bench.tmp
+
