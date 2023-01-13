@@ -1,15 +1,31 @@
 import benchmark.src.cloud_filesystem as cloud_filesystem
 import benchmark.src.commands as commands
+import benchmark.src.network_sniff as network_sniff
 
 import os
 
-LOG_BASEPATH = "logs"
+from benchmark.src import logger
+
+LOG_BASEPATH = os.getcwd() + "/logs"
 
 def get_log_path(prefix: str, i: int):
 	if not os.path.exists(LOG_BASEPATH):
 		os.mkdir(LOG_BASEPATH)
 
 	log_path = f"{LOG_BASEPATH}/{prefix}-iter-{i}"
+
+	while os.path.exists(log_path): # Extend with new. Can be (new)(new)(new) worst case. But don't want to overwrite
+		log_path += "(new)"
+	
+	log_path += ".log"
+
+	return log_path
+
+def get_sniff_path(prefix: str, i: int):
+	if not os.path.exists(LOG_BASEPATH):
+		os.mkdir(LOG_BASEPATH)
+
+	log_path = f"{LOG_BASEPATH}/{prefix}-sniff-{i}"
 
 	while os.path.exists(log_path): # Extend with new. Can be (new)(new)(new) worst case. But don't want to overwrite
 		log_path += "(new)"
@@ -34,11 +50,23 @@ class BenchmarkIteration:
 	attempt: int
 	iteration: int
 	filesystem: cloud_filesystem.Filesystem
+	sniffer: network_sniff.Sniffer
 
 	def __init__(self, i: int, filesystem: cloud_filesystem.Filesystem):
 		self.iteration = i
 		self.filesystem = filesystem
 		self.attempt = 0
+
+		self.sniffer = network_sniff.Sniffer(
+			output_file=get_sniff_path(
+				self.filesystem.name, 
+				self.iteration
+			), 
+			tmp_file=get_sniff_path(
+				f"tmp-{self.filesystem.name}", 
+				self.iteration
+			)
+		)
 	
 	def iozone_log_path(self):
 		return get_log_path(f"{self.filesystem.name}-iozone", self.iteration)
@@ -64,28 +92,31 @@ class BenchmarkIteration:
 
 		return iozone_command
 
-	def _write_file(path: str, data: bytes):
-		with open(path, "w") as f:
+	def _write_file(self, path: str, data: bytes):
+		with open(path, "w+") as f:
 			f.write(str(data, encoding="UTF-8"))
 
 	def _write_successful(self, output: bytes):
 		# If successful, write output (stdout from command) to iozone log and metadata to logfile
 		self._write_file(self.iozone_log_path(), output)
-		# TODO: Write sniffed data etc to logfile
 
 	# Write the data we got SO far
 	def _write_failed(self, output: bytes):
 		self._write_file(self.failed_log_path(), output)
 
 	def _execute_benchmark(self):
-		# TODO: Start sniffing
+		logger.debug("Executing benchmark")
+		self.sniffer.start()
 		executed_command = commands.run(self.command())
+		self.sniffer.stop()
+		logger.debug("Benchmark has completed")
 
 		output = executed_command.stdout
 		try:
 			executed_command.check_returncode()
 		except commands.CalledProcessError as e:
-			self._write_failed(output, e.stderr)
+			self._write_failed(output)
+			logger.debug(f"CalledProcessError for attempt {self.attempt}: {str(e)}. Stderr: {e.stderr}, output: {e.output}")
 			self.attempt += 1
 			raise e
 			
@@ -98,7 +129,7 @@ class BenchmarkIteration:
 				return
 			except commands.CalledProcessError:
 				# If threw, just unmount, mount and run loop again
-				print("Failed for attempt", self.attempt)
+				logger.debug(f"Failed for attempt {self.attempt}")
 				self.filesystem.unmount()
 				self.filesystem.mount()
 				pass
@@ -123,12 +154,12 @@ class BenchmarkState:
 
 		try:
 			for i in range(self.iteration, end_i):
-				print(f"Run iteration {i} for {self.filesystem.name}")
+				logger.debug(f"Run iteration {i} for {self.filesystem.name}")
 				iteration = BenchmarkIteration(i, self.filesystem)
 				iteration.execute()
 		except TooManyAttempts as e:
-			print("!!!! Could not complete benchmarking !!!!")
-			print(str(e))
+			logger.debug("!!!! Could not complete benchmarking !!!!")
+			logger.debug(str(e))
 
 			commands.send_email("FAILED", f"""Benchmarking has failed for {e.fs_name}
 

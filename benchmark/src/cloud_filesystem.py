@@ -5,6 +5,7 @@ import time
 import multiprocessing
 import typing
 
+from benchmark.src import logger
 
 def _mount_in_process(command):
 	commands.run(command)
@@ -37,6 +38,7 @@ class Filesystem(abc.ABC):
 		pass
 
 	def mount(self):
+		logger.debug("Mounting")
 		cmd = self.mount_cmd()
 
 		# Using process rather than thread because the GID of python can only execute one non-blocking thread at the same time
@@ -48,13 +50,19 @@ class Filesystem(abc.ABC):
 		process.join(timeout=5)
 
 		self.mount_process = process
+		logger.debug("Mounted")
 	
 	def unmount(self):
+		logger.debug("Unmounting")
 		cmd = self.unmount_cmd()
 
 		if self.mount_process.is_alive():
 			self.mount_process.kill()
+		else:
+			logger.debug("Cannot kill dead mount_process")
 
 		commands.run(cmd)
 
 		time.sleep(5)
+		
+		logger.debug("Unmounted")
