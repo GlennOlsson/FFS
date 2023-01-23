@@ -8,6 +8,7 @@ import typing
 from benchmark.src import logger
 
 def _mount_in_process(command):
+	logger.debug(f"Mounting with command {command}")
 	commands.run(command)
 
 class Filesystem(abc.ABC):

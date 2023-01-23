@@ -2,24 +2,24 @@ import benchmark.src.cloud_filesystem as cloud_filesystem
 
 import os
 
-class FFS(cloud_filesystem.Filesystem):
+class GCSF(cloud_filesystem.Filesystem):
 
-	executable_path = "./out.nosync/main.out"
+	executable_path = "gcsf"
 	
 	@property
 	def name(self) -> str:
-		return "FFS"
+		return "GCSF"
 
 	@property
 	def path(self):
-		return f"{os.getcwd()}/ffs"
+		return f"{os.getcwd()}/gcsf"
 
 	@property
 	def needs_sudo(self) -> bool:
-		return False
+		return True
 
 	def mount_cmd(self):
-		return f"{self.executable_path} fuse {self.path} -f -s -o iosize=100000000000"
+		return f"{self.executable_path} mount gcsf --session ffs" 
 	
 	def unmount_cmd(self):
 		return f"umount {self.path}"

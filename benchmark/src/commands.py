@@ -5,9 +5,14 @@ from benchmark.src import logger
 
 from typing import Optional, TextIO
 
-def run(command: str, file: Optional[TextIO] = None):
-	ran_cmd = subprocess.run(command.split(), stdout=file if file is not None else subprocess.PIPE) 
+def run(command: str, shell: bool = False):
+	ran_cmd = subprocess.run(command.split(), stdout=subprocess.PIPE, shell=shell) 
 	return ran_cmd
+
+def popen(command: str, file: TextIO):
+	proc = subprocess.Popen(command.split(), stdout=file)
+	return proc
+
 
 def send_email(subject: str, content: str):
 	logger.debug("Sending email about failure")

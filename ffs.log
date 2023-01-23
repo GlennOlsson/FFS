@@ -1,0 +1,21 @@
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_read /._., offset: 0, size: 4096
+End read /._., read 4096 bytes 
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /._.
+End ffs_release /._.
+
+Begin ffs_open /._.
+End ffs_open /._.
+
+Begin ffs_release... /._.
+End ffs_release /._.
+

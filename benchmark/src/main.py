@@ -1,6 +1,7 @@
 import benchmark.src.commands as commands
 import benchmark.src.cloud_filesystem as filesystem
 import benchmark.src.ffs as ffs
+import benchmark.src.gcsf as gcsf
 import benchmark.src.measure as measure
 from benchmark.src import logger
 
@@ -8,6 +9,8 @@ def benchmark_filesystem(name: str, iterations: int, starting_at: int = 0):
 	fs: filesystem.Filesystem
 	if name.lower() == "ffs":
 		fs = ffs.FFS()
+	elif name.lower() == "gcsf":
+		fs = gcsf.GCSF()
 	else:
 		logger.debug(f"Filesystem {name} not covered")
 		exit(1)
@@ -37,7 +40,7 @@ def benchmark_filesystem(name: str, iterations: int, starting_at: int = 0):
 	""")
 
 def start():
-	benchmark_filesystem("ffs", 1)
+	benchmark_filesystem("gcsf", 24,7)
 
 if __name__ == "__main__":
 	start()

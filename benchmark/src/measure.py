@@ -6,7 +6,7 @@ import os
 
 from benchmark.src import logger
 
-LOG_BASEPATH = os.getcwd() + "/logs"
+LOG_BASEPATH = os.getcwd() + "/logs.nosync"
 
 def get_log_path(prefix: str, i: int):
 	if not os.path.exists(LOG_BASEPATH):
@@ -14,7 +14,7 @@ def get_log_path(prefix: str, i: int):
 
 	log_path = f"{LOG_BASEPATH}/{prefix}-iter-{i}"
 
-	while os.path.exists(log_path): # Extend with new. Can be (new)(new)(new) worst case. But don't want to overwrite
+	while os.path.exists(log_path + ".log"): # Extend with new. Can be (new)(new)(new) worst case. But don't want to overwrite
 		log_path += "(new)"
 	
 	log_path += ".log"
@@ -27,14 +27,20 @@ def get_sniff_path(prefix: str, i: int):
 
 	log_path = f"{LOG_BASEPATH}/{prefix}-sniff-{i}"
 
-	while os.path.exists(log_path): # Extend with new. Can be (new)(new)(new) worst case. But don't want to overwrite
+	while os.path.exists(log_path + ".log"): # Extend with new. Can be (new)(new)(new) worst case. But don't want to overwrite
 		log_path += "(new)"
 	
 	log_path += ".log"
 
 	return log_path
 
-MAX_ATTEMPTS = 3
+def remove_tmp_sniff_files():
+	for p in os.listdir(LOG_BASEPATH):
+		if "tmp-FFS-sniff-" in p:
+			os.remove(f"{LOG_BASEPATH}/{p}")
+
+
+MAX_ATTEMPTS = 5
 class TooManyAttempts(Exception):
 	fs_name: str
 	iteration: int
@@ -82,13 +88,15 @@ class BenchmarkIteration:
 		
 	def command(self):
 		filesize_arg = "-s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072"
-		if self.filesystem.name != "GCSF":
+		if self.filesystem.name.lower() != "gcsf":
 			filesize_arg += " -s262144"
 
 		iozone_command = f"iozone -R {filesize_arg} -c -i0 -i1 -i2 -f {self.benchmark_path()}"
 
 		if self.filesystem.needs_sudo:
 			iozone_command = "sudo " + iozone_command
+
+		logger.debug(f"IOZone cmd: {iozone_command}")
 
 		return iozone_command
 
@@ -109,11 +117,14 @@ class BenchmarkIteration:
 		self.sniffer.start()
 		executed_command = commands.run(self.command())
 		self.sniffer.stop()
+		remove_tmp_sniff_files()
 		logger.debug("Benchmark has completed")
 
 		output = executed_command.stdout
 		try:
 			executed_command.check_returncode()
+			logger.debug(f"Successful benchmark for iteration {self.iteration}, attempt {self.attempt}")
+			self._write_successful(output)
 		except commands.CalledProcessError as e:
 			self._write_failed(output)
 			logger.debug(f"CalledProcessError for attempt {self.attempt}: {str(e)}. Stderr: {e.stderr}, output: {e.output}")
@@ -134,6 +145,7 @@ class BenchmarkIteration:
 				self.filesystem.mount()
 				pass
 		
+		logger.debug(f"Too many attempts for iteration {self.iteration}")
 		# if loop is exhausted, too many attempts without returning
 		raise TooManyAttempts(self.filesystem.name, self.iteration)
 

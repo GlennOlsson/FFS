@@ -1,6 +1,9 @@
 import typing
 import multiprocessing
 from pathlib import Path
+import os
+import signal
+import subprocess
 
 import benchmark.src.commands as commands
 
@@ -10,13 +13,23 @@ from benchmark.src import logger
 
 # https://serverfault.com/a/973894
 
+interface = "en9"
+
 def start_sniffing(output_file: str, tmp_file: str):
-	tshark_options = "-d tcp.port==80,http -q -z io,stat,10"
+	tshark_options = f"-i {interface} -d tcp.port==80,http -q -z io,stat,10 -b filesize:1000000"
 	cmd = f"tshark {tshark_options} -w {tmp_file}"
 
-	with open(output_file, "w+") as f:
-		logger.debug(f"Running sniff: {cmd}")
-		commands.run(cmd, f)
+	logger.debug(f"Running sniff: {cmd}")
+	file = open(output_file, "a+")
+	proc: subprocess.Popen[bytes] = commands.popen(cmd, file)
+	try:
+		proc.wait()
+	except KeyboardInterrupt:
+		logger.debug("Got keyboard interrupt (SIGINT)")
+		proc.send_signal(signal.SIGINT)
+		proc.wait()
+		file.close()
+		logger.debug(f"Killed tshark command")
 
 class Sniffer:
 
@@ -39,9 +52,14 @@ class Sniffer:
 		self.sniffer_process = process
 
 	def stop(self):
-		if self.sniffer_process is None:
-			return
-		if self.sniffer_process.is_alive():
-			self.sniffer_process.kill()
-		else:
+		if self.sniffer_process is None or not self.sniffer_process.is_alive():
 			logger.debug("Cannot kill dead sniffer")
+		else:
+			os.kill(self.sniffer_process.pid, signal.SIGINT)
+			# self.sniffer_process.kill()
+			logger.debug("Killed sniffer")
+		
+		if os.path.exists(self.tmp_file):
+			os.remove(self.tmp_file)
+			logger.debug("Removed tmp sniff file")
+		logger.debug("Stopped sniffer")
