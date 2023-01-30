@@ -163,7 +163,7 @@ def bench_test(func: Callable[[], None]):
 
 @bench_test
 def create_7mb_file():
-	generate_file(3_000_000, "bigboy.txt")
+	generate_file(200_000_000, "bigboy.txt")
 
 @bench_test
 def read_7mb_file():

@@ -48,7 +48,7 @@ class Filesystem(abc.ABC):
 
 		# Join for a few seconds to let it mount. When timeout is done, it's no longer blocking and the
 		# original process will return
-		process.join(timeout=5)
+		process.join(timeout=25)
 
 		self.mount_process = process
 		logger.debug("Mounted")

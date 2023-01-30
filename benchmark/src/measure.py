@@ -6,7 +6,7 @@ import os
 
 from benchmark.src import logger
 
-LOG_BASEPATH = os.getcwd() + "/logs.nosync"
+LOG_BASEPATH = "/Volumes/TimeCapsule/FFS/logs" # os.getcwd() + "/logs.nosync"
 
 def get_log_path(prefix: str, i: int):
 	if not os.path.exists(LOG_BASEPATH):
@@ -40,7 +40,7 @@ def remove_tmp_sniff_files():
 			os.remove(f"{LOG_BASEPATH}/{p}")
 
 
-MAX_ATTEMPTS = 5
+MAX_ATTEMPTS = 3
 class TooManyAttempts(Exception):
 	fs_name: str
 	iteration: int
@@ -93,6 +93,8 @@ class BenchmarkIteration:
 
 		iozone_command = f"iozone -R {filesize_arg} -c -i0 -i1 -i2 -f {self.benchmark_path()}"
 
+		iozone_command += " -e -I"
+
 		if self.filesystem.needs_sudo:
 			iozone_command = "sudo " + iozone_command
 
@@ -135,15 +137,15 @@ class BenchmarkIteration:
 		# Assumes is mounted when calling execute
 		while self.attempt < MAX_ATTEMPTS:
 			try:
+				self.filesystem.mount()
 				# If successful, break loop
 				self._execute_benchmark()
 				return
 			except commands.CalledProcessError:
 				# If threw, just unmount, mount and run loop again
 				logger.debug(f"Failed for attempt {self.attempt}")
+			finally:
 				self.filesystem.unmount()
-				self.filesystem.mount()
-				pass
 		
 		logger.debug(f"Too many attempts for iteration {self.iteration}")
 		# if loop is exhausted, too many attempts without returning
@@ -160,7 +162,6 @@ class BenchmarkState:
 		self.iteration = iteration
 	
 	def run(self, total_iterations: int):
-		self.filesystem.mount()
 
 		end_i = self.iteration + total_iterations
 
