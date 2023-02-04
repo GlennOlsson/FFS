@@ -40,7 +40,7 @@ def remove_tmp_sniff_files():
 			os.remove(f"{LOG_BASEPATH}/{p}")
 
 
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 5
 class TooManyAttempts(Exception):
 	fs_name: str
 	iteration: int
@@ -88,11 +88,12 @@ class BenchmarkIteration:
 		
 	def command(self):
 		filesize_arg = "-s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072"
-		if self.filesystem.name.lower() != "gcsf":
-			filesize_arg += " -s262144"
+		# if self.filesystem.name.lower() != "gcsf":
+		# 	filesize_arg += " -s262144"
 
 		iozone_command = f"iozone -R {filesize_arg} -c -i0 -i1 -i2 -f {self.benchmark_path()}"
 
+		# Disable cache
 		iozone_command += " -e -I"
 
 		if self.filesystem.needs_sudo:

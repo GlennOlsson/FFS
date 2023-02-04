@@ -6,6 +6,7 @@ ffs/
 .vscode
 *.wks
 *.log
+*.log.nosync
 *.env
 gcsf/
 figs/
