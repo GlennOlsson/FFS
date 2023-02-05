@@ -120,6 +120,9 @@ class IOZoneResult:
 				return r
 		raise KeyError(report_name)
 	
+	def __iter__(self):
+		return self.reports.__iter__()
+	
 	def extend(self, report: "IOZoneResult"):
 		for r in report.reports:
 			self[r.name].extend(r)

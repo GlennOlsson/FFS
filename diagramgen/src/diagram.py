@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as ft
 from scipy.stats import norm, wilcoxon
 import scipy.stats as stats
 
@@ -10,6 +11,8 @@ import random
 from statsmodels.stats.power import TTestIndPower
 
 from statistics import NormalDist
+
+from src.iozone_models import IOZoneReport, IOZoneResult
 
 def _confidence_interval(data, confidence=0.95):
 	# Calculate the mean of each test and the standard error of the mean (SEM) for each test
@@ -48,18 +51,68 @@ def bootstrap(data, num_samples, statistic, alpha):
     upper = np.percentile(stats, 100 - alpha / 2 * 100)
     return lower, upper
 
-def draw_histogram(data: List[List[int]]):
-	data_1d = [d for l in data for d in l]
-	print(data_1d, len(data_1d))
-	# plot the histogram with 50 bins
-	plt.hist(data_1d, bins=50)
+def right_align_labels(labels: List[str]):
+	longest_word = ""
+	for l in labels:
+		if len(l) >= len(longest_word):
+			longest_word = l
+	
+	for i in range(len(labels)):
+		word = labels[i]
+		spaces = len(longest_word) - len(word)
+		labels[i] = (" " * spaces) + word
+
+def draw_histogram(report: IOZoneReport, ax: plt.Axes):
+	
+	labels = []
+	for data in report:
+		# plot the histogram with 50 bins
+		ax.hist(data.raw_values(), bins=50, alpha=0.5)
+		labels.append(f"{data.size} kB")
+
+	right_align_labels(labels)
 
 	# add labels to the x and y axis
-	plt.xlabel('Value')
-	plt.ylabel('Frequency')
+	ax.set_xlabel('Performance, kB/s', loc="right")
+	ax.set_ylabel('Frequency')
+
+	# fig.legend(prop=ft.FontProperties(family="monospace"), loc="upper right", labels=labels, bbox_to_anchor=(1.27, 1.02), ncol=1, fancybox=True, shadow=True, title="File size")
+
+	ax.set_title(report.name, weight=700)
+
+	ax.tick_params(axis='x', rotation=30)
 
 	# display the histogram
-	plt.show()
+	# plt.savefig(f"{out_path}/hist.pdf", bbox_inches='tight')
+
+	print(f"Generated Histo for {report.name}")
+
+	return labels
+
+def draw_histograms(report: IOZoneResult, out_path: str):
+	cols = 2
+	rows = 3
+
+	fig, ax = plt.subplots(ncols=cols, nrows=rows, figsize=(14, 17))
+
+	col = 0
+	row = 0
+	for r in report:
+		labels = draw_histogram(r, ax[row][col])
+		col += 1
+		if col >= cols:
+			col = 0
+			row += 1
+
+	fig.legend(prop=ft.FontProperties(family="monospace"), loc="center right", labels=labels, ncol=1, fancybox=True, shadow=True, title="File size")
+
+	title = f"{report.fs.upper()} ({report.identifier})"
+
+	fig.suptitle(title, weight=1000, size="xx-large", y=0.92)
+
+	fig.savefig(f"{out_path}/hist.pdf", bbox_inches='tight')
+
+	print(f"Saved histo for {title}")
 
 def create_bell(data: List[List[int]]):
 	# data = sorted(_data)

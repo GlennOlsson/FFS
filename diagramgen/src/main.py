@@ -12,8 +12,9 @@ def run():
 	for r in reports[1:]:
 		report.extend(r)
 
-	for r in report:
-		r.print()
+	report.identifier = "UBC disabled"
+
+	diagram.draw_histograms(report, ".")
 
 	# file = "../saved.nosync/FFS-no-cache/Sniffs/FFS-sniff-2.log"
 
