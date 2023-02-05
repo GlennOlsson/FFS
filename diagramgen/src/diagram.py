@@ -89,7 +89,8 @@ def draw_histogram(report: IOZoneReport, ax: plt.Axes):
 
 	return labels
 
-def draw_histograms(report: IOZoneResult, out_path: str):
+def draw_histograms(report: IOZoneResult, out_dir: str):
+	
 	cols = 2
 	rows = 3
 
@@ -110,90 +111,139 @@ def draw_histograms(report: IOZoneResult, out_path: str):
 
 	fig.suptitle(title, weight=1000, size="xx-large", y=0.92)
 
-	fig.savefig(f"{out_path}/hist.pdf", bbox_inches='tight')
+	filename = f"{report.fs}-{report.identifier}-hist.pdf"
+	fig.savefig(f"{out_dir}/{filename}", bbox_inches='tight')
 
 	print(f"Saved histo for {title}")
 
-def create_bell(data: List[List[int]]):
-	# data = sorted(_data)
+def median(data: List[int]):
+	l = sorted(data)
+	dl = len(l)
+	return round(l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2)
 
-	# interval = _confidence_interval(data)
+def average(data: List[int]):
+	return round(sum(data) / len(data))
 
-	print(data)
+def draw_box_plot(report: IOZoneReport, ax: plt.Axes):
+	data = report.raw_values()
 
-	# statistic, p_value = wilcoxon(data[0], data[1])
-	# print(statistic, p_value)
+	plt.boxplot(data)
 
-	# print(interval)
+	
+	med = median(data)
+	avg = average(data)
 
-	# effect_size = 0.8
-	# alpha = 0.05
-	# power = 0.8
+	# ax.text(i + 1.35, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
+	# 	horizontalalignment='right', size='x-small',)
+	# ax.text(i + 1.35, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
+	# 	horizontalalignment='right', size='x-small',)
 
-	# # Perform the power analysis
-	# analysis = TTestIndPower()
-	# sample_size = analysis.solve_power(effect_size=effect_size, alpha=alpha, power=power)
+def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 
-	# print("Sample size needed: ", sample_size)
+	# Assume all has same report names
+	report_names = [report.name for report in reports[0].reports]
 
-	# data = np.array(data)
-	# plt.hist(data, bins=30, edgecolor='black', alpha=0.7)
+	for report_name in report_names:
+		fig = plt.figure(figsize =(10, 7))
+		fig.suptitle(report_name)
 
-	# # Add labels and title to the plot
-	# plt.xlabel("Value")
-	# plt.ylabel("Frequency")
-	# plt.title("Histogram of Values")
+		full_data = []
+		labels = []
+		for fs_report in reports:
+			full_data.append(fs_report[report_name].raw_values())
 
-	# # Show the plot
-	# plt.show()
+			labels.append(f"{fs_report.fs.upper()} ({fs_report.identifier})")
 
-	# # Calculate and print the distribution of values
-	# mean = np.mean(data)
-	# std = np.std(data)
+		plt.yscale('log')
 
-	# print("Mean: ", mean)
-	# print("Standard deviation: ", std)
-	# print("Minimum value: ", np.min(data))
-	# print("Maximum value: ", np.max(data))
+		plt.ylabel("Performance, kB/s")
 
-	# confidence_interval = norm.interval(0.95, loc=mean, scale=std / np.sqrt(len(data)))
-	# print("95% Confidence interval: ", confidence_interval)
+		plt.boxplot(full_data, labels=labels)
 
-	#######
+		filename = f"{report_name}-boxplot.pdf"
+		
+		plt.savefig(f"{out_dir}/{filename}")
 
-	# draw_histogram(data)
+# def create_bell(data: List[List[int]]):
+# 	# data = sorted(_data)
 
-	# l, u, ol, ou = _confidence_interval(data)
+# 	# interval = _confidence_interval(data)
 
-	# print(l, u)
+# 	print(data)
 
-	# print(ol, ou)
+# 	# statistic, p_value = wilcoxon(data[0], data[1])
+# 	# print(statistic, p_value)
 
-	# data = [d for l in data for d in l]
+# 	# print(interval)
 
-	# print(sorted(data))
+# 	# effect_size = 0.8
+# 	# alpha = 0.05
+# 	# power = 0.8
 
-	for d in data:
+# 	# # Perform the power analysis
+# 	# analysis = TTestIndPower()
+# 	# sample_size = analysis.solve_power(effect_size=effect_size, alpha=alpha, power=power)
 
-		mu, std = norm.fit(d)
+# 	# print("Sample size needed: ", sample_size)
 
-		# Plot the histogram.
-		plt.hist(d, bins=int(len(d) / 5), density=True, alpha=0.6, color='g')
+# 	# data = np.array(data)
+# 	# plt.hist(data, bins=30, edgecolor='black', alpha=0.7)
 
-		# Plot the PDF.
-		xmin, xmax = plt.xlim()
-		x = np.linspace(xmin, xmax, 100)
-		p = norm.pdf(x, mu, std)
-		plt.plot(x, p, 'k', linewidth=2)
-		title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
-		plt.title(title)
+# 	# # Add labels and title to the plot
+# 	# plt.xlabel("Value")
+# 	# plt.ylabel("Frequency")
+# 	# plt.title("Histogram of Values")
 
-		plt.show()
+# 	# # Show the plot
+# 	# plt.show()
 
-	########
+# 	# # Calculate and print the distribution of values
+# 	# mean = np.mean(data)
+# 	# std = np.std(data)
 
-	# # Plot between -10 and 10 with .001 steps.
-	# x_axis = np.arange(0, len(data))
-	# # Mean = 0, SD = 2.
-	# plt.plot(x_axis, data)
-	# plt.show()
+# 	# print("Mean: ", mean)
+# 	# print("Standard deviation: ", std)
+# 	# print("Minimum value: ", np.min(data))
+# 	# print("Maximum value: ", np.max(data))
+
+# 	# confidence_interval = norm.interval(0.95, loc=mean, scale=std / np.sqrt(len(data)))
+# 	# print("95% Confidence interval: ", confidence_interval)
+
+# 	#######
+
+# 	# draw_histogram(data)
+
+# 	# l, u, ol, ou = _confidence_interval(data)
+
+# 	# print(l, u)
+
+# 	# print(ol, ou)
+
+# 	# data = [d for l in data for d in l]
+
+# 	# print(sorted(data))
+
+# 	for d in data:
+
+# 		mu, std = norm.fit(d)
+
+# 		# Plot the histogram.
+# 		plt.hist(d, bins=int(len(d) / 5), density=True, alpha=0.6, color='g')
+
+# 		# Plot the PDF.
+# 		xmin, xmax = plt.xlim()
+# 		x = np.linspace(xmin, xmax, 100)
+# 		p = norm.pdf(x, mu, std)
+# 		plt.plot(x, p, 'k', linewidth=2)
+# 		title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
+# 		plt.title(title)
+
+# 		plt.show()
+
+# 	########
+
+# 	# # Plot between -10 and 10 with .001 steps.
+# 	# x_axis = np.arange(0, len(data))
+# 	# # Mean = 0, SD = 2.
+# 	# plt.plot(x_axis, data)
+# 	# plt.show()

@@ -85,3 +85,13 @@ def parse_files(path: str, prefix: str) -> List[IOZoneResult]:
 
 	return results
 
+def combine(results: List[IOZoneResult]) -> IOZoneResult:
+	report = results[0]
+	for r in results[1:]:
+		report.extend(r)
+	
+	return report
+
+def report(path: str, prefix: str) -> IOZoneResult:
+	reports = parse_files(path, prefix)
+	return combine(reports)

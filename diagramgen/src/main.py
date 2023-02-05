@@ -1,20 +1,25 @@
 import src.iozone_parser as iozone
 import src.diagram as diagram
 
+import src.latex as latex
+
 import src.sniff_parser as sniff_parser
 
 from typing import List
 
 def run():
-	reports = iozone.parse_files("../saved.nosync/FFS-no-cache", "FFS-iozone")
+	report1 = iozone.report("../saved.nosync/FFS-no-cache", "FFS-iozone")
+	report1.identifier = "UBC disabled"
 
-	report = reports[0]
-	for r in reports[1:]:
-		report.extend(r)
+	report2 = iozone.report("../saved.nosync/FFS-with-cache", "FFS-iozone")
+	report2.identifier = "UBC enabled"
 
-	report.identifier = "UBC disabled"
 
-	diagram.draw_histograms(report, ".")
+	# diagram.draw_histograms(report, ".")
+
+	# latex.generate_tables(report, ".")
+
+	diagram.draw_box_plots([report1, report2], ".")
 
 	# file = "../saved.nosync/FFS-no-cache/Sniffs/FFS-sniff-2.log"
 
