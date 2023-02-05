@@ -1,38 +1,8 @@
 from typing import List
-from dataclasses import dataclass
 
 import re
 
-@dataclass
-class SniffEntry:
-	duration: float
-	frames: int
-	bytes: int
-
-	def bps(self):
-		return self.bytes / self.duration
-
-class Sniff:
-	entries: List[SniffEntry]
-
-	def __init__(self):
-		self.entries = []
-
-	def add_entry(self, entry: SniffEntry):
-		self.entries.append(entry)
-
-	def join(self, other: "Sniff"):
-		self.entries.extend(other.entries)
-
-	def __getitem__(self, index: int):
-		return self.entries[index]
-
-class Expression:
-	DURATION = r"Duration:\s*(\d+(\.\d+))"
-	INTERVAL = r"Interval:\s*(\d+)"
-	ROW = r"(\d+)\s*<>\s*(\d+|Dur)\s*\|\s*(\d+)\s*\|\s*(\d+)"
-	BORDER = r"======================"
-	DUR = "Dur"
+from src.sniff_models import Sniff, SniffEntry, Expression
 
 def parse_box(box: str) -> Sniff:
 	dur_match = re.search(Expression.DURATION, box, flags=re.M)

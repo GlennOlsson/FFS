@@ -1,3 +1,3 @@
-import diagramgen.src.main as main
+import src.main as main
 
 main.run()
