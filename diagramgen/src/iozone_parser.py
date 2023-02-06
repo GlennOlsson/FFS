@@ -73,25 +73,27 @@ def parse_file(path: str, identifier: str, fs: str) -> IOZoneResult:
 	
 	return result
 
-def parse_files(path: str, prefix: str) -> List[IOZoneResult]:
+def parse_files(path: str, prefix: str, fs: str) -> List[IOZoneResult]:
 	files = [file for file in os.listdir(path) if file.startswith(prefix)]
 
 	print(f"Parsing {len(files)} files")
 
 	results: List[IOZoneResult] = []
 	for file in files:
-		result = parse_file(f"{path}/{file}", file, fs="ffs")
+		result = parse_file(f"{path}/{file}", file, fs=fs)
 		results.append(result)
 
 	return results
 
-def combine(results: List[IOZoneResult]) -> IOZoneResult:
+def combine(results: List[IOZoneResult], id: str) -> IOZoneResult:
 	report = results[0]
 	for r in results[1:]:
 		report.extend(r)
 	
+	report.identifier = id
+
 	return report
 
-def report(path: str, prefix: str) -> IOZoneResult:
-	reports = parse_files(path, prefix)
-	return combine(reports)
+def report(path: str, prefix: str, fs: str, id: str) -> IOZoneResult:
+	reports = parse_files(path, prefix, fs)
+	return combine(reports, id)

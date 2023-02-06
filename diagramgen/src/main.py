@@ -5,21 +5,25 @@ import src.latex as latex
 
 import src.sniff_parser as sniff_parser
 
-from typing import List
+from typing import List, Tuple
+
+def parse_dirs(dirs: List[Tuple[str, str, str, str]]):
+	return [iozone.report(path, prefix, fs, id) for path, prefix, fs, id in dirs]
 
 def run():
-	report1 = iozone.report("../saved.nosync/FFS-no-cache", "FFS-iozone")
-	report1.identifier = "UBC disabled"
 
-	report2 = iozone.report("../saved.nosync/FFS-with-cache", "FFS-iozone")
-	report2.identifier = "UBC enabled"
-
+	results = parse_dirs([
+		("../saved.nosync/FFS-no-cache", "FFS-iozone", "FFS", "UBC Disabled"),
+		("../saved.nosync/FFS-with-cache", "FFS-iozone", "FFS", "UBC Enabled"),
+		("../saved.nosync/GCSF-no-cache", "GCSF-iozone", "GCSF", "UBC Disabled"),
+		("../saved.nosync/GCSF-with-cache", "GCSF-iozone", "GCSF", "UBC Enabled"),
+	])
 
 	# diagram.draw_histograms(report, ".")
 
 	# latex.generate_tables(report, ".")
 
-	diagram.draw_box_plots([report1, report2], ".")
+	diagram.draw_box_plots(results, ".")
 
 	# file = "../saved.nosync/FFS-no-cache/Sniffs/FFS-sniff-2.log"
 

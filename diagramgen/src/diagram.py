@@ -12,6 +12,8 @@ from statsmodels.stats.power import TTestIndPower
 
 from statistics import NormalDist
 
+from matplotlib.ticker import ScalarFormatter
+
 from src.iozone_models import IOZoneReport, IOZoneResult
 
 def _confidence_interval(data, confidence=0.95):
@@ -82,10 +84,10 @@ def draw_histogram(report: IOZoneReport, ax: plt.Axes):
 
 	ax.tick_params(axis='x', rotation=30)
 
+	ax.get_xaxis().set_major_formatter(ScalarFormatter())
+
 	# display the histogram
 	# plt.savefig(f"{out_path}/hist.pdf", bbox_inches='tight')
-
-	print(f"Generated Histo for {report.name}")
 
 	return labels
 
@@ -100,6 +102,7 @@ def draw_histograms(report: IOZoneResult, out_dir: str):
 	row = 0
 	for r in report:
 		labels = draw_histogram(r, ax[row][col])
+		print(f"Generated Histo for {report.fs} ({report.identifier}) {r.name}")
 		col += 1
 		if col >= cols:
 			col = 0
@@ -119,24 +122,10 @@ def draw_histograms(report: IOZoneResult, out_dir: str):
 def median(data: List[int]):
 	l = sorted(data)
 	dl = len(l)
-	return round(l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2)
+	return float(l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2)
 
-def average(data: List[int]):
-	return round(sum(data) / len(data))
-
-def draw_box_plot(report: IOZoneReport, ax: plt.Axes):
-	data = report.raw_values()
-
-	plt.boxplot(data)
-
-	
-	med = median(data)
-	avg = average(data)
-
-	# ax.text(i + 1.35, -0.1, f"median = {round(med, 2)} kB/s", transform=ax.get_xaxis_transform(),
-	# 	horizontalalignment='right', size='x-small',)
-	# ax.text(i + 1.35, -0.13, f"average = {round(avg, 2)} kB/s", transform=ax.get_xaxis_transform(),
-	# 	horizontalalignment='right', size='x-small',)
+def average(data: List[int]) -> float:
+	return sum(data) / len(data)
 
 def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 
@@ -149,10 +138,20 @@ def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 
 		full_data = []
 		labels = []
-		for fs_report in reports:
+		for i in range(len(reports)):
+			fs_report = reports[i]
 			full_data.append(fs_report[report_name].raw_values())
 
 			labels.append(f"{fs_report.fs.upper()} ({fs_report.identifier})")
+
+			data = fs_report[report_name].raw_values()
+			med = median(data)
+			avg = average(data)
+
+			print(sum(data), len(data))
+
+			fig.text(0.27 + i * 0.2, 0.05, "average = %.2f kB/s" % round(avg, 2), horizontalalignment='right', size='x-small')
+			fig.text(0.27 + i * 0.2, 0.03, "median = %.2f kB/s" % round(med, 2), horizontalalignment='right', size='x-small')
 
 		plt.yscale('log')
 
@@ -163,6 +162,8 @@ def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 		filename = f"{report_name}-boxplot.pdf"
 		
 		plt.savefig(f"{out_dir}/{filename}")
+
+		print(f"Generated boxplot for {filename}")
 
 # def create_bell(data: List[List[int]]):
 # 	# data = sorted(_data)
