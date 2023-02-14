@@ -19,7 +19,7 @@ class FFS(cloud_filesystem.Filesystem):
 		return False
 
 	def mount_cmd(self):
-		return f"{self.executable_path} fuse {self.path} -f -s -o iosize=100000000000 -o nolocalcaches"
+		return f"{self.executable_path} fuse {self.path} -f -s -o iosize=100000000000"# -o nolocalcaches"
 	
 	def unmount_cmd(self):
 		return f"umount {self.path}"

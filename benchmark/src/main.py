@@ -40,7 +40,7 @@ def benchmark_filesystem(name: str, iterations: int, starting_at: int = 0):
 	""")
 
 def start():
-	benchmark_filesystem("gcsf", 30, 0)
+	benchmark_filesystem("ffs", 20, starting_at=0)
 
 if __name__ == "__main__":
 	start()

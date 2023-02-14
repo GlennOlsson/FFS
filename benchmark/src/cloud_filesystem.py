@@ -15,6 +15,9 @@ class Filesystem(abc.ABC):
 
 	mount_process: typing.Optional[multiprocessing.Process]
 
+	def __init__(self):
+		self.mount_process = None
+
 	@abc.abstractproperty
 	@property
 	def name(self) -> str:
@@ -57,7 +60,7 @@ class Filesystem(abc.ABC):
 		logger.debug("Unmounting")
 		cmd = self.unmount_cmd()
 
-		if self.mount_process.is_alive():
+		if self.mount_process is not None and self.mount_process.is_alive():
 			self.mount_process.kill()
 		else:
 			logger.debug("Cannot kill dead mount_process")

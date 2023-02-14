@@ -12,23 +12,24 @@ fi
 
 base="/Volumes/TimeCapsule/FFS"
 
-for i in {3..3}; do
+for i in {1..20}; do
     echo "Starting run $i"
     dir="$base/run$i"
     mkdir $dir
 
     log="$dir/$1.log"
 
-    tshark -i en9 -w "$dir/$1-trace.pcapng" -f "predef:TCP HTTP or HTTPS" &
+    # tshark -i en9 -w "$dir/$1-trace.pcapng" -f "predef:TCP HTTP or HTTPS" &
 
-    tshark_pid=$!
+    # tshark_pid=$!
 
      
-	 time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072 -c -e -I -i0 -i1 -i2 -f $2 > $log || notify_err Benchmark failed
+	#  time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072 -c -e -I -i0 -i1 -i2 -f $2 > $log || notify_err Benchmark failed
 
-	 #time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072 -s262144 -c -e -I -i0 -i1 -i2 -f $2 > $log || notify_err Benchmark failed
+	#  time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072 -s262144 -c -e -I -i0 -i1 -i2 -f $2 > $log || notify_err Benchmark failed
 
-	 # time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072 -s262144 -c -i0 -i1 -i2 -f $2 > $log || notify_err Benchmark failed
+    time iozone -R -s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072 -s262144 -c -i0 -i1 -i2 -f $2 > $log || notify_err Benchmark failed
+
     date
     echo "Finished run $i"
     
@@ -37,7 +38,7 @@ for i in {3..3}; do
         echo "Bad run $i"
     fi
 
-    kill $tshark_pid
+    # kill $tshark_pid
 done
 
 notify Benchmark is done

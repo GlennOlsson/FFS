@@ -2,19 +2,14 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as ft
-from scipy.stats import norm, wilcoxon
 import scipy.stats as stats
 
-import statsmodels.api as sm
-import pylab
 import random
-from statsmodels.stats.power import TTestIndPower
-
-from statistics import NormalDist
 
 from matplotlib.ticker import ScalarFormatter
 
 from src.iozone_models import IOZoneReport, IOZoneResult
+from src.sniff_models import Sniff
 
 def _confidence_interval(data, confidence=0.95):
 	# Calculate the mean of each test and the standard error of the mean (SEM) for each test
@@ -84,7 +79,8 @@ def draw_histogram(report: IOZoneReport, ax: plt.Axes):
 
 	ax.tick_params(axis='x', rotation=30)
 
-	ax.get_xaxis().set_major_formatter(ScalarFormatter())
+	# ax.get_xaxis().set_major_formatter(ScalarFormatter())
+	ax.ticklabel_format(useOffset=False, style="plain")
 
 	# display the histogram
 	# plt.savefig(f"{out_path}/hist.pdf", bbox_inches='tight')
@@ -92,7 +88,9 @@ def draw_histogram(report: IOZoneReport, ax: plt.Axes):
 	return labels
 
 def draw_histograms(report: IOZoneResult, out_dir: str):
-	
+	if report.is_empty():
+		return
+
 	cols = 2
 	rows = 3
 
@@ -119,6 +117,26 @@ def draw_histograms(report: IOZoneResult, out_dir: str):
 
 	print(f"Saved histo for {title}")
 
+def sniff_histogram(sniff: Sniff, out_dir: str):
+	if sniff.is_empty():
+		return
+	
+	bps_per_entry = [entry.bps() / 1000 for entry in sniff.entries]
+
+	fig, ax = plt.subplots()
+	
+	ax.hist(bps_per_entry, bins=30, alpha=0.5)
+
+	ax.set_xlabel('Bandwidth, kB/s', loc="right")
+	ax.set_ylabel('Frequency')
+	ax.ticklabel_format(useOffset=False, style="plain")
+
+	# ax.get_xaxis().set_major_formatter(ScalarFormatter())
+
+	fig.savefig(f"{out_dir}/sniff-histo.pdf")
+	print("Created sniff histogram")
+
+
 def median(data: List[int]):
 	l = sorted(data)
 	dl = len(l)
@@ -128,18 +146,20 @@ def average(data: List[int]) -> float:
 	return sum(data) / len(data)
 
 def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
+	reports = [report for report in reports if not report.is_empty()]
 
 	# Assume all has same report names
 	report_names = [report.name for report in reports[0].reports]
 
 	for report_name in report_names:
-		fig = plt.figure(figsize =(10, 7))
-		fig.suptitle(report_name)
+		fig, ax = plt.subplots(figsize =(15, 7))
+		ax.set_title(report_name)
 
 		full_data = []
 		labels = []
 		for i in range(len(reports)):
 			fs_report = reports[i]
+
 			full_data.append(fs_report[report_name].raw_values())
 
 			labels.append(f"{fs_report.fs.upper()} ({fs_report.identifier})")
@@ -147,21 +167,22 @@ def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 			data = fs_report[report_name].raw_values()
 			med = median(data)
 			avg = average(data)
+			
+			move_factor = 0.16
+			start_x = 0.24
+			
+			fig.text(start_x + i * move_factor, 0.05, "average = %.2f kB/s" % round(avg, 2), horizontalalignment='right', size='x-small')
+			fig.text(start_x + i * move_factor, 0.03, "median = %.2f kB/s" % round(med, 2), horizontalalignment='right', size='x-small')
 
-			print(sum(data), len(data))
+		ax.set_yscale('log')
 
-			fig.text(0.27 + i * 0.2, 0.05, "average = %.2f kB/s" % round(avg, 2), horizontalalignment='right', size='x-small')
-			fig.text(0.27 + i * 0.2, 0.03, "median = %.2f kB/s" % round(med, 2), horizontalalignment='right', size='x-small')
+		ax.set_ylabel("Performance, kB/s")
 
-		plt.yscale('log')
-
-		plt.ylabel("Performance, kB/s")
-
-		plt.boxplot(full_data, labels=labels)
+		ax.boxplot(full_data, labels=labels)
 
 		filename = f"{report_name}-boxplot.pdf"
 		
-		plt.savefig(f"{out_dir}/{filename}")
+		fig.savefig(f"{out_dir}/{filename}", bbox_inches='tight')
 
 		print(f"Generated boxplot for {filename}")
 

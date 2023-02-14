@@ -34,9 +34,17 @@ def get_sniff_path(prefix: str, i: int):
 
 	return log_path
 
+def rm_tmp_files():
+	for f in os.listdir("/tmp/ffs"):
+		try:
+			os.remove(f"/tmp/ffs/{f}")
+		except Exception:
+			print(f"Can't remove {f}")
+
+
 def remove_tmp_sniff_files():
 	for p in os.listdir(LOG_BASEPATH):
-		if "tmp-FFS-sniff-" in p:
+		if "tmp-" in p and "-sniff-" in p:
 			os.remove(f"{LOG_BASEPATH}/{p}")
 
 
@@ -63,16 +71,16 @@ class BenchmarkIteration:
 		self.filesystem = filesystem
 		self.attempt = 0
 
-		self.sniffer = network_sniff.Sniffer(
-			output_file=get_sniff_path(
-				self.filesystem.name, 
-				self.iteration
-			), 
-			tmp_file=get_sniff_path(
-				f"tmp-{self.filesystem.name}", 
-				self.iteration
-			)
-		)
+		#self.sniffer = network_sniff.Sniffer(
+	#		output_file=get_sniff_path(
+	#			self.filesystem.name, 
+#				self.iteration
+#			), 
+#			tmp_file=get_sniff_path(
+#				f"tmp-{self.filesystem.name}", 
+#				self.iteration
+#			)
+#		)
 	
 	def iozone_log_path(self):
 		return get_log_path(f"{self.filesystem.name}-iozone", self.iteration)
@@ -88,13 +96,14 @@ class BenchmarkIteration:
 		
 	def command(self):
 		filesize_arg = "-s1024 -s2048 -s4096 -s8192 -s16384 -s32768 -s65536 -s131072"
-		# if self.filesystem.name.lower() != "gcsf":
-		# 	filesize_arg += " -s262144"
+		if self.filesystem.name.lower() != "gcsf":
+			filesize_arg += " -s262144"
+
 
 		iozone_command = f"iozone -R {filesize_arg} -c -i0 -i1 -i2 -f {self.benchmark_path()}"
 
 		# Disable cache
-		iozone_command += " -e -I"
+		# iozone_command += " -e -I"
 
 		if self.filesystem.needs_sudo:
 			iozone_command = "sudo " + iozone_command
@@ -117,10 +126,10 @@ class BenchmarkIteration:
 
 	def _execute_benchmark(self):
 		logger.debug("Executing benchmark")
-		self.sniffer.start()
+		#self.sniffer.start()
 		executed_command = commands.run(self.command())
-		self.sniffer.stop()
-		remove_tmp_sniff_files()
+		#self.sniffer.stop()
+		#remove_tmp_sniff_files()
 		logger.debug("Benchmark has completed")
 
 		output = executed_command.stdout
@@ -147,7 +156,8 @@ class BenchmarkIteration:
 				logger.debug(f"Failed for attempt {self.attempt}")
 			finally:
 				self.filesystem.unmount()
-		
+				rm_tmp_files()
+
 		logger.debug(f"Too many attempts for iteration {self.iteration}")
 		# if loop is exhausted, too many attempts without returning
 		raise TooManyAttempts(self.filesystem.name, self.iteration)

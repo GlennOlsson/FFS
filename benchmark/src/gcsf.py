@@ -22,4 +22,4 @@ class GCSF(cloud_filesystem.Filesystem):
 		return f"sudo {self.executable_path} mount gcsf --session ffs" 
 	
 	def unmount_cmd(self):
-		return f"umount {self.path}"
+		return f"sudo umount {self.path}"

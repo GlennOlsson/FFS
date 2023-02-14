@@ -33,6 +33,9 @@ class Sniff:
 		for e in other.entries:
 			self.add_entry(e)
 
+	def is_empty(self):
+		return len(self.entries) == 0
+
 	def __getitem__(self, index: int):
 		return self.entries[index]
 	
@@ -40,7 +43,7 @@ class Sniff:
 		return self.total_bytes / self.total_duration
 
 class Expression:
-	DURATION = r"Duration:\s*(\d+(\.\d+))"
+	DURATION = r"Duration:\s*(\d+(\.\s*\d+)?)"
 	INTERVAL = r"Interval:\s*(\d+)"
 	ROW = r"(\d+)\s*<>\s*(\d+|Dur)\s*\|\s*(\d+)\s*\|\s*(\d+)"
 	BORDER = r"======================"

@@ -74,9 +74,9 @@ def parse_file(path: str, identifier: str, fs: str) -> IOZoneResult:
 	return result
 
 def parse_files(path: str, prefix: str, fs: str) -> List[IOZoneResult]:
-	files = [file for file in os.listdir(path) if file.startswith(prefix)]
+	files = [file for file in os.listdir(path) if prefix in file]
 
-	print(f"Parsing {len(files)} files")
+	print(f"Parsing {len(files)} files from {path}")
 
 	results: List[IOZoneResult] = []
 	for file in files:
@@ -86,6 +86,9 @@ def parse_files(path: str, prefix: str, fs: str) -> List[IOZoneResult]:
 	return results
 
 def combine(results: List[IOZoneResult], id: str) -> IOZoneResult:
+	if len(results) == 0:
+		return IOZoneResult(id, "UNKOWN")
+	
 	report = results[0]
 	for r in results[1:]:
 		report.extend(r)

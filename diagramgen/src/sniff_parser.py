@@ -1,12 +1,13 @@
 from typing import List
 
 import re
+import os
 
 from src.sniff_models import Sniff, SniffEntry, Expression
 
 def parse_box(box: str) -> Sniff:
 	dur_match = re.search(Expression.DURATION, box, flags=re.M)
-	duration = float(dur_match.group(1))
+	duration = float(dur_match.group(1).replace(" ", ""))
 
 	row_matches = re.findall(Expression.ROW, box)
 	
@@ -63,8 +64,24 @@ def parse(path: str) -> Sniff:
 	content = read_file(path)
 	
 	sniffs = parse_boxes(content)
+
+	if len(sniffs) == 0:
+		return Sniff()
+
 	main_sniff = sniffs[0]
 	for s in sniffs[1:]:
 		main_sniff.join(s)
 	
 	return main_sniff
+
+def parse_dir(path: str, file_contains: str = "sniff"):
+	files = [f"{path}/{file}" for file in os.listdir(path) if file_contains in file]
+
+	if len(files) == 0:
+		return Sniff()
+
+	sniff = parse(files[0])
+	for f in files[1:]:
+		sniff.join(parse(f))
+	
+	return sniff

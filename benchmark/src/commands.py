@@ -13,7 +13,6 @@ def popen(command: str, file: TextIO):
 	proc = subprocess.Popen(command.split(), stdout=file)
 	return proc
 
-
 def send_email(subject: str, content: str):
 	logger.debug("Sending email about failure")
 	path = "/Users/glenn/Desktop/mail.zsh"

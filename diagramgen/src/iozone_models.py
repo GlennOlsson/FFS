@@ -121,7 +121,11 @@ class IOZoneResult:
 		raise KeyError(report_name)
 	
 	def __iter__(self):
-		return self.reports.__iter__()
+		# Iterate over a sorted list of reports, so that the tests are aligned. Reverse so Write is first
+		return sorted(self.reports, key=lambda r: r.name, reverse=True).__iter__()
+	
+	def is_empty(self):
+		return len(self.reports) == 0
 	
 	def extend(self, report: "IOZoneResult"):
 		for r in report.reports:
