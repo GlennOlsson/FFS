@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Dict
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as ft
 import scipy.stats as stats
+
+from src.stats import median, average
 
 import random
 
@@ -117,6 +119,24 @@ def draw_histograms(report: IOZoneResult, out_dir: str):
 
 	print(f"Saved histo for {title}")
 
+def sniff_diagram(sniff: Sniff, out_dir: str):
+	bps_per_entry = sorted([entry.bps() / 1000 for entry in sniff.entries if entry.bytes != 0])
+
+	print(len(bps_per_entry))
+	print(bps_per_entry[:5])
+	fig, ax = plt.subplots()
+
+	# ax.hist(bps_per_entry, bins=100, alpha=0.5)
+
+	# ax.set_xlabel('Bandwidth, kB/s', loc="right")
+	# ax.set_ylabel('Frequency')
+	# ax.ticklabel_format(useOffset=False, style="plain")
+
+	ax.boxplot(bps_per_entry)
+	ax.set_yscale("log")
+
+	# plt.show()
+
 def sniff_histogram(sniff: Sniff, out_dir: str):
 	if sniff.is_empty():
 		return
@@ -136,24 +156,17 @@ def sniff_histogram(sniff: Sniff, out_dir: str):
 	fig.savefig(f"{out_dir}/sniff-histo.pdf")
 	print("Created sniff histogram")
 
-
-def median(data: List[int]):
-	l = sorted(data)
-	dl = len(l)
-	return float(l[int(dl / 2)] if dl % 2 == 0 else (l[int((dl - 1)/2)] + l[int((dl + 1)/2)])/2)
-
-def average(data: List[int]) -> float:
-	return sum(data) / len(data)
-
 def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 	reports = [report for report in reports if not report.is_empty()]
 
 	# Assume all has same report names
 	report_names = [report.name for report in reports[0].reports]
 
+	font_dict = {'fontsize': 20}
+
 	for report_name in report_names:
-		fig, ax = plt.subplots(figsize =(15, 7))
-		ax.set_title(report_name)
+		fig, ax = plt.subplots(figsize =(25, 9))
+		ax.set_title(report_name, font_dict)
 
 		full_data = []
 		labels = []
@@ -168,17 +181,20 @@ def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 			med = median(data)
 			avg = average(data)
 			
-			move_factor = 0.16
-			start_x = 0.24
+			move_factor = 0.097
+			start_x = 0.21
 			
-			fig.text(start_x + i * move_factor, 0.05, "average = %.2f kB/s" % round(avg, 2), horizontalalignment='right', size='x-small')
-			fig.text(start_x + i * move_factor, 0.03, "median = %.2f kB/s" % round(med, 2), horizontalalignment='right', size='x-small')
+			fig.text(start_x + i * move_factor, 0.05, "average = %.2f kB/s" % round(avg, 2), horizontalalignment='right', size=11)
+			fig.text(start_x + i * move_factor, 0.03, "median = %.2f kB/s" % round(med, 2), horizontalalignment='right', size=11)
 
 		ax.set_yscale('log')
 
-		ax.set_ylabel("Performance, kB/s")
+		ax.set_ylabel("Performance, kB/s", font_dict)
 
 		ax.boxplot(full_data, labels=labels)
+		
+		ax.tick_params("x", labelsize=15)
+		ax.tick_params("y", labelsize=15)
 
 		filename = f"{report_name}-boxplot.pdf"
 		
@@ -186,86 +202,126 @@ def draw_box_plots(reports: List[IOZoneResult], out_dir: str):
 
 		print(f"Generated boxplot for {filename}")
 
-# def create_bell(data: List[List[int]]):
-# 	# data = sorted(_data)
 
-# 	# interval = _confidence_interval(data)
 
-# 	print(data)
+def draw_bfs_histogram(report: IOZoneReport, ax: plt.Axes):
+	
+	raw_data = report.raw()
 
-# 	# statistic, p_value = wilcoxon(data[0], data[1])
-# 	# print(statistic, p_value)
+	# Buffer size -> data value
+	buffer_sizes: Dict[int, List[int]] = {}
 
-# 	# print(interval)
+	for dp in raw_data:
+		if dp.buffer_size not in buffer_sizes:
+			buffer_sizes[dp.buffer_size] = []
+		buffer_sizes[dp.buffer_size].append(dp.value)
 
-# 	# effect_size = 0.8
-# 	# alpha = 0.05
-# 	# power = 0.8
+	labels = []
+	for size in buffer_sizes.keys():
+		data = buffer_sizes[size]
+		# plot the histogram with 50 bins
+		ax.hist(data, bins=50, alpha=0.5)
+		labels.append(f"{size} kB")
 
-# 	# # Perform the power analysis
-# 	# analysis = TTestIndPower()
-# 	# sample_size = analysis.solve_power(effect_size=effect_size, alpha=alpha, power=power)
+	right_align_labels(labels)
 
-# 	# print("Sample size needed: ", sample_size)
+	# add labels to the x and y axis
+	ax.set_xlabel('Performance, kB/s', loc="right")
+	ax.set_ylabel('Frequency')
 
-# 	# data = np.array(data)
-# 	# plt.hist(data, bins=30, edgecolor='black', alpha=0.7)
+	# fig.legend(prop=ft.FontProperties(family="monospace"), loc="upper right", labels=labels, bbox_to_anchor=(1.27, 1.02), ncol=1, fancybox=True, shadow=True, title="File size")
 
-# 	# # Add labels and title to the plot
-# 	# plt.xlabel("Value")
-# 	# plt.ylabel("Frequency")
-# 	# plt.title("Histogram of Values")
+	ax.set_title(report.name, weight=700)
 
-# 	# # Show the plot
-# 	# plt.show()
+	ax.tick_params(axis='x', rotation=30)
 
-# 	# # Calculate and print the distribution of values
-# 	# mean = np.mean(data)
-# 	# std = np.std(data)
+	# ax.get_xaxis().set_major_formatter(ScalarFormatter())
+	ax.ticklabel_format(useOffset=False, style="plain")
 
-# 	# print("Mean: ", mean)
-# 	# print("Standard deviation: ", std)
-# 	# print("Minimum value: ", np.min(data))
-# 	# print("Maximum value: ", np.max(data))
+	# display the histogram
+	# plt.savefig(f"{out_path}/hist.pdf", bbox_inches='tight')
 
-# 	# confidence_interval = norm.interval(0.95, loc=mean, scale=std / np.sqrt(len(data)))
-# 	# print("95% Confidence interval: ", confidence_interval)
+	return labels
 
-# 	#######
 
-# 	# draw_histogram(data)
+def draw_bfs_histograms(report: IOZoneResult, out_dir: str):
+	if report.is_empty():
+		return
 
-# 	# l, u, ol, ou = _confidence_interval(data)
+	cols = 2
+	rows = 3
 
-# 	# print(l, u)
+	fig, ax = plt.subplots(ncols=cols, nrows=rows, figsize=(14, 17))
 
-# 	# print(ol, ou)
+	col = 0
+	row = 0
+	for r in report:
+		labels = draw_bfs_histogram(r, ax[row][col])
+		print(f"Generated Buffer Size Histo for {report.fs} ({report.identifier}) {r.name}")
+		col += 1
+		if col >= cols:
+			col = 0
+			row += 1
 
-# 	# data = [d for l in data for d in l]
+	fig.legend(prop=ft.FontProperties(family="monospace"), loc="center right", labels=labels, ncol=1, fancybox=True, shadow=True, title="File size")
 
-# 	# print(sorted(data))
+	title = f"{report.fs.upper()} ({report.identifier})"
 
-# 	for d in data:
+	fig.suptitle(title, weight=1000, size="xx-large", y=0.92)
 
-# 		mu, std = norm.fit(d)
+	filename = f"{report.fs}-{report.identifier}-bfs-hist.pdf"
+	fig.savefig(f"{out_dir}/{filename}", bbox_inches='tight')
 
-# 		# Plot the histogram.
-# 		plt.hist(d, bins=int(len(d) / 5), density=True, alpha=0.6, color='g')
+	print(f"Saved histo for {title}")
 
-# 		# Plot the PDF.
-# 		xmin, xmax = plt.xlim()
-# 		x = np.linspace(xmin, xmax, 100)
-# 		p = norm.pdf(x, mu, std)
-# 		plt.plot(x, p, 'k', linewidth=2)
-# 		title = "Fit results: mu = %.2f,  std = %.2f" % (mu, std)
-# 		plt.title(title)
 
-# 		plt.show()
+def draw_scatter(report: IOZoneReport, out_file: str):
+	fig, ax = plt.subplots(dpi=100)
 
-# 	########
+	scats: List[any] = []
+	labels: List[str] = []
 
-# 	# # Plot between -10 and 10 with .001 steps.
-# 	# x_axis = np.arange(0, len(data))
-# 	# # Mean = 0, SD = 2.
-# 	# plt.plot(x_axis, data)
-# 	# plt.show()
+	for file_size_report in report:
+
+		# ax = fig.add_subplot(3, 3, file_size_i + 1)
+
+		# ax.set_title(f"File size = {y_vals[file_size_i]} kB")
+
+		X = []
+		Y = []
+		for dp in file_size_report:
+			X.append(dp.buffer_size)
+			Y.append(dp.value)
+
+		# ax.set_xlabel('Buffer size, kB')
+		# ax.set_xscale('log', base=2)
+		# ax.set_xticks(x_vals)
+		# ax.get_xaxis().set_major_formatter(ScalarFormatter())
+
+		# ax.set_ylabel('Performance, kB/s')
+
+		# ax.tick_params(axis='x', rotation=45)
+
+		scat = ax.scatter(X, Y, alpha=0.5)#, color=colors[file_size_i])
+		scats.append(scat)
+		labels.append(f"{file_size_report.size} kB")
+	
+
+	ax.set_xscale('log', base=2)
+	ax.set_xticks(X)
+	ax.get_xaxis().set_major_formatter(ScalarFormatter())
+	ax.set_ylabel('Performance, kB/s')
+	ax.set_xlabel('Buffer size, kB')
+	ax.tick_params(axis='x', rotation=45)
+
+	plt.legend(scats, labels, loc="center right", bbox_to_anchor=(1.3, 0.5), ncol=1, fancybox=True, shadow=True, title="File size")
+
+	# plt.show()
+	fig.savefig(out_file, bbox_inches='tight')
+
+def draw_scatters(result: IOZoneResult, out_dir: str):
+	for report in result:
+		print(report.name)
+
+		draw_scatter(report, f"{out_dir}/scatter-{result.identifier}-{report.name}.pdf")
+		

@@ -5,70 +5,66 @@ import src.latex as latex
 
 import src.sniff_parser as sniff_parser
 
+import src.stats as stats
+
+import src.models as models
+
 import os
 
 from typing import Optional
 
-BASE_INPUT_PATH = "../saved.nosync"
-BASE_OUTPUT_PATH = "../../doc/figures.nosync/benchmarking"
-
-class Benchmark:
-	fs: str
-	with_cache: bool
-
-	def __init__(self, fs: str, with_cache: bool):
-		self.fs = fs
-		self.with_cache = with_cache
-
-		self.sniff = None
-
-	result: iozone.IOZoneResult
-	sniff: Optional[sniff_parser.Sniff]
-
-	def parse(self):
-		path = f"{BASE_INPUT_PATH}/{self.fs}-{'with' if self.with_cache else 'no'}-cache"
-		prefix = f"iozone"
-		identifier = f"UBC {'Enabled' if self.with_cache else 'Disabled'}"
-
-		self.result = iozone.report(path, prefix, self.fs, identifier)
-
-		sniff_path = f"{path}/Sniffs"
-		if os.path.exists(sniff_path):
-			self.sniff = sniff_parser.parse_dir(sniff_path)
-
-
-	def generate(self):
-		path = f"{BASE_OUTPUT_PATH}/{self.fs}"
-
-		if not os.path.exists(path):
-			os.mkdir(path)
-
-		diagram.draw_histograms(self.result, path)
-		latex.generate_tables(self.result, path)
-
-		if self.sniff is not None:
-			diagram.sniff_histogram(self.sniff, path)
-
-
 def run():
 
 	benchmarks = [
-		Benchmark("FFS", True),
-		Benchmark("FFS", False),
-		Benchmark("GCSF", True),
-		Benchmark("GCSF", False),
-		Benchmark("APFS", True),
-		Benchmark("APFS", False),
-		Benchmark("FFFS", True),
-		Benchmark("FFFS", False),
+		models.Benchmark("FFS", True), # 0 
+		models.Benchmark("FFS", False), # 1
+		models.Benchmark("GCSF", True), # 2
+		models.Benchmark("GCSF", False), # 3
+		models.Benchmark("FFFS", True), # 4
+		models.Benchmark("FFFS", False), # 5
+		models.Benchmark("APFS", True), # 6
+		models.Benchmark("APFS", False), # 7
 	]
 
 	for bench in benchmarks:
 		bench.parse()
 
-		# bench.generate()
+		# bench.time()
+		bench.generate()
+
+		# for report in bench.result:
+		# 	print(f"{bench.fs} {bench.identifier} - {report.name}")
+		# 	stats.joint_distribution(report)
+		# break
+
+	ffs = benchmarks[1]
+
+	# latex.generate_stat_tables(benchmarks, models.BASE_OUTPUT_PATH)
+
+	# for report in ffs.result:
+	# 	print(report.name)
+	# 	for size_report in report:
+	# 		print("\t", size_report.size)
+	# 		stats.cohensd(size_report.raw_values())
+
+	# diagram.sniff_diagram(ffs.sniff, ".")
+
+	# fffs = benchmarks[4]
+
+	# print("FFS", sorted(ffs.result["Write"].raw_values(), reverse=True)[:10])
+	# print("FFFS", sorted(fffs.result["Write"].raw_values(), reverse=True)[:10])
 	
-	diagram.draw_box_plots([bench.result for bench in benchmarks], BASE_OUTPUT_PATH)
+	# diagram.draw_box_plots([bench.result for bench in benchmarks], BASE_OUTPUT_PATH)
+
+	# stats.cohensd(benchmarks[5].result["Write"][16384].raw_values())
+
+	# latex.generate_sniff_table(
+	# 	[(
+	# 		f"{benchmark.fs}, {benchmark.identifier}",
+	# 		 benchmark.sniff
+	# 	) for benchmark in benchmarks if benchmark.sniff is not None and not benchmark.sniff.is_empty()]
+	# 	, BASE_OUTPUT_PATH
+	# )
 
 	# sniff = sniff_parser.parse_dir("../saved.nosync/FFS-no-cache/Sniffs")
 	# diagram.sniff_histogram(sniff, ".")
