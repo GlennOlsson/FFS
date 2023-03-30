@@ -275,7 +275,7 @@ def draw_bfs_histograms(report: IOZoneResult, out_dir: str):
 	print(f"Saved histo for {title}")
 
 
-def draw_scatter(report: IOZoneReport, out_file: str):
+def draw_scatter(report: IOZoneReport, identifier: str, out_file: str):
 	fig, ax = plt.subplots(dpi=100)
 
 	scats: List[any] = []
@@ -316,6 +316,8 @@ def draw_scatter(report: IOZoneReport, out_file: str):
 
 	plt.legend(scats, labels, loc="center right", bbox_to_anchor=(1.3, 0.5), ncol=1, fancybox=True, shadow=True, title="File size")
 
+	ax.set_title(f"{identifier} {report.name}")
+
 	# plt.show()
 	fig.savefig(out_file, bbox_inches='tight')
 
@@ -323,5 +325,5 @@ def draw_scatters(result: IOZoneResult, out_dir: str):
 	for report in result:
 		print(report.name)
 
-		draw_scatter(report, f"{out_dir}/scatter-{result.identifier}-{report.name}.pdf")
+		draw_scatter(report, f"{result.fs} ({result.identifier})" ,f"{out_dir}/scatter-{result.identifier}-{report.name}.pdf")
 		

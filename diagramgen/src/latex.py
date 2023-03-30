@@ -1,6 +1,6 @@
 from src.iozone_models import IOZoneResult, IOZoneReport
 from src.sniff_models import Sniff
-from src.stats import average, median, joint_distribution
+from src.stats import average, median, joint_distribution, confidence_interval
 from src.models import Benchmark
 
 from typing import Dict, List, Tuple
@@ -129,7 +129,7 @@ def generate_stat_tables(result: IOZoneResult, out_path: str):
 	\hline
 	{{}} & \\textbf{{Joint mean}} & \\textbf{{Joint covariance}}\\\\
 	\hline
-	\\textbf{{{fs_identifier}}} & {{}} & {{}} \\\\
+	\hline
 """	
 	for report in result:
 		mean, covariance = joint_distribution(report)
@@ -152,3 +152,52 @@ def generate_stat_tables(result: IOZoneResult, out_path: str):
 """
 	with open(f"{out_path}/stat-table-{underscore_case(result.identifier)}.tex", "w+") as f:
 		f.write(table)
+
+def generate_bootstrap_table(fs: str, with_ubc: IOZoneResult, without_ubc: IOZoneResult, out_path: str):
+	table = f"""
+	\\begin{{table}}[ht!]
+	\\caption{{80\\% confidence intervals of the different benchmark test performances of {fs}}}
+	\\begin{{tabular}}{{| c | c | c |}}
+	\hline
+	{{}} & \\textbf{{UBC enabled}} & \\textbf{{UBC disabled}} \\\\
+	\hline
+	\hline
+	"""
+	
+	for ubc_rep, no_ubc_rep in zip(with_ubc, without_ubc):
+		row = f"{ubc_rep.name} &"
+		ubc_low, ubc_high = confidence_interval(ubc_rep)
+
+		row += f"$\left[ \\begin{{array}}{{rr}} {'%.2f' % ubc_low} & {'%.2f' % ubc_high} \end{{array}}\\right] $ &"
+
+		no_ubc_low, no_ubc_high = confidence_interval(no_ubc_rep)
+
+		row += f"$\left[ \\begin{{array}}{{rr}} {'%.2f' % no_ubc_low} & {'%.2f' % no_ubc_high} \end{{array}}\\right] $"
+
+		row += "\\\\ \n"
+
+		table += row
+
+	table +=f"""
+		\hline
+		\end{{tabular}}
+		\label{{tbl:bootstrap-table-{fs.lower()}}}
+		\end{{table}}
+	"""
+	print(table)
+	with open(f"{out_path}/bootstrap-table.tex", "w+") as f:
+		f.write(table)
+def generate_bootstrap_tables(benchmarks: List[Benchmark], out_path: str):
+	
+	i = 0
+	while i < len(benchmarks):
+		b1 = benchmarks[i]
+		b2 = benchmarks[i + 1]
+		while True:
+			try: 
+				generate_bootstrap_table(b1.fs, b1.result, b2.result, f"{out_path}/{b1.fs}")
+				break
+			except:
+				pass
+
+		i += 2

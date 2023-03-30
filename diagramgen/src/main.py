@@ -32,12 +32,19 @@ def run():
 		# bench.time()
 		bench.generate()
 
-		# for report in bench.result:
-		# 	print(f"{bench.fs} {bench.identifier} - {report.name}")
-		# 	stats.joint_distribution(report)
+		# # for report in bench.result:
+		# # 	print(f"{bench.fs} {bench.identifier} - {report.name}")
+		# # 	stats.joint_distribution(report)
 		# break
+	# ffs = benchmarks[1]
 
-	ffs = benchmarks[1]
+	# stats.confidence_interval(ffs.result["Write"])
+	# while True:
+	# 	try:
+	# 		latex.generate_bootstrap_tables(benchmarks, models.BASE_OUTPUT_PATH)
+	# 		break
+	# 	except:
+	# 		pass
 
 	# latex.generate_stat_tables(benchmarks, models.BASE_OUTPUT_PATH)
 

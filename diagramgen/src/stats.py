@@ -1,7 +1,10 @@
 
 import numpy as np
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, t, anderson, norm
 import matplotlib.pyplot as plt
+
+import pandas as pd
+import statsmodels.api as sm
 
 import random
 
@@ -37,8 +40,7 @@ def median(data: List[int]):
 def average(data: List[int]) -> float:
 	return sum(data) / len(data)
 
-def joint_distribution(report: IOZoneReport) -> Tuple[List[float], List[List[float]]]:
-
+def create_function(report: IOZoneReport):
 	def my_function(fs: int, bs: int):
 		try:
 			bs_values = report[fs].raw()
@@ -46,7 +48,13 @@ def joint_distribution(report: IOZoneReport) -> Tuple[List[float], List[List[flo
 			return None
 		
 		values = [dp.value for dp in bs_values if dp.buffer_size == bs]
-		return values if len(values) > 0 else None
+		# Check if function is defined for x, y
+		return max(values) if len(values) > 0 else None
+	return my_function
+
+def joint_distribution(report: IOZoneReport) -> Tuple[List[float], List[List[float]]]:
+
+	my_function = create_function(report)
 
 	# Define the range of values for each parameter
 	x_values = np.array([1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144])
@@ -57,10 +65,7 @@ def joint_distribution(report: IOZoneReport) -> Tuple[List[float], List[List[flo
 	for i, x in enumerate(x_values):
 		for j, y in enumerate(y_values):
 			val = my_function(x, y)
-			if val is not None:  # Check if function is defined for x, y
-				joint_pmf[i, j] = np.mean(val)
-			else:
-				joint_pmf[i, j] = np.nan
+			joint_pmf[i, j] = val if val is not None else np.nan
 	joint_pmf /= np.nansum(joint_pmf)
 
 	# Calculate the joint mean of the function
@@ -83,41 +88,47 @@ def joint_distribution(report: IOZoneReport) -> Tuple[List[float], List[List[flo
 
 	return joint_mean, joint_covariance
 
-	# plt.figure()
-	# plt.contour(x_values, y_values, joint_pmf.T)
-	# plt.xlabel('X')
-	# plt.ylabel('Y')
-	# plt.title('Joint Probability Mass Function')
-	# plt.show()
+def confidence_interval(report: IOZoneReport):
 
-	# # Calculate the values of the function for all combinations of parameter values
-	# Z = np.zeros((len(x_values), len(y_values)))
-	# for i, x in enumerate(x_values):
-	# 	for j, y in enumerate(y_values):
-	# 		val = my_function(x, y)
-	# 		if val is not None:
-	# 			Z[i, j] = np.mean(val)
+	function = create_function(report)
 
-	# # Create a heatmap of the function values
-	# fig, ax = plt.subplots()
-	# im = ax.imshow(Z, cmap='jet')
+	x = [1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144]
+	y = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384]
 
-	# # Set the x and y axis labels
-	# ax.set_xticks(np.arange(len(y_values)))
-	# ax.set_yticks(np.arange(len(x_values)))
-	# ax.set_xticklabels(y_values)
-	# ax.set_yticklabels(x_values)
+	# Define the number of bootstrap replicates
+	n_replicates = 20
 
-	# # Rotate the x axis labels
-	# plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-	# 		rotation_mode="anchor")
+	data = report.raw_values()
 
-	# # Add a colorbar to the heatmap
-	# cbar = ax.figure.colorbar(im, ax=ax)
+	# Generate bootstrap replicates
+	g_replicates = np.random.choice(data, size=n_replicates)
+	# for i in range(n_replicates):
+		# choices = min(len(x), len(y))
 
-	# # Set the title and axis labels
-	# ax.set_title("Function values")
-	# ax.set_xlabel("y")
-	# ax.set_ylabel("x")
+		# x_v = np.random.choice(x)
+		# y_v = np.random.choice(y)
 
-	# plt.show()
+		
+		# val = function(x_v, y_v)
+		# if val is not None:
+		# 	if val < 0:
+		# 		print(val)
+		# 	g_replicates.append(val)
+
+	# Calculate the mean and standard error of the bootstrap replicates
+	mean_g = np.mean(g_replicates)
+	se_g = np.std(g_replicates, ddof=1)
+
+	conf_level = 0.80
+	# Calculate the critical z-score for the desired confidence level
+	z_critical = norm.ppf((1 + conf_level) / 2)
+
+	# Calculate the 95% confidence interval for the true value of g
+	ci_lower = mean_g - z_critical * se_g
+	ci_upper = mean_g + z_critical * se_g
+
+	if ci_lower < 0:
+		raise ValueError()
+
+	print(f'{conf_level*100}% Confidence Interval for g:', (ci_lower, ci_upper))
+	return ci_lower, ci_upper

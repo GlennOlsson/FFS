@@ -5,6 +5,8 @@ import src.sniff_parser as sniff_parser
 
 import src.latex as latex
 
+import src.stats as stats
+
 import os
 
 from typing import Optional
@@ -51,6 +53,9 @@ class Benchmark:
 		# diagram.draw_scatters(self.result, path)
 
 		latex.generate_stat_tables(self.result, path)
+
+		# stats.confidence_interval(self.result["Read"])
+		# stats.confidence_interval(self.result["Write"])
 
 		# if self.sniff is not None and not self.sniff.is_empty():
 		# 	diagram.sniff_diagram(self.sniff, path)
