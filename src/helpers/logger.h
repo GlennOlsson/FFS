@@ -20,8 +20,8 @@ namespace FFS {
 	inline static std::ostream& err = _err;
 #endif
 #ifdef FILE_LOGGING
-	inline static std::ofstream _log = std::ofstream("ffs.log");
-	inline static std::ofstream _err = std::ofstream("ffs_err.log");
+	inline static std::ofstream _log = std::ofstream("ffs.log.nosync");
+	inline static std::ofstream _err = std::ofstream("ffs_err.log.nosync");
 
 	inline static std::ostream& log = _log;
 	inline static std::ostream& err = _err;

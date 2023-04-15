@@ -94,7 +94,6 @@ void tweet() {
 }
 
 int main(int argc, char *argv[]) {
-
 	if(!FFS::Crypto::has_secret())
 		cerr << "WARNING: " << FFS_ENCRYPTION_SECRET_KEY << " not set" << std::endl;
 

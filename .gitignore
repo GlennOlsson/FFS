@@ -6,7 +6,16 @@ ffs/
 .vscode
 *.wks
 *.log
+*.log.nosync
 *.env
 gcsf/
 figs/
 output
+__pycache__
+
+liboauthcpp-master
+curlpp-*
+liboauthcpp.zip
+*.tar.gz
+flickcurl-*
+ImageMagick*

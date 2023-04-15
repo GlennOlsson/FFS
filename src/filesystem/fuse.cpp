@@ -486,7 +486,7 @@ static int ffs_ftruncate(const char* path, off_t size, fuse_file_info* fi) {
 */
 
 static int ffs_statfs(const char* path, struct statvfs* stbuf) {
-	// FFS::log << "Begin ffs_statfs " << path << std::endl;
+	FFS::log << "Begin ffs_statfs " << path << std::endl;
 	// (Max) block size
 	stbuf->f_bsize = FFS_MAX_FILE_SIZE;
 	stbuf->f_frsize = FFS_MAX_FILE_SIZE;
@@ -520,17 +520,17 @@ static int ffs_statfs(const char* path, struct statvfs* stbuf) {
 	// Does not honor setuid/setgid
 	stbuf->f_flag = ST_NOSUID;
 
-	// FFS::log << "End ffs_statfs " << path << std::endl << std::endl;
+	FFS::log << "End ffs_statfs " << path << std::endl << std::endl;
 	return 0;
 }
 
 static int ffs_access(const char* c_path, int mask) {
-	// FFS::log << "Begin ffs_access " << c_path << std::endl;
+	FFS::log << "Begin ffs_access " << c_path << std::endl;
 	auto path = sanitize_path(c_path);
 	if(!FFS::FS::exists(path))
 		return -ENOENT;
 
-	// FFS::log << "End ffs_access " << c_path << std::endl << std::endl;
+	FFS::log << "End ffs_access " << c_path << std::endl << std::endl;
 	return F_OK;
 }
 
@@ -694,6 +694,8 @@ int FFS::FUSE::start(int argc, char *argv[]) {
 	std::cout << "|    volumes directory     |" << std::endl;
 	std::cout << "|                          |" << std::endl;
 	std::cout << "+ ------------------------ +" << std::endl;
+
+	FFS::log << "+ OK LETS GO +" << std::endl;
 	
 	auto fuse_ret = fuse_main(argc, argv, &ffs_operations, NULL);
 
